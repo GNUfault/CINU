@@ -1,7 +1,8 @@
 #include "gdt.h"
 
-struct gdt_entry gdt[5];
+struct gdt_entry gdt[6];
 struct gdt_ptr gp;
+struct tss_entry tss;
 
 void gdt_set_entry(int index, unsigned int base, unsigned int limit, unsigned char access, unsigned char granularity) {
     gdt[index].base_low = base & 0xFFFF;
@@ -21,4 +22,28 @@ void gdt_install(void) {
     gdt_set_entry(3, 0, 0xFFFFFFFF, 0xFA, 0xCF);
     gdt_set_entry(4, 0, 0xFFFFFFFF, 0xF2, 0xCF);
     gdt_flush((unsigned int)&gp);
+}
+
+void write_tss(int index, unsigned short ss0, unsigned int esp0) {
+    unsigned int base = (unsigned int)&tss;
+    unsigned int limit = base + sizeof(tss);
+
+    gdt_set_entry(index, base, limit, 0x89, 0x40);
+
+    unsigned char *p = (unsigned char *)&tss;
+    for (unsigned int i = 0; i < sizeof(tss); i++) {
+        p[i] = 0;
+    }
+
+    tss.ss0 = ss0;
+    tss.esp0 = esp0;
+    tss.iomap_base = sizeof(tss);
+}
+
+void tss_install(void) {
+    unsigned short kernel_ss = 0x10;
+    unsigned int kernel_esp = 0x0;
+
+    write_tss(5, kernel_ss, kernel_esp);
+    tss_flush(5 << 3);
 }
