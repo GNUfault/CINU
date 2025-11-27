@@ -8,12 +8,12 @@ struct gdt_entry {
     unsigned char access;
     unsigned char granularity;
     unsigned char base_high;
-};
+} __attribute__((packed));
 
 struct gdt_ptr {
     unsigned short limit;
     unsigned int base;
-};
+} __attribute__((packed));
 
 struct tss_entry {
     unsigned int prev_tss;
@@ -43,7 +43,7 @@ struct tss_entry {
     unsigned int ldt;
     unsigned short trap;
     unsigned short iomap_base;
-};
+} __attribute__((packed));
 
 extern void gdt_flush(unsigned int gdt_ptr_address);
 extern void tss_flush(unsigned short selector);

@@ -1,25 +1,21 @@
 .intel_syntax noprefix
 .global enter_user
 .global enter_kernel
-
-USER_STACK_TOP = 0x8FFFC
-USER_CODE = 0x80000
-USER_DS = 0x23
-USER_CS = 0x1B
+.extern init
 
 enter_user:
-    cli
-    mov ax, USER_DS
+    mov ax, 0x23
     mov ds, ax
     mov es, ax
     mov fs, ax
     mov gs, ax
-    mov eax, USER_STACK_TOP
-    push USER_DS
+
+    mov eax, esp
+    push 0x23
     push eax
-    pushfd
-    push USER_CS
-    push USER_CODE
+    pushf
+    push 0x1B
+    push init
     iret
 
 enter_kernel:
