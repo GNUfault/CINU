@@ -1,2 +1,2 @@
 # Connor's UNIX
-Connor's UNIX - Custom monolithic kernel and OS in C and assembly
+Connor's UNIX - Custom microkernel in C and assembly
