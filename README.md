@@ -1,2 +1,2 @@
-# Connor's UNIX
-Connor's UNIX - Custom microkernel in C and assembly
+# CINU
+CINU (pronouced SEE-NEW) is a custom microkernel in C and assembly
