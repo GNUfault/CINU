@@ -1,0 +1,2 @@
+1. Add syscall support
+2. Add read(), write(), open(), close(), lseek(), stat(), fstat(), lstat(), getdents(), unlink(), rename(), chmod(), chown(), mkdir(), rmdir(), mknod(), link(), symlink(), readlink(), dup(), dup2(), pipe(), fork(), vfork(), execve(), waitpid(), kill(), exit(), chdir(), getcwd(), uname(), time(), gettimeofday(), nanosleep(), socket(), bind(), connect(), listen(), accept(), sendto(), recvfrom(), setsockopt(), ioctl(), mount(), umount(), reboot(), sync() syscalls
