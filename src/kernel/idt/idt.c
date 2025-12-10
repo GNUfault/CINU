@@ -1,4 +1,5 @@
 #include "idt.h"
+#include "isr_stubs.h"
 #include <stdint.h>
 
 struct idt_entry idt[256];
