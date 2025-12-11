@@ -1,8 +1,0 @@
-1. Add syscall support
-3. Add ELF loader
-4. Add Floppy driver
-5. Add 640x480 console
-6. Add timer
-7. Add service management
-8. Add read(), write(), open(), close(), lseek(), stat(), fstat(), lstat(), getdents(), unlink(), rename(), chmod(), chown(), mkdir(), rmdir(), mknod(), link(), symlink(), readlink(), dup(), dup2(), pipe(), fork(), vfork(), execve(), waitpid(), kill(), exit(), chdir(), getcwd(), uname(), time(), gettimeofday(), nanosleep(), socket(), bind(), connect(), listen(), accept(), sendto(), recvfrom(), setsockopt(), ioctl(), mount(), umount(), reboot(), sync() syscalls
-9. Remove GRUB (GRUB is just for fast testing)
