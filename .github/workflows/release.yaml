@@ -1,0 +1,38 @@
+name: Rebuild Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Delete old release
+        run: |
+          gh release delete "Continues Release" -y || true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Delete old tag
+        run: |
+          git push origin :refs/tags/cr || true
+
+      - name: Create new tag
+        run: |
+          git tag -f cr
+          git push origin cr --force
+
+      - name: Run build script
+        run: ./build.sh
+
+      - name: Create new release
+        run: |
+          gh release create cr floppy.img \
+            --title "Continues Release" \
+            --notes "Automated rebuild"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
