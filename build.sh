@@ -57,7 +57,7 @@ all() {
   $LD $LDFLAGS -o "$KERNEL" "${KERNEL_OBJS[@]}"
   strip -s "$KERNEL"
 
-  USER_OBJS=($BUILD_DIR/init.o)
+  USER_OBJS=$BUILD_DIR/init.o
   $LD $USER_LDFLAGS -o "$USER" "${USER_OBJS[@]}"
   strip -s "$USER"
 
