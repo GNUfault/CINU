@@ -26,6 +26,12 @@ jobs:
           git tag -f cr
           git push origin cr --force
 
+      - name: Update package database
+        run: apt update
+
+      - name: Install tools
+        run: apt install -y grub-mkrescue
+
       - name: Run build script
         run: ./build.sh
 
