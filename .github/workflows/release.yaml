@@ -5,7 +5,6 @@ on:
 
 permissions:
   contents: write
-  workflows: write
 
 jobs:
   rebuild:
@@ -15,15 +14,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Delete old release
+      - name: Configure Git identity
         run: |
-          gh release delete "Continues Release" -y || true
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Delete old release
+        run: gh release delete "Continues Release" -y || true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Delete old tag
-        run: |
-          git push origin :refs/tags/cr || true
+        run: git push origin :refs/tags/cr || true
 
       - name: Create new tag
         run: |
@@ -31,10 +33,10 @@ jobs:
           git push origin cr --force
 
       - name: Update package database
-        run: apt update
+        run: sudo apt-get update
 
       - name: Install tools
-        run: apt install -y grub-mkrescue
+        run: sudo apt-get install -y grub-mkrescue
 
       - name: Run build script
         run: ./build.sh
