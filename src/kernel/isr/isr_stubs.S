@@ -1,8 +1,11 @@
-global isr128
-extern syscall_handler
+.intel_syntax noprefix
+.code32
+
+.globl isr128
+.extern syscall_handler
 
 isr128:
-    pusha
+    pushad
     push ds
     push es
     push fs
@@ -14,11 +17,12 @@ isr128:
     mov fs, ax
     mov gs, ax
 
+    cld
     call syscall_handler
 
     pop gs
     pop fs
     pop es
     pop ds
-    popa
-    iretd
+    popad
+    iret
