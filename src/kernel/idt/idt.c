@@ -1,6 +1,8 @@
 #include "idt.h"
-#include "isr_stubs.h"
+// #include "isr_stubs.h"
 #include <stdint.h>
+
+extern void isr128(void); // Lets see if this fixes it for now
 
 struct idt_entry idt[256];
 struct idtr idt_reg;
