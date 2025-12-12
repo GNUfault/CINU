@@ -3,6 +3,10 @@ name: Rebuild Release
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+  workflows: write
+
 jobs:
   rebuild:
     runs-on: ubuntu-latest
