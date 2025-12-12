@@ -54,11 +54,11 @@ all() {
 
     KERNEL_OBJS=$(find "$BUILD_DIR" -maxdepth 1 -name "*.o")
     $LD $LDFLAGS -o "$KERNEL" $KERNEL_OBJS
-    objdump --strip-all "$KERNEL"
+    objcopy --strip-all "$KERNEL"
 
     USER_OBJS="$BUILD_DIR/init.o"
     $LD $USER_LDFLAGS -o "$USER" $USER_OBJS
-    objdump --strip-all "$USER"
+    objcopy --strip-all "$USER"
   
     # Quick and dirty, please fix me soon
     as --32 src/boot/boot.S -o build/boot.o
