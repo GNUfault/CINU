@@ -40,3 +40,5 @@ jobs:
              gh release create run-${{ github.run_number }} cdos.iso \
              --title "Continues Release" \
              --notes "Automated builds"
+        env:
+             GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
