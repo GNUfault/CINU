@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 set -e
 
 CC=gcc
@@ -53,7 +53,7 @@ all() {
   done
 
 #  KERNEL_OBJS=($(find $BUILD_DIR -maxdepth 1 -name "*.o" ! -name "init.o"))
-  KERNEL_OBJS=($(find $BUILD_DIR -maxdepth 1 -name "*.o"))
+  KERNEL_OBJS=$(find $BUILD_DIR -maxdepth 1 -name "*.o")
   $LD $LDFLAGS -o "$KERNEL" "${KERNEL_OBJS[@]}"
   strip -s "$KERNEL"
 
