@@ -43,7 +43,7 @@ jobs:
 
       - name: Create new release
         run: |
-          gh release create cr floppy.img \
+          gh release create cr cdos.iso \
             --title "Continues Release" \
             --notes "Automated rebuild"
         env:
