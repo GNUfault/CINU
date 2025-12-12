@@ -20,22 +20,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-      - name: Delete old release
-        run: gh release delete "Continues Release" -y || true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Delete old tag
-        run: |
-          git tag -d cr
-          git push origin :refs/tags/cr
-
-      - name: Create new tag
-        run: |
-          git tag -f cr
-          git push origin cr --force
-
+     
       - name: Update package database
         run: sudo apt-get update
 
