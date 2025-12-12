@@ -27,7 +27,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Delete old tag
-        run: git push origin :refs/tags/cr || true
+        run: |
+          git tag -d cr
+          git push origin :refs/tags/cr
 
       - name: Create new tag
         run: |
