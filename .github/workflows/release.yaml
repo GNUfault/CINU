@@ -1,4 +1,4 @@
-name: Rebuild Release
+name: Release
 
 on:
   push:
@@ -21,12 +21,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
      
-      - name: Update package database
-        run: sudo apt-get update
-
-      - name: Install tools
-        run: sudo apt-get install -y grub-pc-bin grub-common xorriso
-
       - name: Run build script
         run: ./build.sh
 
@@ -37,7 +31,7 @@ jobs:
      
       - name: Create new release
         run: |
-             gh release create run-${{ github.run_number }} cdos.iso \
+             gh release create run-${{ github.run_number }} cinux.img \
              --title "Continues Release" \
              --notes "Automated builds"
         env:
