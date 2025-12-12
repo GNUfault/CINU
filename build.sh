@@ -34,7 +34,7 @@ all() {
     echo "#endif"
   } > "$BUILD_DIR/info.h"
 
-  INCLUDES=$(find . -type d -printf "-I%p ")
+  INCLUDES=$(find . -type d -exec echo -I{} \;)
   CFLAGS="-m32 -march=i486 -mtune=i486 -ffreestanding -Ofast -Wall -Wextra -fno-stack-protector -fno-builtin-strcpy -fno-builtin-strncpy $INCLUDES"
   LDFLAGS="-m elf_i386 -T src/kernel/link.ld"
   USER_LDFLAGS="-m elf_i386 -T src/user/link.ld"
