@@ -75,9 +75,19 @@ run() {
 }
 
 case "$1" in
-  "") all ;;
-  all) all ;;
-  run) run ;;
-  clean) clean ;;
-  *) echo "Usage: $0 {all|run|clean}" ;;
+  "")
+    all
+    ;;
+  all)
+    all
+    ;;
+  run)
+    run
+    ;;
+  clean)
+    clean
+    ;;
+  *)
+    echo "Usage: $0 {all|run|clean}"
+    ;;
 esac
