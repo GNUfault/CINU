@@ -40,7 +40,7 @@ all() {
     USER_LDFLAGS="-m elf_i386 -T src/user/link.ld"
 
     CFILES=$(find . -name "*.c")
-    SFILES=$(find . -name "*.S")
+    SFILES=$(find . -path ./src/boot -prune -o -name "*.S" -print)
 
     for f in $CFILES; do
         o="$BUILD_DIR/$(basename "${f%.*}").o"
@@ -54,18 +54,17 @@ all() {
 
     KERNEL_OBJS=$(find "$BUILD_DIR" -maxdepth 1 -name "*.o")
     $LD $LDFLAGS -o "$KERNEL" $KERNEL_OBJS
-    strip -s "$KERNEL"
+    objdump --strip-all "$KERNEL"
 
     USER_OBJS="$BUILD_DIR/init.o"
     $LD $USER_LDFLAGS -o "$USER" $USER_OBJS
-    strip -s "$USER"
-
-    mkdir -p "$GRUB_DIR"
-    cp "$GRUB_CFG" "$GRUB_DIR/"
-    cp "$KERNEL" "$BOOT_DIR/"
-    cp "$USER" "$BOOT_DIR/"
-
-    grub-mkrescue --directory=/usr/lib/grub/i386-pc --install-modules="multiboot" -o "$ISO" "$ISO_DIR"
+    objdump --strip-all "$USER"
+  
+    # Quick and dirty, please fix me soon
+    as --32 src/boot/boot.S -o build/boot.o
+    ld -m elf_i386 build/boot.bin build/boot.o
+    cat build/boot.bin build/kernel.elf build/user.elf >> cinux.img
+    
     rm -rf "$BUILD_DIR"
 }
 
