@@ -2,15 +2,18 @@
 .global panic
 
 panic:
-    push rbp
-    mov rbp, rsp
-    push rdi
-
-    lea rdi, [rip + panic_msg]
+    push ebp
+    mov ebp, esp
+    
+    push dword ptr offset panic_msg
     call print
     
-    pop rdi
+    add esp, 4
+    
+    push dword ptr [ebp + 8]
     call print
+    
+    add esp, 4
     
     hlt
 
