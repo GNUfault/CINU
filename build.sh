@@ -23,17 +23,6 @@ all() {
     clean
     mkdir -p "$BUILD_DIR"
 
-    {
-        echo "#ifndef INFO_H"
-        echo "#define INFO_H"
-        echo "#define CC \"$($CC --version | awk 'NR==1 {print $1, $3}')\""
-        echo "#define AS \"$(as --version | head -n 1 | sed 's/ *(.*)//g')\""
-        echo "#define HOST \"$(uname -sr)\""
-        echo "#define BUILD_TIME __TIME__"
-        echo "#define BUILD_DATE __DATE__"
-        echo "#endif"
-    } > "$BUILD_DIR/info.h"
-
     INCLUDES=$(find . -type d -exec echo -I{} \;)
     CFLAGS="-m32 -march=i486 -mtune=i486 -ffreestanding -Ofast -Wall -Wextra -fno-stack-protector -fno-builtin-strcpy -fno-builtin-strncpy $INCLUDES"
     LDFLAGS="-m elf_i386 -T src/kernel/link.ld"
