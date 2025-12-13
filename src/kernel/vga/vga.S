@@ -30,8 +30,8 @@ saved_cursor_end: .byte 0
 
 .global get_vga_color
 get_vga_color:
-    push rbp
-    mov rbp, rsp
+    push ebp
+    mov ebp, esp
     
     movzx eax, byte ptr [current_bg]
     shl al, 4
@@ -42,17 +42,17 @@ get_vga_color:
     
     movzx eax, al
     
-    pop rbp
+    pop ebp
     ret
 
 .global set_cursor
 set_cursor:
-    push rbp
-    mov rbp, rsp
-    push rbx
-    push rdx
+    push ebp
+    mov ebp, esp
+    push ebx
+    push edx
     
-    movzx ebx, di
+    mov ebx, [ebp+8]
     
     mov dx, 0x3D4
     mov al, 0x0F
@@ -70,19 +70,20 @@ set_cursor:
     mov al, bh
     call outb
     
-    pop rdx
-    pop rbx
-    pop rbp
+    pop edx
+    pop ebx
+    pop ebp
     ret
 
 .global vga_hide_cursor
 vga_hide_cursor:
-    push rbp
-    mov rbp, rsp
-    push rbx
-    push rdx
+    push ebp
+    mov ebp, esp
+    push ebx
+    push edx
     
-    cmp edi, 0
+    mov eax, [ebp+8]
+    cmp eax, 0
     je vga_show_cursor
     
     mov dx, 0x3D4
@@ -128,92 +129,90 @@ vga_show_cursor:
     mov dword ptr [vga_cursor_hidden], 0
     
 vga_hide_cursor_done:
-    pop rdx
-    pop rbx
-    pop rbp
+    pop edx
+    pop ebx
+    pop ebp
     ret
 
 .global scroll_screen
 scroll_screen:
-    push rbp
-    mov rbp, rsp
-    push rbx
-    push rcx
-    push rdx
-    push rdi
-    push rsi
+    push ebp
+    mov ebp, esp
+    push ebx
+    push ecx
+    push edx
+    push edi
+    push esi
     
-    mov rdi, VGA_MEM_ADDR
-    mov rsi, VGA_MEM_ADDR
-    add rsi, SCREEN_WIDTH * 2
+    mov edi, VGA_MEM_ADDR
+    mov esi, VGA_MEM_ADDR
+    add esi, SCREEN_WIDTH * 2
     
-    mov rcx, SCREEN_HEIGHT - 1
-    imul rcx, SCREEN_WIDTH
+    mov ecx, SCREEN_HEIGHT - 1
+    imul ecx, ecx, SCREEN_WIDTH
     
     rep movsw
     
     call get_vga_color
-    mov r12d, 0x20
+    mov ebx, 0x20
     shl eax, 8
-    or r12d, eax
+    or ebx, eax
     
-    mov rcx, SCREEN_WIDTH
+    mov ecx, SCREEN_WIDTH
     
 scroll_clear_loop:
-    cmp rcx, 0
+    cmp ecx, 0
     je scroll_clear_done
     
-    mov word ptr [rdi], r12w
-    add rdi, 2
+    mov word ptr [edi], bx
+    add edi, 2
     
-    dec rcx
+    dec ecx
     jmp scroll_clear_loop
     
 scroll_clear_done:
     
-    pop rsi
-    pop rdi
-    pop rdx
-    pop rcx
-    pop rbx
-    pop rbp
+    pop esi
+    pop edi
+    pop edx
+    pop ecx
+    pop ebx
+    pop ebp
     ret
 
 .global vga_putchar
 vga_putchar:
-    push rbp
-    mov rbp, rsp
-    push rbx
-    push r12
-    push r13
-    push r14
-    push r15
+    push ebp
+    mov ebp, esp
+    push ebx
+    push esi
+    push edi
     
-    mov r15b, dil
+    mov bl, byte ptr [ebp+8]
     
     call get_vga_color
-    mov r14b, al
+    mov bh, al
     
-    movzx r12, byte ptr [vga_cursor_x]
-    movzx r13, byte ptr [vga_cursor_y]
+    movzx esi, byte ptr [vga_cursor_x]
+    movzx edi, byte ptr [vga_cursor_y]
     
-    cmp r15b, 0x0A
+    cmp bl, 0x0A
     je handle_newline
     
-    cmp r15b, 0x0D
+    cmp bl, 0x0D
     je handle_carriage_return
     
-    cmp r15b, 0x08
+    cmp bl, 0x08
     je handle_backspace
     
-    cmp r15b, 0x09
+    cmp bl, 0x09
     je handle_tab
     
     jmp handle_normal_char
     
 handle_newline:
     mov byte ptr [vga_cursor_x], 0
-    inc r13b
+    inc byte ptr [vga_cursor_y]
     jmp update_cursor_position
     
 handle_carriage_return:
@@ -221,33 +220,32 @@ handle_carriage_return:
     jmp update_cursor_position
     
 handle_backspace:
-    cmp r12b, 0
+    cmp esi, 0
     jg bs_decr_x
     
-    cmp r13b, 0
+    cmp edi, 0
     jle bs_exit
     
-    dec r13b
-    mov byte ptr [vga_cursor_y], r13b
-    mov r12b, SCREEN_WIDTH - 1
-    mov byte ptr [vga_cursor_x], r12b
+    dec byte ptr [vga_cursor_y]
+    movzx edi, byte ptr [vga_cursor_y]
+    mov byte ptr [vga_cursor_x], SCREEN_WIDTH - 1
+    movzx esi, byte ptr [vga_cursor_x]
     jmp bs_write_space
     
 bs_decr_x:
-    dec r12b
-    mov byte ptr [vga_cursor_x], r12b
+    dec byte ptr [vga_cursor_x]
+    movzx esi, byte ptr [vga_cursor_x]
     
 bs_write_space:
-    mov r10, r13
-    imul r10, SCREEN_WIDTH
-    add r10, r12
+    mov eax, edi
+    imul eax, eax, SCREEN_WIDTH
+    add eax, esi
     
-    mov r11d, 0x20
-    mov r12d, r14d
-    shl r12d, 8
-    or r11d, r12d
+    movzx ecx, bh
+    shl ecx, 8
+    or ecx, 0x20
     
-    mov word ptr [VGA_MEM_ADDR + r10 * 2], r11w
+    mov word ptr [VGA_MEM_ADDR + eax * 2], cx
     
     jmp update_cursor_position
     
@@ -255,46 +253,46 @@ bs_exit:
     jmp update_cursor_position
     
 handle_tab:
-    add r12b, 8
-    and r12b, 0xF8
-    mov byte ptr [vga_cursor_x], r12b
+    add byte ptr [vga_cursor_x], 8
+    and byte ptr [vga_cursor_x], 0xF8
+    movzx esi, byte ptr [vga_cursor_x]
     
-    cmp r12b, SCREEN_WIDTH
+    cmp esi, SCREEN_WIDTH
     jl tab_done_x
     
     mov byte ptr [vga_cursor_x], 0
-    inc r13b
+    inc byte ptr [vga_cursor_y]
     
 tab_done_x:
     jmp update_cursor_position
     
 handle_normal_char:
-    mov r10, r13
-    imul r10, SCREEN_WIDTH
-    add r10, r12
+    mov eax, edi
+    imul eax, eax, SCREEN_WIDTH
+    add eax, esi
     
-    mov r11d, r15d
-    mov r12d, r14d
-    shl r12d, 8
-    or r11d, r12d
+    movzx ecx, bh
+    shl ecx, 8
+    movzx edx, bl
+    or ecx, edx
     
-    mov word ptr [VGA_MEM_ADDR + r10 * 2], r11w
+    mov word ptr [VGA_MEM_ADDR + eax * 2], cx
     
-    inc r12b
-    mov byte ptr [vga_cursor_x], r12b
+    inc byte ptr [vga_cursor_x]
+    movzx esi, byte ptr [vga_cursor_x]
     
-    cmp r12b, SCREEN_WIDTH
+    cmp esi, SCREEN_WIDTH
     jl normal_done_x
     
     mov byte ptr [vga_cursor_x], 0
-    inc r13b
+    inc byte ptr [vga_cursor_y]
     
 normal_done_x:
     
 update_cursor_position:
-    movzx r13, byte ptr [vga_cursor_y]
+    movzx edi, byte ptr [vga_cursor_y]
     
-    cmp r13b, SCREEN_HEIGHT
+    cmp edi, SCREEN_HEIGHT
     jl vga_putchar_done
     
     cmp dword ptr [vga_scrolling_enabled], 1
@@ -302,79 +300,80 @@ update_cursor_position:
     
     call scroll_screen
     
-    mov r13b, SCREEN_HEIGHT - 1
-    mov byte ptr [vga_cursor_y], r13b
+    mov byte ptr [vga_cursor_y], SCREEN_HEIGHT - 1
     jmp vga_putchar_done
     
 no_scroll:
-    mov r13b, SCREEN_HEIGHT - 1
-    mov byte ptr [vga_cursor_y], r13b
+    mov byte ptr [vga_cursor_y], SCREEN_HEIGHT - 1
     mov byte ptr [vga_cursor_x], 0
     
 vga_putchar_done:
     movzx eax, byte ptr [vga_cursor_y]
-    imul eax, SCREEN_WIDTH
+    imul eax, eax, SCREEN_WIDTH
     movzx ebx, byte ptr [vga_cursor_x]
     add eax, ebx
     
-    mov edi, eax
+    push eax
     call set_cursor
+    add esp, 4
     
-    pop r15
-    pop r14
-    pop r13
-    pop r12
-    pop rbx
-    pop rbp
+    pop edi
+    pop esi
+    pop ebx
+    pop ebp
     ret
 
 .global print
 print:
-    push rbp
-    mov rbp, rsp
-    push rbx
+    push ebp
+    mov ebp, esp
+    push ebx
+    
+    mov ebx, [ebp+8]
     
 print_loop:
-    movzx ebx, byte ptr [rdi]
-    cmp bl, 0
+    movzx eax, byte ptr [ebx]
+    cmp al, 0
     je print_done
     
-    movzx edi, bl
+    push eax
     call vga_putchar
+    add esp, 4
     
-    inc rdi
+    inc ebx
     jmp print_loop
     
 print_done:
-    pop rbx
-    pop rbp
+    pop ebx
+    pop ebp
     ret
 
 .global clear_screen
 clear_screen:
-    push rbp
-    mov rbp, rsp
-    push rbx
-    push r12
+    push ebp
+    mov ebp, esp
+    push ebx
+    push edi
     
     call get_vga_color
-    mov r12d, 0x20
+    mov ebx, 0x20
     shl eax, 8
-    or r12d, eax
+    or ebx, eax
     
-    mov rdi, VGA_MEM_ADDR
-    mov rcx, SCREEN_WIDTH * SCREEN_HEIGHT
-    mov ax, r12w
+    mov edi, VGA_MEM_ADDR
+    mov ecx, SCREEN_WIDTH * SCREEN_HEIGHT
+    mov ax, bx
     
     rep stosw
     
     mov byte ptr [vga_cursor_x], 0
     mov byte ptr [vga_cursor_y], 0
     
-    mov edi, 0
+    push 0
     call set_cursor
+    add esp, 4
     
-    pop r12
-    pop rbx
-    pop rbp
+    pop edi
+    pop ebx
+    pop ebp
     ret
