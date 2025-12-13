@@ -46,51 +46,215 @@ get_vga_color:
     ret
 
 .global set_cursor
+
+.global set_cursor
 set_cursor:
     push ebp
     mov ebp, esp
     push ebx
     push edx
-    
+
     mov ebx, [ebp+8]
-    
-    # Set low byte of cursor position
-    push ebx  # Save position
+
     mov dx, 0x3D4
     mov al, 0x0F
-    push edx
     push eax
+    push edx
     call outb
     add esp, 8
-    
-    pop ebx  # Restore position
-    push ebx  # Save again
+
     mov dx, 0x3D5
     mov al, bl
-    push edx
     push eax
+    push edx
     call outb
     add esp, 8
-    
-    # Set high byte of cursor position
-    pop ebx  # Restore position
-    push ebx  # Save again
+
     mov dx, 0x3D4
     mov al, 0x0E
-    push edx
     push eax
+    push edx
     call outb
     add esp, 8
-    
-    pop ebx  # Restore position
+
     mov dx, 0x3D5
     mov al, bh
-    push edx
     push eax
+    push edx
     call outb
     add esp, 8
-    
+
     pop edx
+    pop ebx
+    pop ebp
+    ret
+
+.global vga_hide_cursor
+vga_hide_cursor:
+    push ebp
+    mov ebp, esp
+    push ebx
+    push edx
+
+    mov eax, [ebp+8]
+    cmp eax, 0
+    je vga_show_cursor
+
+    mov dx, 0x3D4
+    mov al, 0x0A
+    push eax
+    push edx
+    call outb
+    add esp, 8
+
+    mov dx, 0x3D5
+    push edx
+    call inb
+    add esp, 4
+    mov byte ptr [saved_cursor_start], al
+
+    mov dx, 0x3D4
+    mov al, 0x0B
+    push eax
+    push edx
+    call outb
+    add esp, 8
+
+    mov dx, 0x3D5
+    push edx
+    call inb
+    add esp, 4
+    mov byte ptr [saved_cursor_end], al
+
+    mov dx, 0x3D4
+    mov al, 0x0A
+    push eax
+    push edx
+    call outb
+    add esp, 8
+
+    mov dx, 0x3D5
+    mov al, byte ptr [saved_cursor_start]
+    or  al, 0x20
+    push eax
+    push edx
+    call outb
+    add esp, 8
+
+    mov dword ptr [vga_cursor_hidden], 1
+    jmp vga_hide_cursor_done
+
+vga_show_cursor:
+    mov dx, 0x3D4
+    mov al, 0x0A
+    push eax
+    push edx
+    call outb
+    add esp, 8
+
+    mov dx, 0x3D5
+    movzx eax, byte ptr [saved_cursor_start]
+    and al, 0xDF
+    push eax
+    push edx
+    call outb
+    add esp, 8
+
+    mov dx, 0x3D4
+    mov al, 0x0B
+    push eax
+    push edx
+    call outb
+    add esp, 8
+
+    mov dx, 0x3D5
+    movzx eax, byte ptr [saved_cursor_end]
+    push eax
+    push edx
+    call outb
+    add esp, 8
+
+    mov dword ptr [vga_cursor_hidden], 0
+
+vga_hide_cursor_done:
+    pop edx
+    pop ebx
+    pop ebp
+    ret
+
+.global scroll_screen
+scroll_screen:
+    push ebp
+    mov ebp, esp
+    push ebx
+    push ecx
+    push edx
+    push edi
+    push esi
+
+    cld
+
+    mov edi, VGA_MEM_ADDR
+    mov esi, VGA_MEM_ADDR
+    add esi, SCREEN_WIDTH * 2
+
+    mov ecx, SCREEN_HEIGHT - 1
+    imul ecx, ecx, SCREEN_WIDTH
+
+    rep movsw
+
+    call get_vga_color
+    mov ebx, 0x20
+    shl eax, 8
+    or ebx, eax
+
+    mov ecx, SCREEN_WIDTH
+
+scroll_clear_loop:
+    cmp ecx, 0
+    je scroll_clear_done
+
+    mov word ptr [edi], bx
+    add edi, 2
+    dec ecx
+    jmp scroll_clear_loop
+
+scroll_clear_done:
+    pop esi
+    pop edi
+    pop edx
+    pop ecx
+    pop ebx
+    pop ebp
+    ret
+
+.global clear_screen
+clear_screen:
+    push ebp
+    mov ebp, esp
+    push ebx
+    push edi
+
+    call get_vga_color
+    mov ebx, 0x20
+    shl eax, 8
+    or ebx, eax
+
+    mov edi, VGA_MEM_ADDR
+    mov ecx, SCREEN_WIDTH * SCREEN_HEIGHT
+    mov ax, bx
+
+    cld
+    rep stosw
+
+    mov byte ptr [vga_cursor_x], 0
+    mov byte ptr [vga_cursor_y], 0
+
+    push 0
+    call set_cursor
+    add esp, 4
+
+    pop edi
     pop ebx
     pop ebp
     ret
@@ -106,7 +270,6 @@ vga_hide_cursor:
     cmp eax, 0
     je vga_show_cursor
     
-    # Read current cursor start
     mov dx, 0x3D4
     mov al, 0x0A
     push edx
@@ -120,7 +283,6 @@ vga_hide_cursor:
     add esp, 4
     mov byte ptr [saved_cursor_start], al
     
-    # Read current cursor end
     mov dx, 0x3D4
     mov al, 0x0B
     push edx
@@ -134,7 +296,6 @@ vga_hide_cursor:
     add esp, 4
     mov byte ptr [saved_cursor_end], al
     
-    # Hide cursor by setting bit 5
     mov dx, 0x3D4
     mov al, 0x0A
     push edx
@@ -153,7 +314,6 @@ vga_hide_cursor:
     jmp vga_hide_cursor_done
     
 vga_show_cursor:
-    # Restore cursor start
     mov dx, 0x3D4
     mov al, 0x0A
     push edx
@@ -168,7 +328,6 @@ vga_show_cursor:
     call outb
     add esp, 8
     
-    # Restore cursor end
     mov dx, 0x3D4
     mov al, 0x0B
     push edx
