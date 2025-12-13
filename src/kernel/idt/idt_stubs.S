@@ -105,7 +105,3 @@ common_irq:
     popa
     add esp, 8
     iretd
-
-idt_load:
-    lidt [esp+4]
-    ret
