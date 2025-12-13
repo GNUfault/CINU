@@ -2,8 +2,8 @@
 #include "idt.h"
 #include "cpu.h"
 #include "gdt.h"
-#include "rings.h"
 #include "info.h"
+#include "panic.h"
 
 extern void init(void);
 
@@ -25,5 +25,7 @@ void _start(void) {
   print(" on ");
   print(HOST);
   print("/n");
-  
+
+  // Panic for now
+  panic("Nothing else implemented (yet)/n");
 }
