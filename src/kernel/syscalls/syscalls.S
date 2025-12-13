@@ -2,15 +2,8 @@
 .global syscall_handler
 
 syscall_handler:
-    push rbp
-    mov rbp, rsp
-    
-    lea rdi, [rip + syscall_msg]
-    call print
-    
-    leave
+    push ebp
+    mov ebp, esp
+    mov esp, ebp
+    pop ebp
     ret
-
-.section .rodata
-syscall_msg:
-    .asciz "Hello, syscalls!"
