@@ -1,6 +1,8 @@
-#include "isr.h"
+.intel_syntax noprefix
+.global isr_handler
 
-void isr_handler(registers* regs) {
-    (void)regs;
-    // Do nothing (for now)
-}
+isr_handler:
+    push ebp
+    mov ebp, esp
+    pop ebp
+    ret
