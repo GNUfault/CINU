@@ -3,6 +3,7 @@
 #include "cpu.h"
 #include "gdt.h"
 #include "rings.h"
+#include "info.h"
 
 extern void init(void);
 
@@ -11,9 +12,18 @@ void _start(void) {
   gdt_install();
   tss_install();
   idt_init();
-  print("Kernel running in Ring 0!\n");  
-  enter_user(USER_STACK_TOP, init);
-  enter_kernel(KERNEL_STACK_TOP);
-  print("Back in Ring 0\n");
-  hlt();
+
+  // We need printf()
+  print("CINUX compiled with ");
+  print(CC);
+  print(" and assembled with ");
+  print(AS);
+  print(" on ");
+  print(BUILD_DATE);
+  print(" at ");
+  print(BUILD_TIME);
+  print(" on ");
+  print(HOST);
+  print("/n");
+  
 }
