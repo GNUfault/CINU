@@ -6,7 +6,7 @@
 
 extern void init(void);
 
-void kmain(void) {
+void _start(void) {
   clear_screen();
   gdt_install();
   tss_install();
