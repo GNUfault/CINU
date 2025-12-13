@@ -62,7 +62,7 @@ all() {
   
     # Quick and dirty, please fix me soon
     as --32 src/boot/boot.S -o build/boot.o
-    ld -m elf_i386 --oformat=binary -T build/boot.bin -o build/boot.o
+    ld -T link.ld build/boot.bin -o build/boot.o
     cat build/boot.bin build/kernel.elf build/user.elf >> cinux.img
     
     rm -rf "$BUILD_DIR"
