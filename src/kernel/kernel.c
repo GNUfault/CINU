@@ -24,8 +24,8 @@ void _start(void) {
   print(BUILD_TIME);
   print(" on ");
   print(HOST);
-  print("/n");
+  print("\n\n");
 
   // Panic for now
-  panic("Nothing else implemented (yet)/n");
+  panic("Nothing else implemented (yet)\n");
 }
