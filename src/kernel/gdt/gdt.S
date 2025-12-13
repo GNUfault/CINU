@@ -1,5 +1,40 @@
 .intel_syntax noprefix
 
+.equ GDT_ENTRY_LIMIT_LOW, 0
+.equ GDT_ENTRY_BASE_LOW, 2
+.equ GDT_ENTRY_BASE_MIDDLE, 4
+.equ GDT_ENTRY_ACCESS, 5
+.equ GDT_ENTRY_GRANULARITY, 6
+.equ GDT_ENTRY_BASE_HIGH, 7
+
+.equ TSS_PREV_TSS, 0
+.equ TSS_ESP0, 4
+.equ TSS_SS0, 8
+.equ TSS_ESP1, 12
+.equ TSS_SS1, 16
+.equ TSS_ESP2, 20
+.equ TSS_SS2, 24
+.equ TSS_CR3, 28
+.equ TSS_EIP, 32
+.equ TSS_EFLAGS, 36
+.equ TSS_EAX, 40
+.equ TSS_ECX, 44
+.equ TSS_EDX, 48
+.equ TSS_EBX, 52
+.equ TSS_ESP, 56
+.equ TSS_EBP, 60
+.equ TSS_ESI, 64
+.equ TSS_EDI, 68
+.equ TSS_ES, 72
+.equ TSS_CS, 76
+.equ TSS_SS, 80
+.equ TSS_DS, 84
+.equ TSS_FS, 88
+.equ TSS_GS, 92
+.equ TSS_LDT, 96
+.equ TSS_TRAP, 100
+.equ TSS_IOMAP_BASE, 102
+
 .data
 .global gdt
 .global gp
@@ -39,29 +74,30 @@ gdt_set_entry:
     shl eax, 3
     lea esi, [gdt + eax]
     
-    mov eax, [ebp+12]
-    mov word ptr [esi], ax
-    
-    shr eax, 16
-    mov byte ptr [esi+2], al
-    
-    mov eax, [ebp+12]
-    shr eax, 24
-    mov byte ptr [esi+7], al
-    
     mov eax, [ebp+16]
-    mov word ptr [esi+0], ax
+    mov word ptr [esi+GDT_ENTRY_LIMIT_LOW], ax
+    
+    mov eax, [ebp+12]
+    mov word ptr [esi+GDT_ENTRY_BASE_LOW], ax
+    
+    mov eax, [ebp+12]
+    shr eax, 16
+    mov byte ptr [esi+GDT_ENTRY_BASE_MIDDLE], al
+    
+    mov al, byte ptr [ebp+20]
+    mov byte ptr [esi+GDT_ENTRY_ACCESS], al
     
     mov eax, [ebp+16]
     shr eax, 16
     and al, 0x0F
-    mov bl, byte ptr [ebp+20]
+    mov bl, byte ptr [ebp+24]
     and bl, 0xF0
     or al, bl
-    mov byte ptr [esi+6], al
+    mov byte ptr [esi+GDT_ENTRY_GRANULARITY], al
     
-    mov al, byte ptr [ebp+20]
-    mov byte ptr [esi+5], al
+    mov eax, [ebp+12]
+    shr eax, 24
+    mov byte ptr [esi+GDT_ENTRY_BASE_HIGH], al
     
     pop esi
     pop ebx
@@ -151,13 +187,13 @@ write_tss:
     xor al, al
     rep stosb
     
-    mov ax, word ptr [ebp+12]
-    mov word ptr [tss+8], ax
-    
     mov eax, [ebp+16]
-    mov dword ptr [tss+4], eax
+    mov dword ptr [tss+TSS_ESP0], eax
     
-    mov word ptr [tss+102], 104
+    mov ax, word ptr [ebp+12]
+    mov word ptr [tss+TSS_SS0], ax
+    
+    mov word ptr [tss+TSS_IOMAP_BASE], 104
     
     pop edi
     pop ebx
