@@ -1,5 +1,10 @@
-#include "irq.h"
+.intel_syntax noprefix
 
-void irq_handler(registers* regs) {
-    (void)regs;
-}
+.global irq_handler
+
+irq_handler:
+    push ebp
+    mov ebp, esp
+    mov esp, ebp
+    pop ebp
+    ret
