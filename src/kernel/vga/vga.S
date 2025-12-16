@@ -70,7 +70,6 @@ printk:
     mov al, 0x0F
     out dx, al
     mov dx, 0x3D5
-    mov al, byte ptr eax
     out dx, al
     mov dx, 0x3D4
     mov al, 0x0E
