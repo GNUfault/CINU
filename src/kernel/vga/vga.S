@@ -13,11 +13,10 @@ vga_base:
 clear_screen:
     mov edi, dword ptr [vga_base]
     mov ecx, 2000
-.clear_loop:
-    mov byte ptr [edi], ' '
-    mov byte ptr [edi+1], 0x07
+.cs_loop:
+    mov word ptr [edi], 0x0720
     add edi, 2
-    loop .clear_loop
+    loop .cs_loop
     mov word ptr [cursor_pos], 0
     jmp update_hw_cursor
 
@@ -28,20 +27,20 @@ printk:
     shl eax, 1
     add edi, eax
 
-.next_char:
+.next:
     lodsb
     test al, al
     jz update_hw_cursor
     cmp al, 10
     je .newline
 
-.print_char:
+.char:
     mov byte ptr [edi], al
     mov byte ptr [edi+1], 0x07
     add edi, 2
     inc word ptr [cursor_pos]
     cmp word ptr [cursor_pos], 2000
-    jl .next_char
+    jl .next
     jmp .scroll
 
 .newline:
@@ -52,7 +51,7 @@ printk:
     imul eax, 80
     add eax, 80
     cmp eax, 2000
-    jl .set_cursor
+    jl .set
     jmp .scroll
 
 .scroll:
@@ -60,39 +59,43 @@ printk:
     add esi, 160
     mov edi, dword ptr [vga_base]
     mov ecx, 24*80
-.copy_loop:
+.sl_copy:
     mov ax, word ptr [esi]
     mov word ptr [edi], ax
     add esi, 2
     add edi, 2
     dec ecx
-    jnz .copy_loop
+    jnz .sl_copy
     mov ecx, 80
-.clear_last:
+.sl_clear:
     mov word ptr [edi], 0x0720
     add edi, 2
     dec ecx
-    jnz .clear_last
+    jnz .sl_clear
     mov eax, 1920
 
-.set_cursor:
+.set:
     mov word ptr [cursor_pos], ax
     mov edi, dword ptr [vga_base]
     shl eax, 1
     add edi, eax
-    jmp .next_char
+    jmp .next
 
 update_hw_cursor:
     mov ax, word ptr [cursor_pos]
+
     mov dx, 0x3D4
     mov al, 0x0F
     out dx, al
     mov dx, 0x3D5
+    mov al, al
     out dx, al
+
     mov dx, 0x3D4
     mov al, 0x0E
     out dx, al
     mov dx, 0x3D5
     mov al, ah
     out dx, al
+
     ret
