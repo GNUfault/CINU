@@ -1,5 +1,5 @@
 .intel_syntax noprefix
-.global panick
+.global panic
 
 panic:
     push ebp
