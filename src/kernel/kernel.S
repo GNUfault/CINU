@@ -39,6 +39,6 @@ string_panic_msg:
 one:
     .asciz "CINUX ("
 two:
-    .asciz ") Built at: "
+    .asciz ") Built on: "
 newline:   
     .asciz "\n"
