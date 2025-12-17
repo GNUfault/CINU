@@ -4,7 +4,6 @@ global panic
 
 extern printk
 
-section .text
 panic:
     push ebp
     mov ebp, esp
@@ -20,4 +19,4 @@ panic:
     hlt
 
 section .rodata
-panic_msg db "PANIC: ", 0
+    panic_msg db "PANIC: ", 0
