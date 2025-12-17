@@ -9,7 +9,15 @@
 _start:
     call clear_screen
 
+    push offset one
+    call printk
+    add esp,4
+
     push offset gas_version 
+    call printk
+    add esp, 4
+
+    push offset two
     call printk
     add esp, 4
 
@@ -28,5 +36,9 @@ _start:
 .section .rodata
 string_panic_msg:
     .asciz "Nothing else implemented (yet)\n"
+one:
+    .asciz "CINUX ("
+two:
+    .asciz ") Built at: "
 newline:   
     .asciz "\n"
