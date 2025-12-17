@@ -20,6 +20,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Install nasm
+        run: apt-get install -y nasm
      
       - name: Run build script
         run: ./build.sh
