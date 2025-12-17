@@ -8,8 +8,6 @@
 _start:
     call clear_screen
 
-    call floppy_init
-
     push offset string_panic_msg
     call panic
     add esp, 4
