@@ -1,3 +1,5 @@
+[BITS 32]
+
 global panic
 
 extern printk
