@@ -28,9 +28,6 @@ all() {
     LDFLAGS="-m elf_i386 -T src/kernel/link.ld"
     USER_LDFLAGS="-m elf_i386 -T src/user/link.ld"
 
-    CFILES=$(find . -name "*.c")
-    SFILES=$(find . -path ./src/boot -prune -o -name "*.S" -print)
-
     GAS_VER=$(as --version | head -n1)
     BUILD_DATE=$(date)
 
@@ -46,6 +43,9 @@ gas_version:
 build_date:
     .asciz "${BUILD_DATE}"
 EOF
+
+    CFILES=$(find . -name "*.c")
+    SFILES=$(find . -path ./src/boot -prune -o -name "*.S" -print)
 
     for f in $CFILES; do
         o="$BUILD_DIR/$(basename "${f%.*}").o"
