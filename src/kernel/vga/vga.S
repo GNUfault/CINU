@@ -8,10 +8,11 @@ clear_screen:
     push ecx
     mov edi, 0xB8000
     mov ecx, 2000
-    mov ax, 0x0F20
+    mov ax, 0x0720
     rep stosw
     mov dword ptr [cursor_x], 0
     mov dword ptr [cursor_y], 0
+    call update_cursor
     pop ecx
     pop edi
     ret
@@ -86,9 +87,11 @@ printk_newline:
     cmp eax, 25
     jl printk_newline_set
     call scroll
+    call update_cursor
     jmp printk_loop
 printk_newline_set:
     mov [cursor_y], eax
+    call update_cursor
     jmp printk_loop
 
 printk_string:
@@ -250,6 +253,7 @@ putchar_set_x:
     mov [cursor_x], eax
 
 putchar_done:
+    call update_cursor
     pop edx
     pop ebx
     pop eax
@@ -278,10 +282,37 @@ scroll:
     pop edi
     ret
 
+update_cursor:
+    push eax
+    push edx
+    
+    mov eax, [cursor_y]
+    imul eax, 80
+    add eax, [cursor_x]
+    
+    mov edx, 0x3D4
+    mov ah, al
+    mov al, 0x0F
+    out dx, ax
+    
+    mov eax, [cursor_y]
+    imul eax, 80
+    add eax, [cursor_x]
+    shr eax, 8
+    
+    mov edx, 0x3D4
+    mov ah, al
+    mov al, 0x0E
+    out dx, ax
+    
+    pop edx
+    pop eax
+    ret
+
 .section .data
 cursor_x: .long 0
 cursor_y: .long 0
-vga_color: .byte 0x0F
+vga_color: .byte 0x07
 ptr_prefix: .asciz "0x"
 
 .section .bss
