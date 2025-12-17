@@ -4,7 +4,7 @@ global _start
 
 extern clear_screen
 extern panic
-extern gas_version
+extern nasm_version
 extern build_date
 extern printk
 
@@ -15,7 +15,7 @@ _start:
     call printk
     add esp, 4
 
-    push gas_version
+    push nasm_version
     call printk
     add esp, 4
 
