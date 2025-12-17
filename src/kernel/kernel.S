@@ -3,10 +3,16 @@
 
 .extern clear_screen
 .extern panic
-.extern floppy_init
+.extern gas_version
+.extern build_date
 
 _start:
     call clear_screen
+
+    mov esi, offset gas_version
+    call printk
+    mov esi, offset build_date
+    call printk
 
     push offset string_panic_msg
     call panic
