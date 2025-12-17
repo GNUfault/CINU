@@ -28,7 +28,7 @@ all() {
     LDFLAGS="-m elf_i386 -T src/kernel/link.ld"
     USER_LDFLAGS="-m elf_i386 -T src/user/link.ld"
 
-    GAS_VER=$(as --version | head -n1)
+    GAS_VER=$(as --version | head -n1 | sed 's/([^)]*)//g')
     BUILD_DATE=$(date)
 
     cat > build_info.S <<EOF
