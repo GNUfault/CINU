@@ -34,7 +34,7 @@ all() {
     GAS_VER=$(as --version | head -n1)
     BUILD_DATE=$(date)
 
-    cat > build_info.s <<EOF
+    cat > build_info.S <<EOF
 .intel_syntax noprefix
 .section .rodata
 .global gas_version
