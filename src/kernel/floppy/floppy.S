@@ -2,7 +2,7 @@
 
 .section .data
 floppy_buffer: .skip 512
-motor_ticks: .quad 0
+motor_ticks: .long 0
 current_track: .byte 0
 
 .section .text
@@ -26,8 +26,8 @@ current_track: .byte 0
 .equ CMD_SPECIFY, 0x03
 
 floppy_init:
-    push rbp
-    mov rbp, rsp
+    push ebp
+    mov ebp, esp
     
     mov dx, DOR
     mov al, 0x00
@@ -41,188 +41,197 @@ floppy_init:
     mov al, 0x0C
     out dx, al
     
-    mov rdi, 500
+    push 500
     call sleep_ms
+    add esp, 4
     
     call floppy_recalibrate
     
-    pop rbp
+    pop ebp
     ret
 
 open:
-    push rbp
-    mov rbp, rsp
+    push ebp
+    mov ebp, esp
     
-    xor rax, rax
+    xor eax, eax
     
-    pop rbp
+    pop ebp
     ret
 
 close:
-    push rbp
-    mov rbp, rsp
+    push ebp
+    mov ebp, esp
     
     mov dx, DOR
     mov al, 0x0C
     out dx, al
     
-    xor rax, rax
+    xor eax, eax
     
-    pop rbp
+    pop ebp
     ret
 
 lseek:
-    push rbp
-    mov rbp, rsp
+    push ebp
+    mov ebp, esp
     
-    mov rax, rsi
+    mov eax, [ebp+12]
     
-    pop rbp
+    pop ebp
     ret
 
 read:
-    push rbp
-    mov rbp, rsp
-    push r12
-    push r13
-    push r14
-    push r15
+    push ebp
+    mov ebp, esp
+    push ebx
+    push esi
+    push edi
     
-    mov r12, rdi
-    mov r13, rsi
-    mov r14, rdx
+    mov ebx, [ebp+8]
+    mov esi, [ebp+12]
+    mov edi, [ebp+16]
     
-    xor r15, r15
+    xor ecx, ecx
     
 read_loop:
-    cmp r15, r14
+    cmp ecx, edi
     jge read_done
     
-    mov rax, r12
-    add rax, r15
-    xor rdx, rdx
-    mov rcx, 512
-    div rcx
+    mov eax, ebx
+    add eax, ecx
+    xor edx, edx
+    mov ebx, 512
+    div ebx
     
-    mov rdi, rax
+    push eax
     call floppy_read_sector
+    add esp, 4
     
-    cmp rax, 0
+    cmp eax, 0
     jl read_error
     
-    mov rdi, r13
-    add rdi, r15
-    lea rsi, [rip + floppy_buffer]
-    mov rcx, 512
-    mov rax, r14
-    sub rax, r15
-    cmp rax, 512
+    mov edi, esi
+    add edi, ecx
+    mov esi, offset floppy_buffer
+    mov ecx, 512
+    mov eax, [ebp+16]
+    sub eax, ecx
+    cmp eax, 512
     jge copy_full
-    mov rcx, rax
+    mov ecx, eax
 copy_full:
+    push ecx
     rep movsb
+    pop ecx
     
-    add r15, 512
+    add ecx, 512
+    mov ebx, [ebp+8]
+    mov esi, [ebp+12]
+    mov edi, [ebp+16]
     jmp read_loop
     
 read_done:
-    mov rax, r14
-    pop r15
-    pop r14
-    pop r13
-    pop r12
-    pop rbp
+    mov eax, [ebp+16]
+    pop edi
+    pop esi
+    pop ebx
+    pop ebp
     ret
     
 read_error:
-    mov rax, -1
-    pop r15
-    pop r14
-    pop r13
-    pop r12
-    pop rbp
+    mov eax, -1
+    pop edi
+    pop esi
+    pop ebx
+    pop ebp
     ret
 
 write:
-    push rbp
-    mov rbp, rsp
-    push r12
-    push r13
-    push r14
-    push r15
+    push ebp
+    mov ebp, esp
+    push ebx
+    push esi
+    push edi
     
-    mov r12, rdi
-    mov r13, rsi
-    mov r14, rdx
+    mov ebx, [ebp+8]
+    mov esi, [ebp+12]
+    mov edi, [ebp+16]
     
-    xor r15, r15
+    xor ecx, ecx
     
 write_loop:
-    cmp r15, r14
+    cmp ecx, edi
     jge write_done
     
-    lea rdi, [rip + floppy_buffer]
-    mov rsi, r13
-    add rsi, r15
-    mov rcx, 512
-    mov rax, r14
-    sub rax, r15
-    cmp rax, 512
+    mov edi, offset floppy_buffer
+    mov esi, [ebp+12]
+    add esi, ecx
+    mov ecx, 512
+    mov eax, [ebp+16]
+    sub eax, ecx
+    cmp eax, 512
     jge copy_full_w
-    mov rcx, rax
+    mov ecx, eax
 copy_full_w:
+    push ecx
     rep movsb
+    pop ecx
     
-    mov rax, r12
-    add rax, r15
-    xor rdx, rdx
-    mov rcx, 512
-    div rcx
+    mov eax, ebx
+    add eax, ecx
+    xor edx, edx
+    mov ebx, 512
+    div ebx
     
-    mov rdi, rax
+    push eax
     call floppy_write_sector
+    add esp, 4
     
-    cmp rax, 0
+    cmp eax, 0
     jl write_error
     
-    add r15, 512
+    add ecx, 512
+    mov ebx, [ebp+8]
+    mov esi, [ebp+12]
+    mov edi, [ebp+16]
     jmp write_loop
     
 write_done:
-    mov rax, r14
-    pop r15
-    pop r14
-    pop r13
-    pop r12
-    pop rbp
+    mov eax, [ebp+16]
+    pop edi
+    pop esi
+    pop ebx
+    pop ebp
     ret
     
 write_error:
-    mov rax, -1
-    pop r15
-    pop r14
-    pop r13
-    pop r12
-    pop rbp
+    mov eax, -1
+    pop edi
+    pop esi
+    pop ebx
+    pop ebp
     ret
 
 floppy_read_sector:
-    push rbp
-    mov rbp, rsp
-    push r12
+    push ebp
+    mov ebp, esp
+    push ebx
     
-    mov r12, rdi
+    mov ebx, [ebp+8]
     
-    mov rax, r12
-    xor rdx, rdx
-    mov rcx, 18
-    div rcx
-    mov r8, rax
-    mov r9, rdx
-    inc r9
+    mov eax, ebx
+    xor edx, edx
+    mov ecx, 18
+    div ecx
+    mov ebx, eax
+    mov ecx, edx
+    inc ecx
     
-    movzx rdi, r8b
+    movzx eax, bl
+    push eax
     call floppy_seek
+    add esp, 4
     
     call wait_floppy
     
@@ -235,7 +244,7 @@ floppy_read_sector:
     out dx, al
     
     call wait_floppy
-    mov al, r8b
+    mov al, bl
     out dx, al
     
     call wait_floppy
@@ -243,7 +252,7 @@ floppy_read_sector:
     out dx, al
     
     call wait_floppy
-    mov al, r9b
+    mov al, cl
     out dx, al
     
     call wait_floppy
@@ -262,8 +271,8 @@ floppy_read_sector:
     mov al, 0xFF
     out dx, al
     
-    lea rdi, [rip + floppy_buffer]
-    mov rcx, 512
+    mov edi, offset floppy_buffer
+    mov ecx, 512
 read_data:
     call wait_floppy
     mov dx, FIFO
@@ -271,35 +280,37 @@ read_data:
     stosb
     loop read_data
     
-    mov rcx, 7
+    mov ecx, 7
 read_status:
     call wait_floppy
     mov dx, FIFO
     in al, dx
     loop read_status
     
-    xor rax, rax
-    pop r12
-    pop rbp
+    xor eax, eax
+    pop ebx
+    pop ebp
     ret
 
 floppy_write_sector:
-    push rbp
-    mov rbp, rsp
-    push r12
+    push ebp
+    mov ebp, esp
+    push ebx
     
-    mov r12, rdi
+    mov ebx, [ebp+8]
     
-    mov rax, r12
-    xor rdx, rdx
-    mov rcx, 18
-    div rcx
-    mov r8, rax
-    mov r9, rdx
-    inc r9
+    mov eax, ebx
+    xor edx, edx
+    mov ecx, 18
+    div ecx
+    mov ebx, eax
+    mov ecx, edx
+    inc ecx
     
-    movzx rdi, r8b
+    movzx eax, bl
+    push eax
     call floppy_seek
+    add esp, 4
     
     call wait_floppy
     
@@ -312,7 +323,7 @@ floppy_write_sector:
     out dx, al
     
     call wait_floppy
-    mov al, r8b
+    mov al, bl
     out dx, al
     
     call wait_floppy
@@ -320,7 +331,7 @@ floppy_write_sector:
     out dx, al
     
     call wait_floppy
-    mov al, r9b
+    mov al, cl
     out dx, al
     
     call wait_floppy
@@ -339,8 +350,8 @@ floppy_write_sector:
     mov al, 0xFF
     out dx, al
     
-    lea rsi, [rip + floppy_buffer]
-    mov rcx, 512
+    mov esi, offset floppy_buffer
+    mov ecx, 512
 write_data:
     call wait_floppy
     lodsb
@@ -348,24 +359,24 @@ write_data:
     out dx, al
     loop write_data
     
-    mov rcx, 7
+    mov ecx, 7
 write_status:
     call wait_floppy
     mov dx, FIFO
     in al, dx
     loop write_status
     
-    xor rax, rax
-    pop r12
-    pop rbp
+    xor eax, eax
+    pop ebx
+    pop ebp
     ret
 
 floppy_seek:
-    push rbp
-    mov rbp, rsp
-    push r12
+    push ebp
+    mov ebp, esp
+    push ebx
     
-    mov r12, rdi
+    mov ebx, [ebp+8]
     
     call wait_floppy
     
@@ -378,7 +389,7 @@ floppy_seek:
     out dx, al
     
     call wait_floppy
-    mov al, r12b
+    mov al, bl
     out dx, al
     
     call floppy_wait_irq
@@ -394,13 +405,13 @@ floppy_seek:
     call wait_floppy
     in al, dx
     
-    pop r12
-    pop rbp
+    pop ebx
+    pop ebp
     ret
 
 floppy_recalibrate:
-    push rbp
-    mov rbp, rsp
+    push ebp
+    mov ebp, esp
     
     call wait_floppy
     
@@ -425,12 +436,12 @@ floppy_recalibrate:
     call wait_floppy
     in al, dx
     
-    pop rbp
+    pop ebp
     ret
 
 wait_floppy:
-    push rbp
-    mov rbp, rsp
+    push ebp
+    mov ebp, esp
     
 wait_loop:
     mov dx, MSR
@@ -438,31 +449,32 @@ wait_loop:
     test al, 0x80
     jz wait_loop
     
-    pop rbp
+    pop ebp
     ret
 
 floppy_wait_irq:
-    push rbp
-    mov rbp, rsp
+    push ebp
+    mov ebp, esp
     
-    mov rdi, 100
+    push 100
     call sleep_ms
+    add esp, 4
     
-    pop rbp
+    pop ebp
     ret
 
 sleep_ms:
-    push rbp
-    mov rbp, rsp
-    push rcx
+    push ebp
+    mov ebp, esp
+    push ecx
     
-    imul rdi, 1000000
-    mov rcx, rdi
+    mov eax, [ebp+8]
+    imul eax, 1000000
+    mov ecx, eax
 delay_loop:
     pause
     loop delay_loop
     
-    pop rcx
-    pop rbp
+    pop ecx
+    pop ebp
     ret
-
