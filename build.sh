@@ -31,6 +31,22 @@ all() {
     CFILES=$(find . -name "*.c")
     SFILES=$(find . -path ./src/boot -prune -o -name "*.S" -print)
 
+    GAS_VER=$(as --version | head -n1)
+    BUILD_DATE=$(date)
+
+    cat > build_info.s <<EOF
+.intel_syntax noprefix
+.section .rodata
+.global gas_version
+.global build_date
+
+gas_version:
+    .asciz "${GAS_VER}"
+
+build_date:
+    .asciz "${BUILD_DATE}"
+EOF
+
     for f in $CFILES; do
         o="$BUILD_DIR/$(basename "${f%.*}").o"
         $CC $CFLAGS -c "$f" -o "$o"
