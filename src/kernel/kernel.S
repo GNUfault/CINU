@@ -1,11 +1,14 @@
 .intel_syntax noprefix
-.global _start
+.globl _start
 
 .extern clear_screen
 .extern panic
+.extern floppy_init
 
 _start:
     call clear_screen
+
+    call floppy_init
 
     push offset string_panic_msg
     call panic
