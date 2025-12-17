@@ -37,7 +37,7 @@ _start:
 string_panic_msg:
     .asciz "Nothing else implemented (yet)\n"
 one:
-    .asciz "CINUX ("
+    .asciz "CINUX (Built with: "
 two:
     .asciz ") Built on: "
 newline:   
