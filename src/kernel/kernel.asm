@@ -1,3 +1,5 @@
+[BITS 32]
+
 global _start
 
 extern clear_screen
@@ -6,7 +8,6 @@ extern gas_version
 extern build_date
 extern printk
 
-section .text
 _start:
     call clear_screen
 
