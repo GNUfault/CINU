@@ -9,14 +9,17 @@
 _start:
     call clear_screen
 
-    mov esi, offset gas_version
+    push offset gas_version 
     call printk
+    add esp, 4
 
-    mov esi, offset build_date
+    push offset build_date
     call printk
+    add esp, 4
 
-    mov esi, offset newline
+    push offset newline
     call printk
+    add esp, 4
 
     push offset string_panic_msg
     call panic
