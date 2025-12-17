@@ -51,7 +51,7 @@ all() {
   
     # Quick and dirty, please fix me soon
     as --32 src/boot/boot.S -o build/boot.o
-    ld -T boot/link.ld build/boot.o -o build/boot.bin
+    ld -T src/boot/link.ld build/boot.o -o build/boot.bin
     cat build/boot.bin build/kernel.elf build/user.elf >> cinux.img
     
     rm -rf "$BUILD_DIR"
