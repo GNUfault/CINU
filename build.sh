@@ -9,8 +9,8 @@ ISO_DIR="$BUILD_DIR/iso"
 BOOT_DIR="$ISO_DIR/boot"
 GRUB_DIR="$BOOT_DIR/grub"
 
-KERNEL="$BUILD_DIR/kernel.elf"
-USER="$BUILD_DIR/user.elf"
+KERNEL="$BUILD_DIR/kernel.bin"
+USER="$BUILD_DIR/user.bin"
 ISO="cdos.iso"
 GRUB_CFG=src/boot/grub.cfg
 
@@ -24,8 +24,8 @@ all() {
 
     INCLUDES=$(find . -type d -exec echo -I{} \;)
     CFLAGS="-m32 -march=i486 -mtune=i486 -ffreestanding -Ofast -Wall -Wextra -fno-stack-protector -fno-builtin-strcpy -fno-builtin-strncpy $INCLUDES"
-    LDFLAGS="-m elf_i386 -T src/kernel/link.ld"
-    USER_LDFLAGS="-m elf_i386 -T src/user/link.ld"
+    LDFLAGS="-T src/kernel/link.ld"
+    USER_LDFLAGS="-T src/user/link.ld"
 
     NASM_VER=$($NASM -v)
     BUILD_DATE=$(date)
@@ -54,15 +54,13 @@ EOF
 
     KERNEL_OBJS=$(find "$BUILD_DIR" -maxdepth 1 -name "*.o")
     $LD $LDFLAGS -o "$KERNEL" $KERNEL_OBJS
-    objcopy --strip-all "$KERNEL"
-
+    
     USER_OBJS="$BUILD_DIR/init.o"
     $LD $USER_LDFLAGS -o "$USER" $USER_OBJS
-    objcopy --strip-all "$USER"
-  
+
     $NASM -f elf32 src/boot/boot.asm -o build/boot.o
     $LD -T src/boot/link.ld build/boot.o -o build/boot.bin
-    cat build/boot.bin build/kernel.elf build/user.elf > cinux.img
+    cat build/boot.bin build/kernel.bin build/user.bin > cinux.img
     
     rm -rf "$BUILD_DIR"
 }
