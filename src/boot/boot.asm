@@ -1,6 +1,4 @@
 [BITS 16]
-[ORG 0x7C00]
-
 start:
     xor ax, ax
     mov ds, ax
