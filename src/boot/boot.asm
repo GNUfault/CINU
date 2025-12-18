@@ -36,13 +36,15 @@ start2:
     mov sp, STACK_TOP
     mov ds, cx
 
+    push dx
     mov si, drives
 
 scan_floppy:
     lodsb
     test al, al
     jz no_drives
-    mov dl, al
+    pop dx
+    push dx
 
     mov ax, 0x0201
     mov cx, 0x0002
