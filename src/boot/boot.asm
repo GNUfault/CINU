@@ -28,23 +28,10 @@ gdt_a_accessed equ 0x1
 
 start:
     cli
-    jmp 0:start2
-
-start2:
     xor cx, cx
     mov ss, cx
     mov sp, STACK_TOP
     mov ds, cx
-
-    push dx
-    mov si, drives
-
-scan_floppy:
-    lodsb
-    test al, al
-    jz no_drives
-    pop dx
-    push dx
 
     mov ax, 0x0201
     mov cx, 0x0002
@@ -53,7 +40,6 @@ scan_floppy:
     mov es, bx
     xor bx, bx
     int 0x13
-    jc scan_floppy
 
 load_init:
     mov ax, ELF_HDR_LOAD/16
@@ -159,15 +145,7 @@ prot32:
 
 [BITS 16]
 
-no_drives:
-    mov si, msg_no_drives
-    call print
-    cli
-    hlt
-
 load_seg_fail:
-    mov si, msg_load_seg_fail
-    call print
     cli
     hlt
 
@@ -183,17 +161,6 @@ print:
     jmp .loop
 .ret:
     ret
-
-drives:
-    db 0x00
-    db 0x01
-    db 0x00
-
-msg_no_drives:
-    db "No drives!", 0
-
-msg_load_seg_fail:
-    db "Load fail!", 0
 
 gdt_code:
     dw 0xFFFF
