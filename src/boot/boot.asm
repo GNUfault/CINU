@@ -1,5 +1,4 @@
 bits 16
-org 0x7C00
 
 STACK_TOP equ 0x7C00
 SELF_LOAD equ 0x7C00
