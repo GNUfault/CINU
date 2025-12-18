@@ -28,6 +28,9 @@ gdt_a_grow_down equ 0x04
 gdt_a_rw equ 0x2
 gdt_a_accessed equ 0x1
 
+section .text
+global start
+
 start:
     cli
     jmp 0:start2
@@ -44,9 +47,9 @@ start2:
     mov al, ' '
     mov cx, 2000
 
-clear_loop:
+.clear_loop:
     stosw
-    loop clear_loop
+    loop .clear_loop
     
     mov ah, 0x02
     xor bh, bh
@@ -63,7 +66,7 @@ scan_floppy:
     mov dl, al
     mov ax, 0x0201
     mov cx, 0x0002
-    xor dx, dx
+    xor dh, dh
     mov bx, ELF_HDR_LOAD/16
     mov es, bx
     xor bx, bx
@@ -143,7 +146,7 @@ gdt equ 8
     xchg eax, edx
     stosd
     mov al, gdt_a_present | gdt_a_nosys | gdt_a_dpl0 | gdt_a_rw | gdt_a_accessed
-    mov [ds:gdt + 8*2 + 5], al
+    mov byte [ds:gdt + 8*2 + 5], al
     in al, 0x92
     or al, 2
     out 0x92, al
@@ -198,10 +201,10 @@ load_seg_fail:
     hlt
 
 msg_no_drives:
-    db "Error: could not find any bootable devices!", 0
+    db "Error: could not find any bootable devices!"
 
 msg_load_seg_fail:
-    db "Error: failed to load one or more segemnts!", 0
+    db "Error: failed to load one or more segemnts!"
 
 gdt_code:
     dw 0xFFFF
