@@ -113,7 +113,7 @@ load_segment:
 skip_seg:
     pop cx
     add si, elf_seg_struct_size
-    loop short load_segment
+    loop load_segment
     mov esi, [elf_entry]
 
 gdtp equ 0
