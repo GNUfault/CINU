@@ -49,11 +49,13 @@ start2:
 .clear_loop:
     stosw
     loop .clear_loop
+    
     mov ah, 0x02
     xor bh, bh
     xor dh, dh
     xor dl, dl
     int 0x10
+    
     mov si, drives
 
 scan_floppy:
@@ -63,9 +65,9 @@ scan_floppy:
     mov dl, al
     mov ax, 0x0201
     mov cx, 0x0002
-    xor dh, dh
-    mov ax, ELF_HDR_LOAD/16
-    mov es, ax
+    xor dx, dx
+    mov bx, ELF_HDR_LOAD/16
+    mov es, bx
     xor bx, bx
     int 0x13
     jc scan_floppy
@@ -74,20 +76,23 @@ scan_floppy:
 load_init:
     mov ax, ELF_HDR_LOAD/16
     mov ds, ax
-    mov si, [ds:elf_phoff]
-    mov cl, [ds:elf_phnum]
+    mov si, [elf_phoff]
+    mov cl, [elf_phnum]
 
 load_segment:
     push cx
     mov eax, [si + elf_seg_type]
     dec eax
     jnz skip_seg
+    
     mov ebx, [si + elf_seg_paddr]
     shr ebx, 4
     mov es, bx
+    
     mov eax, [si + elf_seg_file_offset]
     shr eax, SECT_SHIFT
     inc ax
+    
     push dx
     xor dx, dx
     mov bx, GEOM_SECTORS
@@ -97,13 +102,16 @@ load_segment:
     mov bl, GEOM_HEADS
     div bl
     pop dx
+    
     mov dh, ah
     mov ch, al
+    
     xor ebx, ebx
     mov bx, SECT_SIZE - 1
     mov eax, [si + elf_seg_filesz]
     add eax, ebx
     shr eax, SECT_SHIFT
+    
     mov ah, 0x02
     xor bx, bx
     int 0x13
@@ -113,24 +121,31 @@ skip_seg:
     pop cx
     add si, elf_seg_struct_size
     loop load_segment
-    mov esi, [ds:elf_entry]
+    
+    mov esi, [elf_entry]
+    
     gdtp equ 0
     gdt equ 8
+    
     cld
     mov ax, ds
     mov es, ax
     xor di, di
+    
     xor eax, eax
     mov al, 3*8 - 1
     stosw
     mov ax, ELF_HDR_LOAD + gdt
     stosd
     stosw
+    
     xor eax, eax
     stosd
     stosd
-    mov eax, [cs:gdt_code]
-    mov edx, [cs:gdt_code+4]
+    
+    lea bx, [gdt_code]
+    mov eax, [cs:bx]
+    mov edx, [cs:bx+4]
     stosd
     xchg eax, edx
     stosd
@@ -138,15 +153,20 @@ skip_seg:
     stosd
     xchg eax, edx
     stosd
+    
     mov al, gdt_a_present | gdt_a_nosys | gdt_a_dpl0 | gdt_a_rw | gdt_a_accessed
-    mov [es:gdt + 8*2 + 5], al
+    mov [ds:gdt + 8*2 + 5], al
+    
     in al, 0x92
     or al, 2
     out 0x92, al
-    lgdt [es:gdtp]
+    
+    lgdt [gdtp]
+    
     mov eax, cr0
     or eax, 1
     mov cr0, eax
+    
     jmp 8:prot32
 
 [BITS 32]
