@@ -57,9 +57,7 @@ EOF
     $LD $USER_LDFLAGS -o "$USER" $USER_OBJS
 
     echo "Assembling boot.asm..."
-    $NASM -f elf32 src/boot/boot.asm -o build/boot.o
-    echo "Linking boot.o..."
-    $LD -T src/boot/link.ld build/boot.o -o build/boot.bin
+    $NASM -f bin src/boot/boot.asm -o build/boot.bin
    
     echo "Creating cinux.img..."
     cat build/boot.bin build/kernel.bin build/user.bin > cinux.img
