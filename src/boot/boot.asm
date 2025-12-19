@@ -1,4 +1,4 @@
-[ORG 0x7C00]
+[org 0x7C00]
 [BITS 16]
 
 STACK_TOP equ 0x7C00
