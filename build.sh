@@ -14,7 +14,7 @@ USER="$BUILD_DIR/user.elf"
 
 clean() {
     echo "Cleaning build artifacts..."
-    rm -rf "$BUILD_DIR" "$ISO"
+    rm -rf "$BUILD_DIR" "$FLOPPY"
 }
 
 all() {
