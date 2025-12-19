@@ -65,7 +65,7 @@ EOF
     echo "Creating $FLOPPY..."
     cat $BOOT $KERNEL $USER > $FLOPPY
 
-    echo "Padding $FLOPPPY..."
+    echo "Padding $FLOPPY..."
     truncate -s 1474560 $FLOPPY
 }
 
