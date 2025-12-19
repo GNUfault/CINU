@@ -5,27 +5,25 @@ NASM=nasm
 LD=ld
 
 BUILD_DIR=build
-ISO_DIR="$BUILD_DIR/iso"
-BOOT_DIR="$ISO_DIR/boot"
-GRUB_DIR="$BOOT_DIR/grub"
 
 KERNEL="$BUILD_DIR/kernel.bin"
 USER="$BUILD_DIR/user.bin"
-ISO="cdos.iso"
-GRUB_CFG=src/boot/grub.cfg
 
 clean() {
+    echo "Cleaning build artifacts..."
     rm -rf "$BUILD_DIR" "$ISO"
 }
 
 all() {
     clean
+
+    echo "Creating $BUILD_DIR directory..."
     mkdir -p "$BUILD_DIR"
 
-    INCLUDES=$(find . -type d -exec echo -I{} \;)
-    CFLAGS="-m32 -march=i486 -mtune=i486 -ffreestanding -Ofast -Wall -Wextra -fno-stack-protector -fno-builtin-strcpy -fno-builtin-strncpy $INCLUDES"
     LDFLAGS="-T src/kernel/link.ld"
     USER_LDFLAGS="-T src/user/link.ld"
+
+    echo "Generating build_info.asm..."
 
     NASM_VER=$($NASM -v)
     BUILD_DATE=$(date)
@@ -39,30 +37,32 @@ nasm_version db "${NASM_VER}", 0
 build_date   db "${BUILD_DATE}", 0
 EOF
 
-    CFILES=$(find . -name "*.c")
+    echo "Searching for assembly files to be assembled..."
     ASMFILES=$(find . -path ./src/boot -prune -o -name "*.asm" -print)
-
-    for f in $CFILES; do
-        o="$BUILD_DIR/$(basename "${f%.*}").o"
-        gcc $CFLAGS -c "$f" -o "$o"
-    done
 
     for f in $ASMFILES; do
         o="$BUILD_DIR/$(basename "${f%.*}").o"
+        echo "Assembling $f..."
         $NASM -f elf32 "$f" -o "$o"
     done
 
+    echo "Searching for kernel objects to be linked..."
     KERNEL_OBJS=$(find "$BUILD_DIR" -maxdepth 1 -name "*.o")
+    echo "Linking $KERNEL_OBJS..."
     $LD $LDFLAGS -o "$KERNEL" $KERNEL_OBJS
-    
+
+    echo "Searching for user objects to be linked..." 
     USER_OBJS="$BUILD_DIR/init.o"
+    echo "Linking $KERNEL_OBJS..."
     $LD $USER_LDFLAGS -o "$USER" $USER_OBJS
 
+    echo "Assembling boot.asm"
     $NASM -f elf32 src/boot/boot.asm -o build/boot.o
+    echo "Linking boot.o"
     $LD -T src/boot/link.ld build/boot.o -o build/boot.bin
+   
+    echo "Creating cinux.img..."
     cat build/boot.bin build/kernel.bin build/user.bin > cinux.img
-    
-    rm -rf "$BUILD_DIR"
 }
 
 run() {
