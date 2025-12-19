@@ -188,6 +188,28 @@ print:
 .ret:
     ret
 
+print_hex:
+    push ax
+    shr al, 4
+    call print_hex_digit
+    pop ax
+    and al, 0x0F
+    call print_hex_digit
+    ret
+
+print_hex_digit:
+    cmp al, 10
+    jb .digit
+    add al, 'A' - 10
+    jmp .print
+.digit:
+    add al, '0'
+.print:
+    mov ah, 0x0E
+    xor bx, bx
+    int 0x10
+    ret
+
 load_disk_fail:
     push cs
     pop ds
@@ -209,7 +231,10 @@ load_seg_fail:
     hlt
 
 msg_load_disk_fail:
-    db "Error: failed to read boot disk!", 0
+    db "Error: 0x", 0
+
+msg_load_disk_fail2:
+    db ": failed to read boot disk!", 0
 
 msg_load_seg_fail:
     db "Error: failed to load one or more segments!", 0
