@@ -48,7 +48,7 @@ EOF
 
     echo "Searching for kernel objects to be linked..."
     KERNEL_OBJS=$(find "$BUILD_DIR" -maxdepth 1 -name "*.o")
-    echo "Linking $KERNEL_OBJS..."
+    echo "Linking $(basename -a $KERNEL_OBJS | xargs)..."
     $LD $LDFLAGS -o "$KERNEL" $KERNEL_OBJS
 
     echo "Searching for user objects to be linked..." 
