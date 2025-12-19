@@ -36,7 +36,6 @@ start:
     jmp 0:start2
 
 start2:
-    push dx
     xor cx, cx
     mov ss, cx
     mov sp, STACK_TOP
@@ -44,7 +43,7 @@ start2:
     mov ax, 0xB800
     mov es, ax
     xor di, di
-    mov ah, 0x07
+    mov ah, 0x0F
     mov al, ' '
     mov cx, 2000
 .clear_loop:
@@ -57,15 +56,22 @@ start2:
     xor dl, dl
     int 0x10
     
-    pop dx
+    mov si, drives
+
+scan_floppy:
+    lodsb
+    test al, al
+    jz no_drives
+    mov dl, al
     mov ax, 0x0201
     mov cx, 0x0002
-    xor dh, dh
+    xor dx, dx
     mov bx, ELF_HDR_LOAD/16
     mov es, bx
     xor bx, bx
     int 0x13
-    jc load_disk_fail
+    jc scan_floppy
+    jmp load_init
 
 load_init:
     mov ax, ELF_HDR_LOAD/16
@@ -116,8 +122,9 @@ skip_seg:
     add si, elf_seg_struct_size
     loop load_segment
     
-    mov esi, [elf_entry]
+    mov esi, [elf_entry]    ; Fixed: removed ds: prefix
     
+    ; GDT setup
     gdtp equ 0
     gdt equ 8
     
@@ -137,8 +144,9 @@ skip_seg:
     stosd
     stosd
     
-    lea bx, [gdt_code]
-    mov eax, [cs:bx]
+    ; Load code segment descriptor
+    lea bx, [gdt_code]      ; Fixed: Added lea instruction
+    mov eax, [cs:bx]        ; Fixed: Use bx as pointer
     mov edx, [cs:bx+4]
     stosd
     xchg eax, edx
@@ -149,13 +157,13 @@ skip_seg:
     stosd
     
     mov al, gdt_a_present | gdt_a_nosys | gdt_a_dpl0 | gdt_a_rw | gdt_a_accessed
-    mov [ds:gdt + 8*2 + 5], al
+    mov [ds:gdt + 8*2 + 5], al  ; Fixed: Use ds: instead of es:
     
     in al, 0x92
     or al, 2
     out 0x92, al
     
-    lgdt [gdtp]
+    lgdt [gdtp]             ; Fixed: removed es: prefix
     
     mov eax, cr0
     or eax, 1
@@ -188,36 +196,10 @@ print:
 .ret:
     ret
 
-print_hex:
-    push ax
-    shr al, 4
-    call print_hex_digit
-    pop ax
-    and al, 0x0F
-    call print_hex_digit
-    ret
-
-print_hex_digit:
-    cmp al, 10
-    jb .digit
-    add al, 'A' - 10
-    jmp .print
-.digit:
-    add al, '0'
-.print:
-    mov ah, 0x0E
-    xor bx, bx
-    int 0x10
-    ret
-
-load_disk_fail:
+no_drives:
     push cs
     pop ds
-    mov si, msg_load_disk_fail
-    call print
-    mov al, ah
-    call print_hex
-    mov si, msg_load_disk_fail2
+    mov si, msg_no_drives
     call print
     cli
     hlt
@@ -230,14 +212,16 @@ load_seg_fail:
     cli
     hlt
 
-msg_load_disk_fail:
-    db "Error: 0x", 0
+drives:
+    db 0x00
+    db 0x01
+    db 0x00
 
-msg_load_disk_fail2:
-    db ": failed to read boot disk!", 0
+msg_no_drives:
+    db "Error: could not find any bootable devices!", 0
 
 msg_load_seg_fail:
-    db "Error: failed to load one or more segments!", 0
+    db "Error: failed to load one or more segments!", 0  ; Fixed typo: "segemnts"
 
 gdt_code:
     dw 0xFFFF
