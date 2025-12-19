@@ -53,7 +53,7 @@ EOF
 
     echo "Searching for user objects to be linked..." 
     USER_OBJS="$BUILD_DIR/init.o"
-    echo "Linking $KERNEL_OBJS..."
+    echo "Linking $(basename -a $USER_OBJS | xargs)..."
     $LD $USER_LDFLAGS -o "$USER" $USER_OBJS
 
     echo "Assembling boot.asm..."
