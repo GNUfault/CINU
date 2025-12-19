@@ -6,6 +6,7 @@ LD=ld
 
 BUILD_DIR=build
 
+BOOT="$BUILD_DIR/boot.bin"
 KERNEL="$BUILD_DIR/kernel.elf"
 USER="$BUILD_DIR/user.elf"
 
@@ -57,10 +58,10 @@ EOF
     $LD $USER_LDFLAGS -o "$USER" $USER_OBJS
 
     echo "Assembling boot.asm..."
-    $NASM -f bin src/boot/boot.asm -o build/boot.bin
+    $NASM -f bin src/boot/boot.asm -o $BOOT
    
     echo "Creating cinux.img..."
-    cat build/boot.bin build/kernel.bin build/user.bin > cinux.img
+    cat $BOOT $KERNEL $USER > cinux.img
 }
 
 run() {
