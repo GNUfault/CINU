@@ -6,6 +6,8 @@ LD=ld
 
 BUILD_DIR=build
 
+FLOPPY=cinux.img
+
 BOOT="$BUILD_DIR/boot.bin"
 KERNEL="$BUILD_DIR/kernel.elf"
 USER="$BUILD_DIR/user.elf"
@@ -60,8 +62,11 @@ EOF
     echo "Assembling boot.asm..."
     $NASM -f bin src/boot/boot.asm -o $BOOT
    
-    echo "Creating cinux.img..."
-    cat $BOOT $KERNEL $USER > cinux.img
+    echo "Creating $FLOPPY..."
+    cat $BOOT $KERNEL $USER > $FLOPPY
+
+    echo "Padding $FLOPPPY..."
+    truncate -s 1474560 $FLOPPY
 }
 
 run() {
