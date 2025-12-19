@@ -6,8 +6,8 @@ LD=ld
 
 BUILD_DIR=build
 
-KERNEL="$BUILD_DIR/kernel.bin"
-USER="$BUILD_DIR/user.bin"
+KERNEL="$BUILD_DIR/kernel.elf"
+USER="$BUILD_DIR/user.elf"
 
 clean() {
     echo "Cleaning build artifacts..."
