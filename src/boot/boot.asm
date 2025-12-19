@@ -36,6 +36,7 @@ start:
     jmp 0:start2
 
 start2:
+    push dx
     xor cx, cx
     mov ss, cx
     mov sp, STACK_TOP
@@ -43,7 +44,7 @@ start2:
     mov ax, 0xB800
     mov es, ax
     xor di, di
-    mov ah, 0x0F
+    mov ah, 0x07
     mov al, ' '
     mov cx, 2000
 .clear_loop:
@@ -56,22 +57,15 @@ start2:
     xor dl, dl
     int 0x10
     
-    mov si, drives
-
-scan_floppy:
-    lodsb
-    test al, al
-    jz no_drives
-    mov dl, al
+    pop dx
     mov ax, 0x0201
     mov cx, 0x0002
-    xor dx, dx
+    xor dh, dh
     mov bx, ELF_HDR_LOAD/16
     mov es, bx
     xor bx, bx
     int 0x13
-    jc scan_floppy
-    jmp load_init
+    jc load_disk_fail
 
 load_init:
     mov ax, ELF_HDR_LOAD/16
@@ -122,9 +116,8 @@ skip_seg:
     add si, elf_seg_struct_size
     loop load_segment
     
-    mov esi, [elf_entry]    ; Fixed: removed ds: prefix
+    mov esi, [elf_entry]
     
-    ; GDT setup
     gdtp equ 0
     gdt equ 8
     
@@ -144,9 +137,8 @@ skip_seg:
     stosd
     stosd
     
-    ; Load code segment descriptor
-    lea bx, [gdt_code]      ; Fixed: Added lea instruction
-    mov eax, [cs:bx]        ; Fixed: Use bx as pointer
+    lea bx, [gdt_code]
+    mov eax, [cs:bx]
     mov edx, [cs:bx+4]
     stosd
     xchg eax, edx
@@ -157,13 +149,13 @@ skip_seg:
     stosd
     
     mov al, gdt_a_present | gdt_a_nosys | gdt_a_dpl0 | gdt_a_rw | gdt_a_accessed
-    mov [ds:gdt + 8*2 + 5], al  ; Fixed: Use ds: instead of es:
+    mov [ds:gdt + 8*2 + 5], al
     
     in al, 0x92
     or al, 2
     out 0x92, al
     
-    lgdt [gdtp]             ; Fixed: removed es: prefix
+    lgdt [gdtp]
     
     mov eax, cr0
     or eax, 1
@@ -196,10 +188,14 @@ print:
 .ret:
     ret
 
-no_drives:
+load_disk_fail:
     push cs
     pop ds
-    mov si, msg_no_drives
+    mov si, msg_load_disk_fail
+    call print
+    mov al, ah
+    call print_hex
+    mov si, msg_load_disk_fail2
     call print
     cli
     hlt
@@ -212,16 +208,11 @@ load_seg_fail:
     cli
     hlt
 
-drives:
-    db 0x00
-    db 0x01
-    db 0x00
-
-msg_no_drives:
-    db "Error: could not find any bootable devices!", 0
+msg_load_disk_fail:
+    db "Error: failed to read boot disk!", 0
 
 msg_load_seg_fail:
-    db "Error: failed to load one or more segments!", 0  ; Fixed typo: "segemnts"
+    db "Error: failed to load one or more segments!", 0
 
 gdt_code:
     dw 0xFFFF
