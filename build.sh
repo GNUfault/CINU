@@ -42,7 +42,7 @@ EOF
 
     for f in $ASMFILES; do
         o="$BUILD_DIR/$(basename "${f%.*}").o"
-        echo "Assembling $f..."
+        echo "Assembling $(basename $f)..."
         $NASM -f elf32 "$f" -o "$o"
     done
 
@@ -56,9 +56,9 @@ EOF
     echo "Linking $KERNEL_OBJS..."
     $LD $USER_LDFLAGS -o "$USER" $USER_OBJS
 
-    echo "Assembling boot.asm"
+    echo "Assembling boot.asm..."
     $NASM -f elf32 src/boot/boot.asm -o build/boot.o
-    echo "Linking boot.o"
+    echo "Linking boot.o..."
     $LD -T src/boot/link.ld build/boot.o -o build/boot.bin
    
     echo "Creating cinux.img..."
