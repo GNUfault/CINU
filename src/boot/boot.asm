@@ -36,6 +36,7 @@ start:
     jmp 0:start2
 
 start2:
+    push dx
     xor cx, cx
     mov ss, cx
     mov sp, STACK_TOP
@@ -56,22 +57,15 @@ start2:
     xor dl, dl
     int 0x10
     
-    mov si, drives
-
-scan_floppy:
-    lodsb
-    test al, al
-    jz no_drives
-    mov dl, al
+    pop dx
     mov ax, 0x0201
     mov cx, 0x0002
-    xor dx, dx
+    xor dh, dh
     mov bx, ELF_HDR_LOAD/16
     mov es, bx
     xor bx, bx
     int 0x13
-    jc scan_floppy
-    jmp load_init
+    jc load_disk_fail
 
 load_init:
     mov ax, ELF_HDR_LOAD/16
@@ -194,10 +188,10 @@ print:
 .ret:
     ret
 
-no_drives:
+load_disk_fail:
     push cs
     pop ds
-    mov si, msg_no_drives
+    mov si, msg_load_disk_fail
     call print
     cli
     hlt
@@ -210,13 +204,8 @@ load_seg_fail:
     cli
     hlt
 
-drives:
-    db 0x00
-    db 0x01
-    db 0x00
-
-msg_no_drives:
-    db "Error: could not find any bootable devices!", 0
+msg_load_disk_fail:
+    db "Error: failed to read boot disk!", 0
 
 msg_load_seg_fail:
     db "Error: failed to load one or more segments!", 0
