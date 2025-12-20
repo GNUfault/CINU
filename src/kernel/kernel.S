@@ -1,13 +1,10 @@
 .intel_syntax noprefix
 .global _start
 
-.extern clear_screen
 .extern panic
 
 _start:
-    push offset string_panic_msg
-    call panic
-    add esp, 4
+    call printk
 
 .section .rodata
 string_panic_msg:
