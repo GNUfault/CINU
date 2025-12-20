@@ -13,14 +13,12 @@ font8x16:
 
 .section .text
 .global printk
-.global draw_logo
 
 printk:
     push ebp
     mov ebp, esp
     mov esi, [ebp+8]
     mov edi, [0x5000]
-
 .next:
     lodsb
     test al, al
@@ -112,39 +110,4 @@ printk:
 .done:
     mov esp, ebp
     pop ebp
-    ret
-
-draw_logo:
-    mov edi, [0x5000]
-    mov eax, [screen_width]
-    sub eax, 50
-    mov ebx, eax
-    mov ecx, 50
-.y_loop:
-    push ecx
-    mov edx, 50
-    mov esi, ecx
-.x_loop:
-    cmp edx, esi
-    ja .skip_pixel
-    mov eax, edx
-    imul eax, [screen_width]
-    add eax, ebx
-    imul eax, 3
-    mov edi, eax
-    mov eax, 50
-    sub eax, esi
-    imul eax, 3
-    add edi, eax
-    mov al, dl
-    mov ah, cl
-    mov byte ptr [0x5000 + edi], al
-    mov byte ptr [0x5000 + edi +1], ah
-    mov byte ptr [0x5000 + edi +2], 255 - al - ah
-.skip_pixel:
-    dec edx
-    jnz .x_loop
-    pop ecx
-    dec ecx
-    jnz .y_loop
     ret
