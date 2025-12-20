@@ -115,21 +115,22 @@ boot_logo:
     
     mov ebx, 50
 .logo_row:
+    push ebx
     push edi
     mov ecx, 50
 .logo_pixel:
-    lodsb
-    mov dl, al
-    lodsb
-    mov dh, al
-    lodsb
-    mov byte ptr [edi+2], dl
-    mov byte ptr [edi+1], dh
-    mov byte ptr [edi], al
+    mov al, [esi]
+    mov dl, [esi+1]
+    mov dh, [esi+2]
+    mov byte ptr [edi+2], al
+    mov byte ptr [edi+1], dl
+    mov byte ptr [edi], dh
+    add esi, 3
     add edi, 3
     loop .logo_pixel
     pop edi
     add edi, 1024 * 3
+    pop ebx
     dec ebx
     jnz .logo_row
     
