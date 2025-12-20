@@ -1,6 +1,7 @@
 .intel_syntax noprefix
 
 .extern panic
+.extern boot_logo
 
 .section .rodata
 msg:
@@ -9,5 +10,7 @@ msg:
 .section .text
 .global _start
 _start:
+    call boot_logo
+    
     push offset msg
     call panic
