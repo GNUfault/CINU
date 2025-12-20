@@ -7,7 +7,7 @@ cursor_y: .long 0
 .section .rodata
 .global font
 font8x16:
-.incbin "font.bin"
+.incbin "src/kernel/vga/font.bin"
 
 .section .text
 .global printk
