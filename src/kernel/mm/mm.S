@@ -7,15 +7,15 @@ page_directory:
 .align 4096
 first_page_table:
     .space 4096
-
-.section .bss
 ram_low:  .long 0
 ram_high: .long 0
+ram_free: .long 0
 
 .section .text
 .global enable_paging
 .global detect_ram_low
 .global detect_ram_high
+.global detect_ram_free
 
 enable_paging:
     xor eax, eax
@@ -26,18 +26,14 @@ enable_paging:
     mov [first_page_table + eax], ebx
     add eax, 4
     loop .fill_table
-
     mov eax, first_page_table
     or eax, 3
     mov [page_directory], eax
-
     mov eax, page_directory
     mov cr3, eax
-
     mov eax, cr0
     or eax, 0x80000000
     mov cr0, eax
-
     ret
 
 detect_ram_low:
@@ -47,7 +43,6 @@ detect_ram_low:
     xor edx, edx
     xor esi, esi
     xor edi, edi
-
     mov ebx, 0
     lea edi, [ram_low]
 .next_low:
@@ -75,7 +70,6 @@ detect_ram_high:
     xor edx, edx
     xor esi, esi
     xor edi, edi
-
     mov ebx, 0
     lea edi, [ram_high]
 .next_high:
@@ -94,4 +88,29 @@ detect_ram_high:
     jnz .next_high
 .done_high:
     mov eax, [ram_high]
+    ret
+
+detect_ram_free:
+    xor eax, eax
+    xor ebx, ebx
+    xor ecx, ecx
+    xor edx, edx
+    xor esi, esi
+    xor edi, edi
+    mov ebx, 0
+    lea edi, [ram_free]
+.next_free:
+    mov eax, 0xE820
+    mov ecx, 24
+    mov edx, 0x534D4150
+    int 0x15
+    jc .done_free
+    cmp byte ptr [esi+4], 1
+    jne .skip_free
+    add [edi], eax
+.skip_free:
+    test ebx, ebx
+    jnz .next_free
+.done_free:
+    mov eax, [ram_free]
     ret
