@@ -52,13 +52,14 @@ draw_char:
     push eax
     push ecx
     push edx
+    push esi
     
-    movzx ebx, al
-    shl ebx, 4
-    add ebx, 0x000FFA6E
+    movzx esi, al
+    shl esi, 4
+    add esi, 0x60000
     
     mov ecx, [cursor_y]
-    imul ecx, 8
+    imul ecx, 16
     imul ecx, 1024
     mov edx, [cursor_x]
     imul edx, 8
@@ -68,8 +69,8 @@ draw_char:
     
     mov edx, 16
 .char_row:
-    mov al, [ebx]
-    inc ebx
+    mov al, [esi]
+    inc esi
     push ecx
     mov ah, 8
 .char_col:
@@ -86,6 +87,7 @@ draw_char:
     dec edx
     jnz .char_row
     
+    pop esi
     pop edx
     pop ecx
     pop eax
