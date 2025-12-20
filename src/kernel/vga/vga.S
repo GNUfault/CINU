@@ -7,7 +7,7 @@ cursor_y: .long 0
 font8x16:
 .incbin "src/kernel/vga/font.bin"
 logo_data:
-.incbin "src/kernel/vga/logo.rgb"
+.incbin "src/kernel/vga/logo.bgr"
 .section .text
 .global printk
 .global boot_logo
@@ -99,7 +99,6 @@ printk:
     mov esp, ebp
     pop ebp
     ret
-
 boot_logo:
     push ebp
     mov ebp, esp
@@ -122,9 +121,9 @@ boot_logo:
     mov al, [esi]
     mov dl, [esi+1]
     mov dh, [esi+2]
-    mov byte ptr [edi+2], al
+    mov byte ptr [edi], al
     mov byte ptr [edi+1], dl
-    mov byte ptr [edi], dh
+    mov byte ptr [edi+2], dh
     add esi, 3
     add edi, 3
     loop .logo_pixel
