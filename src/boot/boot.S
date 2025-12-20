@@ -159,7 +159,11 @@ skip_seg:
     stosd
     mov al, gdt_a_present | gdt_a_nosys | gdt_a_dpl0 | gdt_a_rw | gdt_a_accessed
     mov ds:[gdt + 8*2 + 5], al
-
+  
+    mov ax, 0x4F02
+    mov bx, 0x4118
+    int 0x10
+  
     in al, 0x92
     or al, 2
     out 0x92, al
@@ -168,10 +172,6 @@ skip_seg:
     mov eax, cr0
     or eax, 1
     mov cr0, eax
-
-    mov ax, 0x4F02
-    mov bx, 0x4118
-    int 0x10
 
     jmp 8:prot32
 
