@@ -5,8 +5,6 @@
 .extern draw_logo
 
 _start:
-    call draw_logo
-
     push offset msg
     call panic
 
