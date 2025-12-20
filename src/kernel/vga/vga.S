@@ -1,12 +1,10 @@
 .intel_syntax noprefix
 .code32
-
-.extern fb_addr
-
+.section .text
 .global printk
 
 printk:
-    mov esi, [fb_addr]
+    mov esi, [0x5000]
     mov edx, 0x12345678
 draw_loop:
     mov eax, edx
