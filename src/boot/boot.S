@@ -169,6 +169,10 @@ skip_seg:
     or eax, 1
     mov cr0, eax
 
+    mov ax, 0x4F02
+    mov bx, 0x4118
+    int 0x10
+
     jmp 8:prot32
 
 .code32
