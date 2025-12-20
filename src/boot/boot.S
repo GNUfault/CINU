@@ -154,11 +154,16 @@ skip_seg:
     mov ax, 0x1130
     mov bh, 0x06
     int 0x10
-    xor eax, eax
-    mov ax, es
-    shl eax, 4
-    movzx ebx, bp
-    add eax, ebx
+    push es
+    push bp
+    mov ax, 0x6000
+    mov ds, ax
+    xor di, di
+    mov cx, 2048
+    rep movsb
+    pop bp
+    pop es
+    mov eax, 0x60000
     xor ebx, ebx
     mov ds, bx
     mov ds:[0x5004], eax
