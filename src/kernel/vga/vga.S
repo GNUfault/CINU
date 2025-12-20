@@ -1,13 +1,13 @@
 .intel_syntax noprefix
 .code32
 
-.section .text
+.extern fb_addr
+
 .global printk
 
-printk: # Placeholder
-    mov esi, 0xE0000000
+printk:
+    mov esi, [fb_addr]
     mov edx, 0x12345678
-
 draw_loop:
     mov eax, edx
     imul eax, 1103515245
