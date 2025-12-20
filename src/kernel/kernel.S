@@ -4,8 +4,9 @@
 .extern panic
 
 _start:
-    call printk
+    push offset msg
+    call panic
 
 .section .rodata
-string_panic_msg:
+msg:
     .asciz "Nothing else implemented (yet)\n"
