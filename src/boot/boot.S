@@ -151,6 +151,17 @@ skip_seg:
     xor ebx, ebx
     mov ds, bx
     mov ds:[0x5000], eax
+    mov ax, 0x1130
+    mov bh, 0x06
+    int 0x10
+    xor eax, eax
+    mov ax, es
+    shl eax, 4
+    movzx ebx, bp
+    add eax, ebx
+    xor ebx, ebx
+    mov ds, bx
+    mov ds:[0x5004], eax
     pop ds
     in al, 0x92
     or al, 2
