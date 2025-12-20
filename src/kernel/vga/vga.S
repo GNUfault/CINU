@@ -146,11 +146,6 @@ boot_logo:
     push esi
     push edi
     
-    mov edi, [0x5000]
-    mov ecx, (1024*768*3)
-    xor eax, eax
-    rep stosb
-    
     mov dword ptr [ebp-4], 120
 .frame_loop:
     call rotate_cube
@@ -248,24 +243,24 @@ rotate_cube:
     push eax
     mov eax, edx
     cdq
-    mov edi, 400
+    mov edi, 800
     idiv edi
-    add eax, 256
+    add eax, 128
     mov edi, eax
     pop eax
     
-    imul eax, 256
+    imul eax, 128
     cdq
     idiv edi
-    add eax, 512
+    add eax, 999
     
     push eax
     
     mov eax, ebx
-    imul eax, 256
+    imul eax, 128
     cdq
     idiv edi
-    add eax, 384
+    add eax, 25
     
     lea esi, [transformed]
     pop ebx
