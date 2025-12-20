@@ -30,6 +30,26 @@
 .section .text
 .global start
 start:
+xor ax, ax
+mov ds, ax
+mov ss, ax
+mov sp, 0x9c00
+cli
+push ds
+lgdt [gdtinfo]
+mov eax, cr0
+or al, 1
+mov cr0, eax
+jmp 0x8:pmode
+pmode:
+mov bx, 0x10
+mov ds, bx
+and al, 0xFE
+mov cr0, eax
+jmp 0x0:huge_unreal
+huge_unreal:
+pop ds
+sti
 cli
 jmp 0:start2
 start2:
@@ -203,6 +223,17 @@ msg_no_drives:
     .ascii "Error: could not find any bootable devices!"
 msg_load_seg_fail:
     .ascii "Error: failed to load one or more segemnts!"
+gdtinfo:
+   .word gdt_end - gdt_unreal - 1
+   .long gdt_unreal
+gdt_unreal:
+   .long 0
+   .long 0
+flatcode:
+   .byte 0xff, 0xff, 0, 0, 0, 0b10011010, 0b10001111, 0
+flatdata:
+   .byte 0xff, 0xff, 0, 0, 0, 0b10010010, 0b11001111, 0
+gdt_end:
 gdt_code:
     .word 0xFFFF
     .word 0x0000
