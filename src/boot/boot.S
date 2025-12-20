@@ -137,6 +137,21 @@ skip_seg:
     mov ax, 0x4F02
     mov bx, 0x4118
     int 0x10
+    push ds
+    xor ax, ax
+    mov ds, ax
+    mov ax, 0x4F01
+    mov cx, 0x118
+    mov di, 0x8000
+    push di
+    pop es
+    xor di, di
+    int 0x10
+    mov eax, es:[40]
+    xor ebx, ebx
+    mov ds, bx
+    mov ds:[0x5000], eax
+    pop ds
     in al, 0x92
     or al, 2
     out 0x92, al
