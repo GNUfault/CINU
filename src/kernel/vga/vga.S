@@ -60,12 +60,11 @@ draw_char:
     add esi, offset font_data
     
     mov ecx, [cursor_y]
-    imul ecx, 16
-    imul ecx, 1024
+    shl ecx, 4
+    imul ecx, 2048
     mov edx, [cursor_x]
-    imul edx, 8
+    shl edx, 4
     add ecx, edx
-    shl ecx, 1
     add ecx, edi
     
     mov edx, 16
