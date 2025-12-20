@@ -76,24 +76,32 @@ printk:
     mov eax, [cursor_y]
     cmp eax, 48
     jb .next
-    mov ecx, ([screen_width]*[screen_height]*3 - 16*[screen_width]*3)
+    mov ebx, [screen_width]
+    mov ecx, [screen_height]
+    imul ebx, ecx
+    imul ebx, 3
+    mov ecx, [screen_width]
+    imul ecx, 16*3
+    sub ebx, ecx
     mov esi, [0x5000]
     add esi, 16*[screen_width]*3
     mov edi, [0x5000]
+    mov ecx, ebx
     rep movsb
     mov eax, [cursor_y]
     sub eax, 1
     mov [cursor_y], eax
     mov eax, [cursor_y]
     imul eax, 16
-    imul eax, [screen_width]
+    mov ebx, [screen_width]
+    imul eax, ebx
     imul eax, 3
     add eax, edi
     mov ecx, 16
 .clear_row:
     push ecx
     mov ecx, 8*3
-    xor r8b, r8b
+    xor cl, cl
 .clear_pix:
     mov byte ptr [eax], 0x00
     mov byte ptr [eax+1], 0x00
