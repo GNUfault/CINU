@@ -225,9 +225,11 @@ rotate_cube:
     jge .rotate_done
     
     lea esi, [vertices]
-    mov eax, [esi + ecx*12]
-    mov ebx, [esi + ecx*12 + 4]
-    mov edx, [esi + ecx*12 + 8]
+    mov eax, ecx
+    imul eax, 12
+    mov eax, [esi + eax]
+    mov ebx, [esi + eax + 4]
+    mov edx, [esi + eax + 8]
     
     push edx
     push ecx
@@ -267,9 +269,12 @@ rotate_cube:
     
     lea esi, [transformed]
     pop ebx
-    mov [esi + ecx*12], ebx
-    mov [esi + ecx*12 + 4], eax
-    mov [esi + ecx*12 + 8], edx
+    push ecx
+    imul ecx, 12
+    mov [esi + ecx], ebx
+    mov [esi + ecx + 4], eax
+    mov [esi + ecx + 8], edx
+    pop ecx
     
     inc ecx
     jmp .vertex_loop
@@ -290,12 +295,14 @@ draw_line:
     
     mov eax, [ebp + 12]
     lea esi, [transformed]
-    mov ebx, [esi + eax*12]
-    mov ecx, [esi + eax*12 + 4]
+    imul eax, 12
+    mov ebx, [esi + eax]
+    mov ecx, [esi + eax + 4]
     
     mov eax, [ebp + 16]
-    mov edx, [esi + eax*12]
-    mov edi, [esi + eax*12 + 4]
+    imul eax, 12
+    mov edx, [esi + eax]
+    mov edi, [esi + eax + 4]
     
     sub edx, ebx
     sub edi, ecx
@@ -304,12 +311,13 @@ draw_line:
     xor edx, edx
     mov esi, 12
     div esi
+    imul edx, 3
     lea esi, [colors]
-    movzx eax, byte ptr [esi + edx*3]
+    movzx eax, byte ptr [esi + edx]
     shl eax, 8
-    mov al, byte ptr [esi + edx*3 + 1]
+    mov al, byte ptr [esi + edx + 1]
     shl eax, 8
-    mov al, byte ptr [esi + edx*3 + 2]
+    mov al, byte ptr [esi + edx + 2]
     
     push eax
     mov esi, [0x5000]
