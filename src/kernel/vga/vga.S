@@ -118,28 +118,27 @@ printk:
 
 draw_logo:
     mov edi, [0x5000]
-    mov ebx, [screen_width]
-    sub ebx, 50
-    mov esi, ebx
+    mov eax, [screen_width]
+    sub eax, 50
+    mov ebx, eax
     mov ecx, 50
 .y_loop:
     push ecx
     mov edx, 50
-    mov eax, ecx
+    mov esi, ecx
 .x_loop:
-    cmp edx, eax
+    cmp edx, esi
     ja .skip_pixel
-    mov ebp, edx
-    mov r8d, eax
-    imul ebp, [screen_width]
-    add ebp, esi
-    imul ebp, 3
-    add ebp, r8d*3
-    mov bl, dl
-    mov bh, al
-    mov byte ptr [edi + ebp], bl
-    mov byte ptr [edi + ebp +1], bh
-    mov byte ptr [edi + ebp +2], 255 - bl - bh
+    mov eax, edx
+    imul eax, [screen_width]
+    add eax, ebx
+    imul eax, 3
+    add eax, (50 - esi) * 3
+    mov al, dl
+    mov ah, cl
+    mov byte ptr [edi + eax], al
+    mov byte ptr [edi + eax +1], ah
+    mov byte ptr [edi + eax +2], 255 - al - ah
 .skip_pixel:
     dec edx
     jnz .x_loop
