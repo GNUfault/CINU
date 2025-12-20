@@ -104,7 +104,7 @@ printk:
 .clear_row:
     push ecx
     mov ecx, 8*3
-    xor r8b, r8b
+    xor cl, cl
 .clear_pix:
     mov byte ptr [eax], 0x00
     mov byte ptr [eax+1], 0x00
