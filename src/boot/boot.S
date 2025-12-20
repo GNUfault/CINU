@@ -148,7 +148,9 @@ skip_seg:
     xor di, di
     int 0x10
     mov eax, es:[40]
-    mov ds:[fb_addr], eax
+    xor ebx, ebx
+    mov ds, bx
+    mov ds:[0x5000], eax
     pop ds
     in al, 0x92
     or al, 2
@@ -208,8 +210,5 @@ gdt_code:
     .byte gdt_a_present | gdt_a_nosys | gdt_a_dpl0 | gdt_a_exec | gdt_a_rw | gdt_a_accessed
     .byte gdt_fl_32b | gdt_fl_pglimit | 0xF
     .byte 0x0
-.global fb_addr
-fb_addr:
-    .long 0
 .space 0x200 - 2 - (. - start)
 .word 0xaa55
