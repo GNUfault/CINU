@@ -45,12 +45,10 @@ printk:
     add eax, ecx
     add eax, edi
     mov ecx, 16
-
 .row:
     push ecx
     mov bl, [edx]
     mov ecx, 8
-
 .col:
     test bl, 0x80
     jz .skip
@@ -133,12 +131,16 @@ draw_logo:
     imul eax, [screen_width]
     add eax, ebx
     imul eax, 3
-    add eax, (50 - esi) * 3
+    mov edi, eax
+    mov eax, 50
+    sub eax, esi
+    imul eax, 3
+    add edi, eax
     mov al, dl
     mov ah, cl
-    mov byte ptr [edi + eax], al
-    mov byte ptr [edi + eax +1], ah
-    mov byte ptr [edi + eax +2], 255 - al - ah
+    mov byte ptr [0x5000 + edi], al
+    mov byte ptr [0x5000 + edi +1], ah
+    mov byte ptr [0x5000 + edi +2], 255 - al - ah
 .skip_pixel:
     dec edx
     jnz .x_loop
