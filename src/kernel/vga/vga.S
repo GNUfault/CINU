@@ -110,19 +110,28 @@ boot_logo:
     mov esi, offset logo_data
     mov edi, [0x5000]
     
-    mov eax, 960 * 3
+    mov eax, 974 * 3
     add edi, eax
     
-    mov ecx, 64
+    mov ebx, 50
 .logo_row:
-    push ecx
     push edi
-    mov ecx, 64 * 3
-    rep movsb
+    mov ecx, 50
+.logo_pixel:
+    lodsb
+    mov dl, al
+    lodsb
+    mov dh, al
+    lodsb
+    mov byte ptr [edi+2], dl
+    mov byte ptr [edi+1], dh
+    mov byte ptr [edi], al
+    add edi, 3
+    loop .logo_pixel
     pop edi
     add edi, 1024 * 3
-    pop ecx
-    loop .logo_row
+    dec ebx
+    jnz .logo_row
     
     pop edi
     pop esi
