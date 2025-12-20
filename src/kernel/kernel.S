@@ -5,8 +5,6 @@
 .extern panic
 
 _start:
-    call clear_screen
-
     push offset string_panic_msg
     call panic
     add esp, 4
