@@ -6,18 +6,8 @@
 .extern detect_ram_high
 .extern detect_ram_free
 
-.section .rodata
-mem_msg:
-    .asciz "Total memory: "
-free_msg:
-    .asciz "KB, Free memory: "
-end_msg:
-    .asciz "KB\n"
-msg:
-    .asciz "Nothing else implemented (yet)\n"
-
-.section .text
 .global _start
+
 _start:
     call detect_ram_low
     mov ebx, eax
@@ -42,3 +32,13 @@ _start:
 
     push offset msg
     call panic
+
+.section .rodata
+mem_msg:
+    .asciz "Total memory: "
+free_msg:
+    .asciz "KB, Free memory: "
+end_msg:
+    .asciz "KB\n"
+msg:
+    .asciz "Nothing else implemented (yet)\n"
