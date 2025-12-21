@@ -3,6 +3,7 @@
 .extern panic
 .extern enable_paging
 .extern setup_idt
+.extern serial_init
 
 .section .rodata
 msg:
@@ -13,6 +14,7 @@ msg:
 _start:
     sti
 #    call enable_paging
+    call serial_init
     call setup_idt
 
     push offset msg
