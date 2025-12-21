@@ -6,6 +6,9 @@
 .extern pit_init
 .extern keyboard_init
 .extern enable_paging
+.extern floppy_init
+
+.extern print_bytes
 
 .section .rodata
 msg:
@@ -21,6 +24,9 @@ _start:
     call serial_init
     call pit_init
     call keyboard_init
+    call floppy_init
+
+    call print_bytes
 
     push offset msg
     call panic
