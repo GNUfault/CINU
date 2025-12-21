@@ -1,7 +1,5 @@
 .intel_syntax noprefix
-
 .extern idt
-
 .global serial_init
 .global serial_console_write
 
@@ -47,7 +45,7 @@ serial_init:
     mov [edi + 6], ax
     
     mov dx, 0x3F8 + 1
-    mov al, 0x01
+    mov al, 0x02
     out dx, al
     
     in al, 0x21
@@ -85,7 +83,7 @@ serial_handler:
     inc esi
     and esi, 4095
     mov [write_buffer_read], esi
-
+    
 serial_done:
     mov al, 0x20
     out 0x20, al
@@ -102,6 +100,7 @@ serial_console_write:
     push esi
     push edi
     push ebx
+    pushf
     
     mov esi, [ebp + 8]
     
@@ -118,12 +117,13 @@ write_char:
     mov bl, al
     
 wait_space:
+    cli
     mov edi, [write_buffer_write]
     mov ecx, edi
     inc ecx
     and ecx, 4095
     cmp ecx, [write_buffer_read]
-    je wait_space
+    je wait_space_full
     
     lea eax, [write_buffer]
     add eax, edi
@@ -131,44 +131,83 @@ wait_space:
     
     mov [write_buffer_write], ecx
     
+    cmp edi, [write_buffer_read]
+    jne skip_trigger
+    
+    mov dx, 0x3F8 + 5
+    in al, dx
+    test al, 0x20
+    jz skip_trigger
+    
+    mov al, bl
+    mov dx, 0x3F8
+    out dx, al
+    
+    mov edi, [write_buffer_read]
+    inc edi
+    and edi, 4095
+    mov [write_buffer_read], edi
+    
+skip_trigger:
+    sti
     jmp write_loop
 
+wait_space_full:
+    sti
+    pause
+    jmp wait_space
+    
 write_newline_start:
     mov bl, 0x0D
     
 wait_space_cr:
+    cli
     mov edi, [write_buffer_write]
     mov ecx, edi
     inc ecx
     and ecx, 4095
     cmp ecx, [write_buffer_read]
-    je wait_space_cr
+    je wait_space_cr_full
     
     lea eax, [write_buffer]
     add eax, edi
     mov [eax], bl
     
     mov [write_buffer_write], ecx
+    sti
     
     mov bl, 0x0A
     
 wait_space_lf:
+    cli
     mov edi, [write_buffer_write]
     mov ecx, edi
     inc ecx
     and ecx, 4095
     cmp ecx, [write_buffer_read]
-    je wait_space_lf
+    je wait_space_lf_full
     
     lea eax, [write_buffer]
     add eax, edi
     mov [eax], bl
     
     mov [write_buffer_write], ecx
+    sti
     
     jmp write_loop
 
+wait_space_cr_full:
+    sti
+    pause
+    jmp wait_space_cr
+
+wait_space_lf_full:
+    sti
+    pause
+    jmp wait_space_lf
+    
 write_done:
+    popf
     pop ebx
     pop edi
     pop esi
