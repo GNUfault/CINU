@@ -19,3 +19,6 @@ _start:
     
     push offset msg
     call panic
+.loop
+    update_logo
+    jmp .loop
