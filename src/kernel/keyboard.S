@@ -1,7 +1,10 @@
 .intel_syntax noprefix
-.section .text
+
 .extern printk
+.extern idt
+
 .global keyboard_init
+
 keyboard_init:
     push eax
     push edi
@@ -47,5 +50,3 @@ keyboard_handler:
 .section .rodata
 key_msg:
     .asciz "key\n"
-
-.extern idt
