@@ -17,7 +17,7 @@ panic:
 #    cli
 .loop:
     hlt
-    jump .loop
+    jmp .loop
 
 .section .rodata
 panic_msg:
