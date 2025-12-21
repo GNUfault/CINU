@@ -1,8 +1,7 @@
 .intel_syntax noprefix
 
 .extern panic
-.extern idt_setup
-.extern pit_setup
+.extern enable_paging
 
 .section .rodata
 msg:
@@ -11,5 +10,7 @@ msg:
 .section .text
 .global _start
 _start:
+    call enable_paging
+    
     push offset msg
     call panic
