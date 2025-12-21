@@ -1,14 +1,14 @@
 .intel_syntax noprefix
 
 .section .data
-cursor_x:      .long 0
-cursor_y:      .long 0
+cursor_x: .long 0
+cursor_y: .long 0
 logo_center_x: .long 25
 logo_center_y: .long 25
 
 .section .bss
 .global logo_angle
-logo_angle:    .long 0
+logo_angle: .long 0
 
 .section .rodata
 .global font8x16
@@ -16,6 +16,9 @@ font8x16:
 .incbin "src/kernel/vga/font.bin"
 logo_data:
 .incbin "src/kernel/vga/logo.bgr"
+
+sin_table:
+.incbin "src/kernel/vga/sin.tbl"
 
 .section .text
 .global printk
@@ -27,16 +30,16 @@ printk:
     mov ebp, esp
     mov esi, [ebp+8]
     mov edi, [0x5000]
-pk_next:
+.next:
     lodsb
     test al, al
-    jz pk_done
+    jz .done
     cmp al, 10
-    je pk_nl
+    je .newline
     cmp al, 32
-    jb pk_next
+    jb .next
     cmp al, 126
-    ja pk_next
+    ja .next
     movzx eax, al
     shl eax, 4
     lea edx, [font8x16 + eax]
@@ -47,32 +50,33 @@ pk_next:
     add eax, ecx
     add eax, edi
     mov ecx, 16
-pk_row:
+.row:
     push ecx
     mov bl, [edx]
     mov ecx, 8
-pk_col:
+.col:
     test bl, 0x80
-    jz pk_skip
+    jz .skip
     mov byte ptr [eax], 0xC0
     mov byte ptr [eax+1], 0xC0
     mov byte ptr [eax+2], 0xC0
-pk_skip:
+.skip:
     shl bl, 1
     add eax, 3
-    loop pk_col
+    loop .col
     sub eax, 24
     add eax, 3072
     inc edx
     pop ecx
-    loop pk_row
+    loop .row
     inc dword ptr [cursor_x]
     cmp dword ptr [cursor_x], 128
-    jb pk_next
-pk_nl:
+    jb .next
+.newline:
     mov dword ptr [cursor_x], 0
     inc dword ptr [cursor_y]
-pk_done:
+    jmp .next
+.done:
     pop ebp
     ret
 
@@ -86,117 +90,102 @@ update_logo:
     push ebx
     push esi
     push edi
-    sub esp, 16
-
-    mov edi, [0x5000]
-    add edi, (966*3)
-    mov eax, 8
-    imul eax, 1024
-    add edi, eax
-    mov ecx, 50*50
-ul_clear:
-    mov byte ptr [edi], 0
-    mov byte ptr [edi+1], 0
-    mov byte ptr [edi+2], 0
-    add edi, 3
-    loop ul_clear
 
     mov eax, [logo_angle]
-    imul eax, 3141
-    mov [esp], eax
+    and eax, 255
+    mov ebx, eax
+    add eax, 64
+    and eax, 255
+    mov ecx, eax
+
+    lea esi, [sin_table]
+    mov eax, [esi + ebx*4]
+    mov edx, [esi + ecx*4]
+    mov [ebp-4], eax
+    mov [ebp-8], edx
 
     xor ebx, ebx
-ul_row:
+.row_loop:
     xor ecx, ecx
-ul_col:
-    mov esi, ecx
-    sub esi, 25
-    mov edi, ebx
-    sub edi, 25
+.col_loop:
+    mov eax, ecx
+    sub eax, 25
+    mov esi, eax
 
-    mov eax, [esp]
-    imul eax, eax
-    xor edx, edx
-    mov ebp, 1000
-    idiv ebp
-    shr eax, 1
-    mov ebp, 1000
-    sub ebp, eax
-    mov [esp+4], ebp
-
-    mov eax, [esp]
-    imul eax, eax
-    imul eax, eax
-    xor edx, edx
-    mov ebp, 6000000
-    idiv ebp
-    mov ebp, [esp]
-    sub ebp, eax
-    mov [esp+8], ebp
+    mov eax, ebx
+    sub eax, 25
+    mov edi, eax
 
     mov eax, esi
-    imul eax, [esp+4]
-    mov edx, edi
-    imul edx, [esp+8]
-    sub eax, edx
-    xor edx, edx
-    mov ebp, 1000
-    idiv ebp
-    add eax, 25
-    mov [esp+12], eax
+    imul dword ptr [ebp-8]
+    mov esi, eax
+
+    mov eax, edi
+    imul dword ptr [ebp-4]
+    sub esi, eax
 
     mov eax, esi
-    imul eax, [esp+8]
-    mov edx, edi
-    imul edx, [esp+4]
-    add eax, edx
-    xor edx, edx
-    mov ebp, 1000
-    idiv ebp
+    cdq
+    mov edi, 1000
+    idiv edi
     add eax, 25
+    mov esi, eax
+
+    mov eax, esi
+    sub eax, 25
+    mov eax, eax
+    imul dword ptr [ebp-4]
     mov edx, eax
 
-    mov eax, [esp+12]
-    cmp eax, 0
-    jl ul_skip
-    cmp eax, 49
-    jg ul_skip
-    cmp edx, 0
-    jl ul_skip
-    cmp edx, 49
-    jg ul_skip
+    mov eax, edi
+    imul dword ptr [ebp-8]
+    add edx, eax
 
-    mov esi, edx
-    imul esi, 50
-    add esi, eax
-    lea esi, [esi + esi*2]
+    mov eax, edx
+    cdq
+    mov edi, 1000
+    idiv edi
+    add eax, 25
+    mov edi, eax
+
+    test esi, esi
+    js .skip
+    cmp esi, 50
+    jge .skip
+    test edi, edi
+    js .skip
+    cmp edi, 50
+    jge .skip
+
+    mov eax, edi
+    imul eax, 50
+    add eax, esi
+    lea esi, [eax + eax*2]
     add esi, logo_data
 
-    mov edi, [0x5000]
-    add edi, (966*3)
     mov eax, ebx
-    add eax, 8
     imul eax, 1024
-    add edi, eax
-    lea eax, [ecx + ecx*2]
+    add eax, ecx
+    lea eax, [eax + eax*2]
+    mov edi, [0x5000]
+    add edi, 974*3
     add edi, eax
 
     mov al, [esi]
     mov dl, [esi+1]
     mov dh, [esi+2]
-    mov byte ptr [edi], al
-    mov byte ptr [edi+1], dl
-    mov byte ptr [edi+2], dh
+    mov [edi], al
+    mov [edi+1], dl
+    mov [edi+2], dh
 
-ul_skip:
+.skip:
     inc ecx
     cmp ecx, 50
-    jl ul_col
+    jl .col_loop
     inc ebx
     cmp ebx, 50
-    jl ul_row
+    jl .row_loop
 
-    add esp, 16
     pop edi
     pop esi
     pop ebx
