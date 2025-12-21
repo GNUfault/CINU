@@ -14,10 +14,15 @@ idt_ptr:
     .word 256 * 8 - 1
     .long idt
 
+.section .data
+frame_counter: .long 0
+
 .section .text
 .global idt_setup
 .global irq0_handler
 .extern pit_ticks
+.extern logo_angle
+.extern update_logo
 
 idt_setup:
     push ebp
@@ -67,11 +72,37 @@ idt_setup:
 
 irq0_handler:
     push eax
+    push ebx
+    push ecx
+    push edx
+    push esi
+    push edi
+    push ebp
     
     inc dword ptr [pit_ticks]
+    inc dword ptr [frame_counter]
     
+    mov eax, [frame_counter]
+    cmp eax, 20
+    jb .no_update
+    
+    mov dword ptr [frame_counter], 0
+    mov eax, [logo_angle]
+    add eax, 5
+    and eax, 0xFF
+    mov [logo_angle], eax
+    
+    call update_logo
+    
+.no_update:
     mov al, 0x20
     out 0x20, al
     
+    pop ebp
+    pop edi
+    pop esi
+    pop edx
+    pop ecx
+    pop ebx
     pop eax
     iret
