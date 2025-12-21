@@ -6,26 +6,21 @@
 .section .data
 shift_pressed: .byte 0
 caps_lock_on: .byte 0
-num_lock_on: .byte 0
 
 scancode_to_ascii:
     .byte 0, 0, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', 0, 0
-    .byte 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', 0, 0, 'a', 's'
+    .byte 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n', 0, 'a', 's'
     .byte 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\'', '`', 0, '\\', 'z', 'x', 'c', 'v'
-    .byte 'b', 'n', 'm', ',', '.', '/', 0, '*', 0, ' ', 0, 0, 0, 0, 0, 0
-    .byte 0, 0, 0, 0, 0, 0, 0, '7', '8', '9', '-', '4', '5', '6', '+', '1'
-    .byte '2', '3', '0', '.', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    .byte 'b', 'n', 'm', ',', '.', '/', 0, '*', 0, ' '
 
 scancode_to_ascii_shift:
     .byte 0, 0, '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', 0, 0
-    .byte 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}', 0, 0, 'A', 'S'
+    .byte 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}', '\n', 0, 'A', 'S'
     .byte 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':', '"', '~', 0, '|', 'Z', 'X', 'C', 'V'
-    .byte 'B', 'N', 'M', '<', '>', '?', 0, '*', 0, ' ', 0, 0, 0, 0, 0, 0
-    .byte 0, 0, 0, 0, 0, 0, 0, '7', '8', '9', '-', '4', '5', '6', '+', '1'
-    .byte '2', '3', '0', '.', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    .byte 'B', 'N', 'M', '<', '>', '?', 0, '*', 0, ' '
 
-.section .rodata
-char_msg: .asciz "%c"
+.section .bss
+char_buffer: .space 2
 
 .section .text
 keyboard_init:
@@ -54,105 +49,86 @@ keyboard_handler:
     push ebx
     push ecx
     push edx
-    push esi
     
     in al, 0x60
     movzx ebx, al
     
     cmp bl, 0x2A
-    je .left_shift_pressed
+    je shift_down
     cmp bl, 0x36
-    je .right_shift_pressed
+    je shift_down
+    
     cmp bl, 0xAA
-    je .left_shift_released
+    je shift_up
     cmp bl, 0xB6
-    je .right_shift_released
+    je shift_up
     
     cmp bl, 0x3A
-    je .caps_lock_toggle
+    je caps_toggle
     
-    cmp bl, 0x45
-    je .num_lock_toggle
+    test bl, 0x80
+    jnz done
     
-    cmp bl, 0x80
-    jge .done
+    cmp bl, 58
+    jge done
     
-    mov al, [shift_pressed]
-    test al, al
-    jnz .use_shift_table
-    
-    mov al, [caps_lock_on]
-    test al, al
-    jz .use_normal_table
-    
-    cmp bl, 0x10
-    jl .use_normal_table
-    cmp bl, 0x32
-    jg .use_normal_table
-    
-    lea esi, [scancode_to_ascii]
-    movzx eax, byte ptr [esi + ebx]
-    
-    cmp al, 'a'
-    jl .print_char
-    cmp al, 'z'
-    jg .print_char
-    sub al, 32
-    jmp .print_char
-    
-.use_shift_table:
-    lea esi, [scancode_to_ascii_shift]
-    movzx eax, byte ptr [esi + ebx]
-    
-    mov cl, [caps_lock_on]
+    lea eax, [scancode_to_ascii]
+    mov cl, [shift_pressed]
     test cl, cl
-    jz .print_char
+    jz got_table
+    lea eax, [scancode_to_ascii_shift]
     
-    cmp al, 'A'
-    jl .print_char
-    cmp al, 'Z'
-    jg .print_char
-    add al, 32
-    jmp .print_char
+got_table:
+    movzx ecx, byte ptr [eax + ebx]
+    test cl, cl
+    jz done
     
-.use_normal_table:
-    lea esi, [scancode_to_ascii]
-    movzx eax, byte ptr [esi + ebx]
+    mov dl, [caps_lock_on]
+    test dl, dl
+    jz print_it
     
-.print_char:
-    test al, al
-    jz .done
+    cmp cl, 'a'
+    jl check_upper
+    cmp cl, 'z'
+    jg check_upper
+    sub cl, 32
+    jmp print_it
     
-    movzx eax, al
-    push eax
-    push offset char_msg
+check_upper:
+    mov dl, [shift_pressed]
+    test dl, dl
+    jz print_it
+    cmp cl, 'A'
+    jl print_it
+    cmp cl, 'Z'
+    jg print_it
+    add cl, 32
+    
+print_it:
+    mov [char_buffer], cl
+    mov byte ptr [char_buffer + 1], 0
+    
+    push offset char_buffer
     call printk
-    add esp, 8
-    jmp .done
+    add esp, 4
+    jmp done
     
-.left_shift_pressed:
-.right_shift_pressed:
+shift_down:
     mov byte ptr [shift_pressed], 1
-    jmp .done
+    jmp done
     
-.left_shift_released:
-.right_shift_released:
+shift_up:
     mov byte ptr [shift_pressed], 0
-    jmp .done
+    jmp done
     
-.caps_lock_toggle:
+caps_toggle:
     xor byte ptr [caps_lock_on], 1
-    jmp .done
+    jmp done
     
-.num_lock_toggle:
-    xor byte ptr [num_lock_on], 1
-    jmp .done
-    
-.done:
+done:
     mov al, 0x20
     out 0x20, al
     
-    pop esi
     pop edx
     pop ecx
     pop ebx
