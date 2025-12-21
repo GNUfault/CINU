@@ -27,16 +27,16 @@ printk:
     mov ebp, esp
     mov esi, [ebp+8]
     mov edi, [0x5000]
-.next_char:
+pk_next:
     lodsb
     test al, al
-    jz .done
+    jz pk_done
     cmp al, 10
-    je .newline
+    je pk_nl
     cmp al, 32
-    jb .next_char
+    jb pk_next
     cmp al, 126
-    ja .next_char
+    ja pk_next
     movzx eax, al
     shl eax, 4
     lea edx, [font8x16 + eax]
@@ -47,156 +47,154 @@ printk:
     add eax, ecx
     add eax, edi
     mov ecx, 16
-.row:
+pk_row:
     push ecx
     mov bl, [edx]
-.col:
+    mov ecx, 8
+pk_col:
     test bl, 0x80
-    jz .skip_pixel
+    jz pk_skip
     mov byte ptr [eax], 0xC0
     mov byte ptr [eax+1], 0xC0
     mov byte ptr [eax+2], 0xC0
-.skip_pixel:
+pk_skip:
     shl bl, 1
     add eax, 3
-    loop .col
+    loop pk_col
     sub eax, 24
     add eax, 3072
     inc edx
     pop ecx
-    loop .row
+    loop pk_row
     inc dword ptr [cursor_x]
     cmp dword ptr [cursor_x], 128
-    jb .next_char
-.newline:
+    jb pk_next
+pk_nl:
     mov dword ptr [cursor_x], 0
     inc dword ptr [cursor_y]
-.scroll_check:
-    mov eax, [cursor_y]
-    cmp eax, 48
-    jb .next_char
-    mov ecx, 1024*768*3 - 16*1024*3
-    mov esi, [0x5000]
-    add esi, 16*1024*3
-    mov edi, [0x5000]
-    rep movsb
-    sub dword ptr [cursor_y], 1
-    mov eax, [cursor_y]
-    imul eax, 16*1024*3
-    add eax, edi
-    mov ecx, 16*8
-.clear_bottom:
-    mov byte ptr [eax], 0
-    mov byte ptr [eax+1], 0
-    mov byte ptr [eax+2], 0
-    add eax, 3
-    loop .clear_bottom
-    jmp .next_char
-.done:
-    mov esp, ebp
+pk_done:
     pop ebp
     ret
 
 boot_logo:
-    push ebp
-    mov ebp, esp
     call update_logo
-    pop ebp
     ret
 
 update_logo:
     push ebp
     mov ebp, esp
+    push ebx
     push esi
     push edi
-    push ebx
+    sub esp, 16
+
     mov edi, [0x5000]
     add edi, 974*3
     mov ecx, 50*50
-    xor eax, eax
-.clear_loop:
+ul_clear:
     mov byte ptr [edi], 0
     mov byte ptr [edi+1], 0
     mov byte ptr [edi+2], 0
     add edi, 3
-    inc eax
-    cmp eax, 50*50
-    jl .clear_loop
+    loop ul_clear
+
     mov eax, [logo_angle]
-    mov ebx, eax
-    imul ebx, 3141
-    mov [ebp-4], ebx
+    imul eax, 3141
+    mov [esp], eax
+
     xor ebx, ebx
-.row_loop:
+ul_row:
     xor ecx, ecx
-.col_loop:
+ul_col:
     mov esi, ecx
-    sub esi, [logo_center_x]
-    mov edx, ebx
-    sub edx, [logo_center_y]
-    mov eax, [ebp-4]
-    mov edi, eax
+    sub esi, 25
+    mov edi, ebx
+    sub edi, 25
+
+    mov eax, [esp]
     imul eax, eax
-    idiv 1000
-    mov ecx, eax
-    mov eax, 1000
-    sub eax, ecx/2
-    mov [ebp-8], eax
-    mov eax, [ebp-4]
+    xor edx, edx
+    mov ebp, 1000
+    idiv ebp
+    shr eax, 1
+    mov ebp, 1000
+    sub ebp, eax
+    mov [esp+4], ebp
+
+    mov eax, [esp]
     imul eax, eax
     imul eax, eax
-    idiv 6
-    mov [ebp-12], eax
-    mov eax, [ebp-4]
-    sub eax, [ebp-12]
-    mov [ebp-16], eax
+    xor edx, edx
+    mov ebp, 6000000
+    idiv ebp
+    mov ebp, [esp]
+    sub ebp, eax
+    mov [esp+8], ebp
+
     mov eax, esi
-    imul eax, [ebp-8]
-    mov edx, edx
-    imul edx, [ebp-16]
+    imul eax, [esp+4]
+    mov edx, edi
+    imul edx, [esp+8]
     sub eax, edx
-    idiv 1000
-    add eax, [logo_center_x]
-    mov edx, esi
-    imul edx, [ebp-16]
-    mov esi, edx
-    imul esi, [ebp-8]
-    add edx, esi
-    idiv 1000
-    add edx, [logo_center_y]
+    xor edx, edx
+    mov ebp, 1000
+    idiv ebp
+    add eax, 25
+    mov [esp+12], eax
+
+    mov eax, esi
+    imul eax, [esp+8]
+    mov edx, edi
+    imul edx, [esp+4]
+    add eax, edx
+    xor edx, edx
+    mov ebp, 1000
+    idiv ebp
+    add eax, 25
+    mov edx, eax
+
+    mov eax, [esp+12]
     cmp eax, 0
-    jl .skip_pixel
+    jl ul_skip
     cmp eax, 49
-    jg .skip_pixel
+    jg ul_skip
     cmp edx, 0
-    jl .skip_pixel
+    jl ul_skip
     cmp edx, 49
-    jg .skip_pixel
+    jg ul_skip
+
     mov esi, edx
     imul esi, 50
     add esi, eax
-    lea esi, [logo_data + esi*3]
+    lea esi, [esi + esi*2]
+    add esi, logo_data
+
     mov edi, [0x5000]
     add edi, 974*3
     mov eax, ebx
     imul eax, 1024
     add edi, eax
-    add edi, ecx
+    lea eax, [ecx + ecx*2]
+    add edi, eax
+
     mov al, [esi]
     mov dl, [esi+1]
     mov dh, [esi+2]
     mov byte ptr [edi], al
     mov byte ptr [edi+1], dl
     mov byte ptr [edi+2], dh
-.skip_pixel:
+
+ul_skip:
     inc ecx
     cmp ecx, 50
-    jl .col_loop
+    jl ul_col
     inc ebx
     cmp ebx, 50
-    jl .row_loop
-    pop ebx
+    jl ul_row
+
+    add esp, 16
     pop edi
     pop esi
+    pop ebx
     pop ebp
     ret
