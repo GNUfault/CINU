@@ -26,7 +26,7 @@ _start:
     call keyboard_init
     call floppy_init
 
-    call print_bytes
+#    call print_bytes
 
     push offset msg
     call panic
