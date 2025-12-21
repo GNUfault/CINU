@@ -92,8 +92,6 @@ irq0_handler:
     and eax, 0xFF
     mov [logo_angle], eax
     
-    call update_logo
-    
 .no_update:
     mov al, 0x20
     out 0x20, al
