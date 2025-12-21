@@ -1,14 +1,14 @@
 .intel_syntax noprefix
 
 .section .data
-cursor_x: .long 0
-cursor_y: .long 0
+cursor_x:      .long 0
+cursor_y:      .long 0
 logo_center_x: .long 25
 logo_center_y: .long 25
 
 .section .bss
 .global logo_angle
-logo_angle: .long 0
+logo_angle:    .long 0
 
 .section .rodata
 .global font8x16
@@ -89,7 +89,10 @@ update_logo:
     sub esp, 16
 
     mov edi, [0x5000]
-    add edi, 974*3
+    add edi, (966*3)
+    mov eax, 8
+    imul eax, 1024
+    add edi, eax
     mov ecx, 50*50
 ul_clear:
     mov byte ptr [edi], 0
@@ -170,8 +173,9 @@ ul_col:
     add esi, logo_data
 
     mov edi, [0x5000]
-    add edi, 974*3
+    add edi, (966*3)
     mov eax, ebx
+    add eax, 8
     imul eax, 1024
     add edi, eax
     lea eax, [ecx + ecx*2]
