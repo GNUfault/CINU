@@ -2,6 +2,8 @@
 
 .extern panic
 .extern boot_logo
+.extern idt_setup
+.extern pit_setup
 
 .section .rodata
 msg:
@@ -10,6 +12,9 @@ msg:
 .section .text
 .global _start
 _start:
+    call idt_setup
+    call pit_setup
+
     call boot_logo
     
     push offset msg
