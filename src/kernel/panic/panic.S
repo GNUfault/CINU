@@ -14,7 +14,6 @@ panic:
     add esp, 4
 
     pop ebp
-    hlt
 
 .section .rodata
 panic_msg:
