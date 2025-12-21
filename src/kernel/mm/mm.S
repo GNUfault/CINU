@@ -1,7 +1,7 @@
 .intel_syntax noprefix
 
 .section .data
-ram_low:  .long 0
+ram_low: .long 0
 ram_high: .long 0
 ram_free: .long 0
 
@@ -11,7 +11,7 @@ ram_free: .long 0
 .global detect_ram_high
 .global detect_ram_free
 
-PAGE_DIR   equ 0x90000
+PAGE_DIR equ 0x90000
 PAGE_TABLE equ 0x91000
 
 enable_paging:
