@@ -20,7 +20,7 @@ _start:
     
     push offset msg
     call panic
-.loop
+.loop:
     add dword ptr [logo_angle], 1
     call update_logo
     jmp .loop
