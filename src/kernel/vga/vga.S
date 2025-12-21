@@ -29,7 +29,7 @@ printk:
     ja .next
     movzx eax, al
     shl eax, 4
-    lea edx, [font8x16 + eax]
+    lea edx, [font + eax]
     mov eax, [cursor_y]
     imul eax, 16*1024*3
     mov ecx, [cursor_x]
