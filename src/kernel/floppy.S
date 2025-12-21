@@ -107,45 +107,10 @@ wait_reset_irq:
     add esp, 4
     
     mov byte ptr [floppy_irq_fired], 0
+    
     call sense_interrupt
-    
-    mov byte ptr [floppy_irq_fired], 0
-wait_reset_irq2:
-    cmp byte ptr [floppy_irq_fired], 0
-    je wait_reset_irq2
-    
-    lea eax, [msg_irq2]
-    push eax
-    call printk
-    add esp, 4
-    
-    mov byte ptr [floppy_irq_fired], 0
     call sense_interrupt
-    
-    mov byte ptr [floppy_irq_fired], 0
-wait_reset_irq3:
-    cmp byte ptr [floppy_irq_fired], 0
-    je wait_reset_irq3
-    
-    lea eax, [msg_irq3]
-    push eax
-    call printk
-    add esp, 4
-    
-    mov byte ptr [floppy_irq_fired], 0
     call sense_interrupt
-    
-    mov byte ptr [floppy_irq_fired], 0
-wait_reset_irq4:
-    cmp byte ptr [floppy_irq_fired], 0
-    je wait_reset_irq4
-    
-    lea eax, [msg_irq4]
-    push eax
-    call printk
-    add esp, 4
-    
-    mov byte ptr [floppy_irq_fired], 0
     call sense_interrupt
     
     call send_specify
