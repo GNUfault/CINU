@@ -2,6 +2,7 @@
 
 .extern panic
 .extern enable_paging
+.extern setup_idt
 
 .section .rodata
 msg:
@@ -11,6 +12,7 @@ msg:
 .global _start
 _start:
 #    call enable_paging
-    
+    call setup_idt
+
     push offset msg
     call panic
