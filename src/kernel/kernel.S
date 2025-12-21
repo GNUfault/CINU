@@ -11,8 +11,5 @@ msg:
 .section .text
 .global _start
 _start:
-    call idt_setup
-    call pit_setup
-    
     push offset msg
     call panic
