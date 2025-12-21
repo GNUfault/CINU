@@ -1,74 +1,77 @@
 .intel_syntax noprefix
+
 .extern idt
 .extern printk
+
 .global floppy_init
-.global print_bytes
 .global floppy_reset
 .global sense_interrupt
 .global send_specify
 .global wait_controller
+.global floppy_handler
+.global print_bytes
 
 floppy_init:
     push eax
     push edi
-    
-    lea eax, [msg_init]
+
+    lea eax, msg_init
     push eax
     call printk
     add esp, 4
-    
+
     mov al, 0x06
     out 0x0A, al
-    
+
     mov al, 0x00
     out 0x0C, al
-    
+
     mov al, 0x00
     out 0x04, al
     mov al, 0x10
     out 0x04, al
-    
+
     mov al, 0xFF
     out 0x05, al
     mov al, 0x01
     out 0x05, al
-    
+
     mov al, 0x46
     out 0x0B, al
-    
+
     mov al, 0x02
     out 0x0A, al
-    
-    lea eax, [msg_dma]
+
+    lea eax, msg_dma
     push eax
     call printk
     add esp, 4
-    
+
     lea edi, [idt + 0x26 * 8]
-    lea eax, [floppy_handler]
+    lea eax, floppy_handler
     mov dx, ax
     shr eax, 16
     mov word ptr [edi], dx
     mov word ptr [edi + 2], 0x0008
     mov word ptr [edi + 4], 0x8E00
     mov word ptr [edi + 6], ax
-    
+
     in al, 0x21
     and al, 0xBF
     out 0x21, al
-    
-    lea eax, [msg_idt]
+
+    lea eax, msg_idt
     push eax
     call printk
     add esp, 4
-    
+
     call floppy_reset
-    
-    lea eax, [msg_ready]
+
+    lea eax, msg_ready
     push eax
     call printk
     add esp, 4
-    
+
     pop edi
     pop eax
     ret
@@ -76,54 +79,49 @@ floppy_init:
 floppy_reset:
     push eax
     push edx
-    
-    lea eax, [msg_reset]
+
+    lea eax, msg_reset
     push eax
     call printk
     add esp, 4
-    
+
     mov byte ptr [floppy_irq_fired], 0
-    
+
     mov dx, 0x3F2
     mov al, 0x00
     out dx, al
-    
+
     mov dx, 0x3F7
     mov al, 0x00
     out dx, al
-    
+
     mov dx, 0x3F2
     mov al, 0x0C
     out dx, al
-    
-    lea eax, [msg_wait_reset]
+
+    lea eax, msg_wait_reset
     push eax
     call printk
     add esp, 4
-    
-wait_reset_irq:
+
+reset_wait:
     cmp byte ptr [floppy_irq_fired], 0
-    je wait_reset_irq
-    
-    lea eax, [msg_irq1]
-    push eax
-    call printk
-    add esp, 4
-    
+    je reset_wait
+
     mov byte ptr [floppy_irq_fired], 0
-    
+
     call sense_interrupt
     call sense_interrupt
     call sense_interrupt
     call sense_interrupt
-    
+
     call send_specify
-    
-    lea eax, [msg_reset_done]
+
+    lea eax, msg_reset_done
     push eax
     call printk
     add esp, 4
-    
+
     pop edx
     pop eax
     ret
@@ -131,23 +129,20 @@ wait_reset_irq:
 sense_interrupt:
     push eax
     push edx
-    
+
     call wait_controller
-    
     mov dx, 0x3F5
     mov al, 0x08
     out dx, al
-    
+
     call wait_controller
-    
     mov dx, 0x3F5
     in al, dx
-    
+
     call wait_controller
-    
     mov dx, 0x3F5
     in al, dx
-    
+
     pop edx
     pop eax
     ret
@@ -155,30 +150,27 @@ sense_interrupt:
 send_specify:
     push eax
     push edx
-    
-    lea eax, [msg_specify]
+
+    lea eax, msg_specify
     push eax
     call printk
     add esp, 4
-    
+
     call wait_controller
-    
     mov dx, 0x3F5
     mov al, 0x03
     out dx, al
-    
+
     call wait_controller
-    
     mov dx, 0x3F5
     mov al, 0xDF
     out dx, al
-    
+
     call wait_controller
-    
     mov dx, 0x3F5
     mov al, 0x02
     out dx, al
-    
+
     pop edx
     pop eax
     ret
@@ -186,25 +178,24 @@ send_specify:
 wait_controller:
     push eax
     push edx
-    
+
     mov dx, 0x3F4
-wait_loop:
+wc_loop:
     in al, dx
-    and al, 0x80
-    jz wait_loop
-    
+    test al, 0x80
+    jz wc_loop
+
     pop edx
     pop eax
     ret
 
 floppy_handler:
     pushad
-    
+
     mov byte ptr [floppy_irq_fired], 1
-    
     mov al, 0x20
     out 0x20, al
-    
+
     popad
     iretd
 
@@ -214,210 +205,112 @@ print_bytes:
     push esi
     push edi
     push ebx
-    
-    lea eax, [msg_print_start]
+
+    lea eax, msg_print_start
     push eax
     call printk
     add esp, 4
-    
-    mov byte ptr [current_sector], 1
-    
-read_next_sector:
-    movzx eax, byte ptr [current_sector]
-    push eax
-    lea eax, [msg_reading_sector]
-    push eax
-    call printk
-    add esp, 8
-    
+
     mov byte ptr [floppy_irq_fired], 0
-    
+
     mov dx, 0x3F2
     mov al, 0x1C
     out dx, al
-    
+
+    lea eax, msg_motor_on
+    push eax
+    call printk
+    add esp, 4
+
     call wait_controller
-    
     mov dx, 0x3F5
     mov al, 0xE6
     out dx, al
-    
+
+    lea eax, msg_cmd_sent
+    push eax
+    call printk
+    add esp, 4
+
+    mov ecx, 9
+    mov esi, read_params
+
+param_loop:
     call wait_controller
-    
     mov dx, 0x3F5
-    mov al, 0x00
+    mov al, byte ptr [esi]
     out dx, al
-    
-    call wait_controller
-    
-    mov dx, 0x3F5
-    mov al, 0x00
-    out dx, al
-    
-    call wait_controller
-    
-    mov dx, 0x3F5
-    mov al, 0x00
-    out dx, al
-    
-    call wait_controller
-    
-    mov dx, 0x3F5
-    movzx eax, byte ptr [current_sector]
-    out dx, al
-    
-    call wait_controller
-    
-    mov dx, 0x3F5
-    mov al, 0x02
-    out dx, al
-    
-    call wait_controller
-    
-    mov dx, 0x3F5
-    mov al, 0x12
-    out dx, al
-    
-    call wait_controller
-    
-    mov dx, 0x3F5
-    mov al, 0x1B
-    out dx, al
-    
-    call wait_controller
-    
-    mov dx, 0x3F5
-    mov al, 0xFF
-    out dx, al
-    
-wait_read_irq:
-    cmp byte ptr [floppy_irq_fired], 0
-    je wait_read_irq
-    
-    mov byte ptr [floppy_irq_fired], 0
-    
-    call wait_controller
-    mov dx, 0x3F5
-    in al, dx
-    
-    call wait_controller
-    mov dx, 0x3F5
-    in al, dx
-    
-    call wait_controller
-    mov dx, 0x3F5
-    in al, dx
-    
-    call wait_controller
-    mov dx, 0x3F5
-    in al, dx
-    
-    call wait_controller
-    mov dx, 0x3F5
-    in al, dx
-    
-    call wait_controller
-    mov dx, 0x3F5
-    in al, dx
-    
-    call wait_controller
-    mov dx, 0x3F5
-    in al, dx
-    
-    mov esi, 0x1000
-    mov ecx, 512
-    
-check_data:
-    movzx eax, byte ptr [esi]
-    test al, al
-    jnz found_data
     inc esi
-    dec ecx
-    jnz check_data
-    
-    lea eax, [msg_sector_empty]
-    push eax
-    call printk
-    add esp, 4
-    
-    movzx eax, byte ptr [current_sector]
-    inc eax
-    cmp eax, 18
-    jg no_data_found
-    mov byte ptr [current_sector], al
-    jmp read_next_sector
-    
-found_data:
-    lea eax, [msg_found_data]
-    push eax
-    call printk
-    add esp, 4
-    
-    lea eax, [msg_printing]
-    push eax
-    call printk
-    add esp, 4
-    
-    mov esi, 0x1000
-    mov ecx, 512
-    
-print_loop:
-    push ecx
-    
-    movzx eax, byte ptr [esi]
-    
-    lea edi, [hex_buffer]
-    
+    loop param_loop
+
+wait_irq:
+    cmp byte ptr [floppy_irq_fired], 0
+    je wait_irq
+
+    mov byte ptr [floppy_irq_fired], 0
+
+    call wait_controller
+    mov dx, 0x3F5
+    in al, dx
+
+    lea edi, hex_buffer
     mov ebx, eax
     shr ebx, 4
     and ebx, 0x0F
-    lea edx, [hex_chars]
-    add edx, ebx
-    movzx ebx, byte ptr [edx]
-    mov [edi], bl
-    
-    inc edi
+    mov bl, byte ptr [hex_chars + ebx]
+    mov byte ptr [edi], bl
     mov ebx, eax
     and ebx, 0x0F
-    lea edx, [hex_chars]
-    add edx, ebx
-    movzx ebx, byte ptr [edx]
-    mov [edi], bl
-    
-    inc edi
-    mov byte ptr [edi], 0x20
-    inc edi
-    mov byte ptr [edi], 0x00
-    
-    lea eax, [hex_buffer]
+    mov bl, byte ptr [hex_chars + ebx]
+    mov byte ptr [edi + 1], bl
+    mov byte ptr [edi + 2], 0
+
+    lea eax, msg_st0
     push eax
     call printk
     add esp, 4
-    
+
+    lea eax, hex_buffer
+    push eax
+    call printk
+    add esp, 4
+
+    lea eax, newline
+    push eax
+    call printk
+    add esp, 4
+
+    mov esi, 0x1000
+    mov ecx, 512
+
+dump_loop:
+    movzx eax, byte ptr [esi]
+    lea edi, hex_buffer
+    mov ebx, eax
+    shr ebx, 4
+    and ebx, 0x0F
+    mov bl, byte ptr [hex_chars + ebx]
+    mov byte ptr [edi], bl
+    mov ebx, eax
+    and ebx, 0x0F
+    mov bl, byte ptr [hex_chars + ebx]
+    mov byte ptr [edi + 1], bl
+    mov byte ptr [edi + 2], 0x20
+    mov byte ptr [edi + 3], 0
+
+    lea eax, hex_buffer
+    push eax
+    call printk
+    add esp, 4
+
     inc esi
-    pop ecx
-    dec ecx
-    jnz print_loop
-    
-    lea eax, [newline]
+    loop dump_loop
+
+    lea eax, msg_done
     push eax
     call printk
     add esp, 4
-    
-    lea eax, [msg_done]
-    push eax
-    call printk
-    add esp, 4
-    
-    jmp print_end
-    
-no_data_found:
-    lea eax, [msg_no_data]
-    push eax
-    call printk
-    add esp, 4
-    
-print_end:
+
     pop ebx
     pop edi
     pop esi
@@ -425,63 +318,24 @@ print_end:
     ret
 
 .section .data
-hex_chars:
-    .ascii "0123456789ABCDEF"
-newline:
-    .asciz "\n"
-msg_init:
-    .asciz "Floppy init start\n"
-msg_dma:
-    .asciz "DMA setup done\n"
-msg_idt:
-    .asciz "IDT setup done\n"
-msg_reset:
-    .asciz "Resetting floppy\n"
-msg_wait_reset:
-    .asciz "Waiting for reset IRQ\n"
-msg_irq1:
-    .asciz "IRQ 1\n"
-msg_specify:
-    .asciz "Sending specify\n"
-msg_reset_done:
-    .asciz "Reset complete\n"
-msg_ready:
-    .asciz "Floppy ready\n"
-msg_print_start:
-    .asciz "print_bytes called\n"
-msg_motor_on:
-    .asciz "Motor on\n"
-msg_cmd_sent:
-    .asciz "Read command sent\n"
-msg_params_sent:
-    .asciz "Parameters sent\n"
-msg_wait_irq:
-    .asciz "Waiting for read IRQ\n"
-msg_irq_got:
-    .asciz "Read IRQ received\n"
-msg_results_read:
-    .asciz "Results read\n"
-msg_printing:
-    .asciz "Printing data:\n"
-msg_done:
-    .asciz "Done\n"
-msg_st0:
-    .asciz "ST0: "
-msg_first_byte:
-    .asciz "First byte at 0x1000: "
-msg_reading_sector:
-    .asciz "Reading sector %d\n"
-msg_sector_empty:
-    .asciz "Sector empty, trying next\n"
-msg_found_data:
-    .asciz "Found data!\n"
-msg_no_data:
-    .asciz "No data found on disk\n"
-floppy_irq_fired:
-    .byte 0
-current_sector:
-    .byte 1
+hex_chars:        .ascii "0123456789ABCDEF"
+newline:          .asciz "\n"
+msg_init:         .asciz "Floppy init start\n"
+msg_dma:          .asciz "DMA setup done\n"
+msg_idt:          .asciz "IDT setup done\n"
+msg_reset:        .asciz "Resetting floppy\n"
+msg_wait_reset:   .asciz "Waiting for reset IRQ\n"
+msg_specify:      .asciz "Sending specify\n"
+msg_reset_done:   .asciz "Reset complete\n"
+msg_ready:        .asciz "Floppy ready\n"
+msg_print_start:  .asciz "print_bytes called\n"
+msg_motor_on:     .asciz "Motor on\n"
+msg_cmd_sent:     .asciz "Read command sent\n"
+msg_st0:          .asciz "ST0: "
+msg_done:         .asciz "Done\n"
+read_params:      .byte 0x00,0x00,0x00,0x01,0x01,0x00,0x02,0x12,0x1B
+floppy_irq_fired: .byte 0
 
 .section .bss
-hex_buffer:
-    .skip 4
+hex_buffer: .skip 4
+
