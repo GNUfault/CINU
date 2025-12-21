@@ -5,10 +5,12 @@
 cursor_x: .long 0
 cursor_y: .long 0
 
+.extern serial_console_write
+
 .section .rodata
 .global font
 font:
-.incbin "src/kernel/font.bin"
+    .incbin "src/kernel/font.bin"
 
 .section .text
 .global printk
@@ -20,6 +22,11 @@ printk:
     push ebx
     
     mov esi, [ebp+8]
+    
+    push esi
+    call serial_console_write
+    add esp, 4
+    
     mov edi, [0x5000]
 .next:
     lodsb
@@ -34,7 +41,6 @@ printk:
     
     cmp dword ptr [cursor_y], 48
     jae .scroll
-    
 .continue_print:
     movzx eax, al
     shl eax, 4
@@ -72,7 +78,6 @@ printk:
     mov dword ptr [cursor_x], 0
     inc dword ptr [cursor_y]
     jmp .next
-
 .scroll:
     push eax
     push ecx
@@ -98,7 +103,6 @@ printk:
     
     dec dword ptr [cursor_y]
     jmp .continue_print
-
 .done:
     pop ebx
     pop edi
