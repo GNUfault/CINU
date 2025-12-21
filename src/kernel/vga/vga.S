@@ -1,14 +1,14 @@
 .intel_syntax noprefix
 
 .section .data
-cursor_x:      .long 0
-cursor_y:      .long 0
+cursor_x: .long 0
+cursor_y: .long 0
 logo_center_x: .long 25
 logo_center_y: .long 25
 
 .section .bss
 .global logo_angle
-logo_angle:    .long 0
+logo_angle: .long 0
 
 .section .rodata
 .global font8x16
