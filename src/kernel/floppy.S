@@ -322,6 +322,12 @@ wait_read_irq:
     call wait_controller
     mov dx, 0x3F5
     in al, dx
+    movzx eax, al
+    push eax
+    lea eax, [msg_st0]
+    push eax
+    call printk
+    add esp, 8
     
     call wait_controller
     mov dx, 0x3F5
@@ -351,6 +357,13 @@ wait_read_irq:
     push eax
     call printk
     add esp, 4
+    
+    movzx eax, byte ptr [0x1000]
+    push eax
+    lea eax, [msg_first_byte]
+    push eax
+    call printk
+    add esp, 8
     
     lea eax, [msg_printing]
     push eax
@@ -461,6 +474,10 @@ msg_printing:
     .asciz "Printing data:\n"
 msg_done:
     .asciz "Done\n"
+msg_st0:
+    .asciz "ST0: %d\n"
+msg_first_byte:
+    .asciz "First byte at 0x1000: %d\n"
 floppy_irq_fired:
     .byte 0
 
