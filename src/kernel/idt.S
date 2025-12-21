@@ -1,7 +1,8 @@
 .intel_syntax noprefix
-.section .text
-.global setup_idt
-setup_idt:
+
+.global idt_init
+
+idt_init:
     lea edi, [idt]
     mov ecx, 256
     lea eax, [default_handler]
