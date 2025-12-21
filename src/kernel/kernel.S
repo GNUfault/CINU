@@ -11,6 +11,7 @@ msg:
 .section .text
 .global _start
 _start:
+    sti
 #    call enable_paging
     call setup_idt
 
