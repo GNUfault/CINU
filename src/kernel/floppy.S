@@ -220,16 +220,21 @@ print_bytes:
     call printk
     add esp, 4
     
+    mov byte ptr [current_sector], 1
+    
+read_next_sector:
+    movzx eax, byte ptr [current_sector]
+    push eax
+    lea eax, [msg_reading_sector]
+    push eax
+    call printk
+    add esp, 8
+    
     mov byte ptr [floppy_irq_fired], 0
     
     mov dx, 0x3F2
     mov al, 0x1C
     out dx, al
-    
-    lea eax, [msg_motor_on]
-    push eax
-    call printk
-    add esp, 4
     
     call wait_controller
     
@@ -237,11 +242,6 @@ print_bytes:
     mov al, 0xE6
     out dx, al
     
-    lea eax, [msg_cmd_sent]
-    push eax
-    call printk
-    add esp, 4
-    
     call wait_controller
     
     mov dx, 0x3F5
@@ -263,19 +263,7 @@ print_bytes:
     call wait_controller
     
     mov dx, 0x3F5
-    mov al, 0x01
-    out dx, al
-    
-    call wait_controller
-    
-    mov dx, 0x3F5
-    mov al, 0x01
-    out dx, al
-    
-    call wait_controller
-    
-    mov dx, 0x3F5
-    mov al, 0x00
+    movzx eax, byte ptr [current_sector]
     out dx, al
     
     call wait_controller
@@ -302,24 +290,9 @@ print_bytes:
     mov al, 0xFF
     out dx, al
     
-    lea eax, [msg_params_sent]
-    push eax
-    call printk
-    add esp, 4
-    
-    lea eax, [msg_wait_irq]
-    push eax
-    call printk
-    add esp, 4
-    
 wait_read_irq:
     cmp byte ptr [floppy_irq_fired], 0
     je wait_read_irq
-    
-    lea eax, [msg_irq_got]
-    push eax
-    call printk
-    add esp, 4
     
     mov byte ptr [floppy_irq_fired], 0
     
@@ -327,41 +300,6 @@ wait_read_irq:
     mov dx, 0x3F5
     in al, dx
     
-    lea edi, [hex_buffer]
-    movzx ebx, al
-    shr ebx, 4
-    and ebx, 0x0F
-    lea edx, [hex_chars]
-    add edx, ebx
-    movzx ebx, byte ptr [edx]
-    mov [edi], bl
-    
-    inc edi
-    movzx ebx, al
-    and ebx, 0x0F
-    lea edx, [hex_chars]
-    add edx, ebx
-    movzx ebx, byte ptr [edx]
-    mov [edi], bl
-    
-    inc edi
-    mov byte ptr [edi], 0x00
-    
-    lea eax, [msg_st0]
-    push eax
-    call printk
-    add esp, 4
-    
-    lea eax, [hex_buffer]
-    push eax
-    call printk
-    add esp, 4
-    
-    lea eax, [newline]
-    push eax
-    call printk
-    add esp, 4
-    
     call wait_controller
     mov dx, 0x3F5
     in al, dx
@@ -386,44 +324,31 @@ wait_read_irq:
     mov dx, 0x3F5
     in al, dx
     
-    lea eax, [msg_results_read]
+    mov esi, 0x1000
+    mov ecx, 512
+    
+check_data:
+    movzx eax, byte ptr [esi]
+    test al, al
+    jnz found_data
+    inc esi
+    dec ecx
+    jnz check_data
+    
+    lea eax, [msg_sector_empty]
     push eax
     call printk
     add esp, 4
     
-    movzx eax, byte ptr [0x1000]
+    movzx eax, byte ptr [current_sector]
+    inc eax
+    cmp eax, 18
+    jg no_data_found
+    mov byte ptr [current_sector], al
+    jmp read_next_sector
     
-    lea edi, [hex_buffer]
-    mov ebx, eax
-    shr ebx, 4
-    and ebx, 0x0F
-    lea edx, [hex_chars]
-    add edx, ebx
-    movzx ebx, byte ptr [edx]
-    mov [edi], bl
-    
-    inc edi
-    mov ebx, eax
-    and ebx, 0x0F
-    lea edx, [hex_chars]
-    add edx, ebx
-    movzx ebx, byte ptr [edx]
-    mov [edi], bl
-    
-    inc edi
-    mov byte ptr [edi], 0x00
-    
-    lea eax, [msg_first_byte]
-    push eax
-    call printk
-    add esp, 4
-    
-    lea eax, [hex_buffer]
-    push eax
-    call printk
-    add esp, 4
-    
-    lea eax, [newline]
+found_data:
+    lea eax, [msg_found_data]
     push eax
     call printk
     add esp, 4
@@ -484,6 +409,15 @@ print_loop:
     call printk
     add esp, 4
     
+    jmp print_end
+    
+no_data_found:
+    lea eax, [msg_no_data]
+    push eax
+    call printk
+    add esp, 4
+    
+print_end:
     pop ebx
     pop edi
     pop esi
@@ -535,8 +469,18 @@ msg_st0:
     .asciz "ST0: "
 msg_first_byte:
     .asciz "First byte at 0x1000: "
+msg_reading_sector:
+    .asciz "Reading sector %d\n"
+msg_sector_empty:
+    .asciz "Sector empty, trying next\n"
+msg_found_data:
+    .asciz "Found data!\n"
+msg_no_data:
+    .asciz "No data found on disk\n"
 floppy_irq_fired:
     .byte 0
+current_sector:
+    .byte 1
 
 .section .bss
 hex_buffer:
