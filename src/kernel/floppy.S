@@ -47,32 +47,29 @@ floppy_init:
     mov al, 0x00
     out dx, al
     
-    mov ecx, 10000000
-delay1:
-    pause
-    dec ecx
-    jnz delay1
+    mov dx, 0x3F7
+    mov al, 0x00
+    out dx, al
     
     mov dx, 0x3F2
     mov al, 0x0C
     out dx, al
     
-    mov ecx, 10000000
-delay2:
-    pause
-    dec ecx
-    jnz delay2
+    mov byte ptr [floppy_irq_fired], 0
     
+wait_irq1:
+    cmp byte ptr [floppy_irq_fired], 0
+    je wait_irq1
     mov byte ptr [floppy_irq_fired], 0
     
     mov dx, 0x3F4
-wait_rdy:
+wait_rdy1:
     in al, dx
     test al, 0x80
-    jz wait_rdy
+    jz wait_rdy1
     
     mov dx, 0x3F5
-    mov al, 0x03
+    mov al, 0x08
     out dx, al
     
     mov dx, 0x3F4
@@ -82,8 +79,7 @@ wait_rdy2:
     jz wait_rdy2
     
     mov dx, 0x3F5
-    mov al, 0xDF
-    out dx, al
+    in al, dx
     
     mov dx, 0x3F4
 wait_rdy3:
@@ -92,8 +88,12 @@ wait_rdy3:
     jz wait_rdy3
     
     mov dx, 0x3F5
-    mov al, 0x02
-    out dx, al
+    in al, dx
+    
+wait_irq2:
+    cmp byte ptr [floppy_irq_fired], 0
+    je wait_irq2
+    mov byte ptr [floppy_irq_fired], 0
     
     mov dx, 0x3F4
 wait_rdy4:
@@ -102,7 +102,7 @@ wait_rdy4:
     jz wait_rdy4
     
     mov dx, 0x3F5
-    mov al, 0x07
+    mov al, 0x08
     out dx, al
     
     mov dx, 0x3F4
@@ -112,13 +112,7 @@ wait_rdy5:
     jz wait_rdy5
     
     mov dx, 0x3F5
-    mov al, 0x00
-    out dx, al
-    
-wait_recal:
-    cmp byte ptr [floppy_irq_fired], 0
-    je wait_recal
-    mov byte ptr [floppy_irq_fired], 0
+    in al, dx
     
     mov dx, 0x3F4
 wait_rdy6:
@@ -127,8 +121,12 @@ wait_rdy6:
     jz wait_rdy6
     
     mov dx, 0x3F5
-    mov al, 0x08
-    out dx, al
+    in al, dx
+    
+wait_irq3:
+    cmp byte ptr [floppy_irq_fired], 0
+    je wait_irq3
+    mov byte ptr [floppy_irq_fired], 0
     
     mov dx, 0x3F4
 wait_rdy7:
@@ -137,7 +135,8 @@ wait_rdy7:
     jz wait_rdy7
     
     mov dx, 0x3F5
-    in al, dx
+    mov al, 0x08
+    out dx, al
     
     mov dx, 0x3F4
 wait_rdy8:
@@ -147,6 +146,78 @@ wait_rdy8:
     
     mov dx, 0x3F5
     in al, dx
+    
+    mov dx, 0x3F4
+wait_rdy9:
+    in al, dx
+    test al, 0x80
+    jz wait_rdy9
+    
+    mov dx, 0x3F5
+    in al, dx
+    
+wait_irq4:
+    cmp byte ptr [floppy_irq_fired], 0
+    je wait_irq4
+    mov byte ptr [floppy_irq_fired], 0
+    
+    mov dx, 0x3F4
+wait_rdy10:
+    in al, dx
+    test al, 0x80
+    jz wait_rdy10
+    
+    mov dx, 0x3F5
+    mov al, 0x08
+    out dx, al
+    
+    mov dx, 0x3F4
+wait_rdy11:
+    in al, dx
+    test al, 0x80
+    jz wait_rdy11
+    
+    mov dx, 0x3F5
+    in al, dx
+    
+    mov dx, 0x3F4
+wait_rdy12:
+    in al, dx
+    test al, 0x80
+    jz wait_rdy12
+    
+    mov dx, 0x3F5
+    in al, dx
+    
+    mov dx, 0x3F4
+wait_rdy13:
+    in al, dx
+    test al, 0x80
+    jz wait_rdy13
+    
+    mov dx, 0x3F5
+    mov al, 0x03
+    out dx, al
+    
+    mov dx, 0x3F4
+wait_rdy14:
+    in al, dx
+    test al, 0x80
+    jz wait_rdy14
+    
+    mov dx, 0x3F5
+    mov al, 0xDF
+    out dx, al
+    
+    mov dx, 0x3F4
+wait_rdy15:
+    in al, dx
+    test al, 0x80
+    jz wait_rdy15
+    
+    mov dx, 0x3F5
+    mov al, 0x02
+    out dx, al
     
     pop edi
     pop eax
@@ -175,12 +246,6 @@ print_bytes:
     mov dx, 0x3F2
     mov al, 0x1C
     out dx, al
-    
-    mov ecx, 5000000
-delay_motor:
-    pause
-    dec ecx
-    jnz delay_motor
     
     mov dx, 0x3F4
 wait_read1:
@@ -229,7 +294,7 @@ wait_read5:
     jz wait_read5
     
     mov dx, 0x3F5
-    mov al, 0x02
+    mov al, 0x01
     out dx, al
     
     mov dx, 0x3F4
@@ -282,11 +347,7 @@ wait_read10:
     mov al, 0xFF
     out dx, al
     
-    mov ecx, 100000000
 wait_read_irq:
-    pause
-    dec ecx
-    jz timeout
     cmp byte ptr [floppy_irq_fired], 0
     je wait_read_irq
     
@@ -347,15 +408,6 @@ print_loop:
     call printk
     add esp, 4
     
-    jmp done
-    
-timeout:
-    lea eax, [timeout_msg]
-    push eax
-    call printk
-    add esp, 4
-    
-done:
     pop ebx
     pop edi
     pop esi
@@ -367,8 +419,6 @@ hex_chars:
     .ascii "0123456789ABCDEF"
 newline:
     .asciz "\n"
-timeout_msg:
-    .asciz "Floppy timeout\n"
 floppy_irq_fired:
     .byte 0
 
