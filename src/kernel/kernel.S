@@ -5,6 +5,7 @@
 .extern serial_init
 .extern pit_init
 .extern keyboard_init
+.extern enable_paging
 
 .section .rodata
 msg:
@@ -15,6 +16,7 @@ msg:
 _start:
     sti
 
+    call enable_paging
     call idt_init
     call serial_init
     call pit_init
