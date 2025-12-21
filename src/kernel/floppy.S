@@ -60,32 +60,36 @@ floppy_init:
 wait_irq1:
     cmp byte ptr [floppy_irq_fired], 0
     je wait_irq1
+    
     mov byte ptr [floppy_irq_fired], 0
     
     mov dx, 0x3F4
-wait_rdy1:
+wait_sense1:
     in al, dx
-    test al, 0x80
-    jz wait_rdy1
+    and al, 0xC0
+    cmp al, 0xC0
+    jne wait_sense1
     
     mov dx, 0x3F5
     mov al, 0x08
     out dx, al
     
     mov dx, 0x3F4
-wait_rdy2:
+wait_result1:
     in al, dx
-    test al, 0x80
-    jz wait_rdy2
+    and al, 0xC0
+    cmp al, 0xC0
+    jne wait_result1
     
     mov dx, 0x3F5
     in al, dx
     
     mov dx, 0x3F4
-wait_rdy3:
+wait_result2:
     in al, dx
-    test al, 0x80
-    jz wait_rdy3
+    and al, 0xC0
+    cmp al, 0xC0
+    jne wait_result2
     
     mov dx, 0x3F5
     in al, dx
@@ -93,32 +97,36 @@ wait_rdy3:
 wait_irq2:
     cmp byte ptr [floppy_irq_fired], 0
     je wait_irq2
+    
     mov byte ptr [floppy_irq_fired], 0
     
     mov dx, 0x3F4
-wait_rdy4:
+wait_sense2:
     in al, dx
-    test al, 0x80
-    jz wait_rdy4
+    and al, 0xC0
+    cmp al, 0xC0
+    jne wait_sense2
     
     mov dx, 0x3F5
     mov al, 0x08
     out dx, al
     
     mov dx, 0x3F4
-wait_rdy5:
+wait_result3:
     in al, dx
-    test al, 0x80
-    jz wait_rdy5
+    and al, 0xC0
+    cmp al, 0xC0
+    jne wait_result3
     
     mov dx, 0x3F5
     in al, dx
     
     mov dx, 0x3F4
-wait_rdy6:
+wait_result4:
     in al, dx
-    test al, 0x80
-    jz wait_rdy6
+    and al, 0xC0
+    cmp al, 0xC0
+    jne wait_result4
     
     mov dx, 0x3F5
     in al, dx
@@ -126,32 +134,36 @@ wait_rdy6:
 wait_irq3:
     cmp byte ptr [floppy_irq_fired], 0
     je wait_irq3
+    
     mov byte ptr [floppy_irq_fired], 0
     
     mov dx, 0x3F4
-wait_rdy7:
+wait_sense3:
     in al, dx
-    test al, 0x80
-    jz wait_rdy7
+    and al, 0xC0
+    cmp al, 0xC0
+    jne wait_sense3
     
     mov dx, 0x3F5
     mov al, 0x08
     out dx, al
     
     mov dx, 0x3F4
-wait_rdy8:
+wait_result5:
     in al, dx
-    test al, 0x80
-    jz wait_rdy8
+    and al, 0xC0
+    cmp al, 0xC0
+    jne wait_result5
     
     mov dx, 0x3F5
     in al, dx
     
     mov dx, 0x3F4
-wait_rdy9:
+wait_result6:
     in al, dx
-    test al, 0x80
-    jz wait_rdy9
+    and al, 0xC0
+    cmp al, 0xC0
+    jne wait_result6
     
     mov dx, 0x3F5
     in al, dx
@@ -159,61 +171,68 @@ wait_rdy9:
 wait_irq4:
     cmp byte ptr [floppy_irq_fired], 0
     je wait_irq4
+    
     mov byte ptr [floppy_irq_fired], 0
     
     mov dx, 0x3F4
-wait_rdy10:
+wait_sense4:
     in al, dx
-    test al, 0x80
-    jz wait_rdy10
+    and al, 0xC0
+    cmp al, 0xC0
+    jne wait_sense4
     
     mov dx, 0x3F5
     mov al, 0x08
     out dx, al
     
     mov dx, 0x3F4
-wait_rdy11:
+wait_result7:
     in al, dx
-    test al, 0x80
-    jz wait_rdy11
+    and al, 0xC0
+    cmp al, 0xC0
+    jne wait_result7
     
     mov dx, 0x3F5
     in al, dx
     
     mov dx, 0x3F4
-wait_rdy12:
+wait_result8:
     in al, dx
-    test al, 0x80
-    jz wait_rdy12
+    and al, 0xC0
+    cmp al, 0xC0
+    jne wait_result8
     
     mov dx, 0x3F5
     in al, dx
     
     mov dx, 0x3F4
-wait_rdy13:
+wait_specify:
     in al, dx
-    test al, 0x80
-    jz wait_rdy13
+    and al, 0xC0
+    cmp al, 0x80
+    jne wait_specify
     
     mov dx, 0x3F5
     mov al, 0x03
     out dx, al
     
     mov dx, 0x3F4
-wait_rdy14:
+wait_specify2:
     in al, dx
-    test al, 0x80
-    jz wait_rdy14
+    and al, 0xC0
+    cmp al, 0x80
+    jne wait_specify2
     
     mov dx, 0x3F5
     mov al, 0xDF
     out dx, al
     
     mov dx, 0x3F4
-wait_rdy15:
+wait_specify3:
     in al, dx
-    test al, 0x80
-    jz wait_rdy15
+    and al, 0xC0
+    cmp al, 0x80
+    jne wait_specify3
     
     mov dx, 0x3F5
     mov al, 0x02
@@ -250,8 +269,9 @@ print_bytes:
     mov dx, 0x3F4
 wait_read1:
     in al, dx
-    test al, 0x80
-    jz wait_read1
+    and al, 0xC0
+    cmp al, 0x80
+    jne wait_read1
     
     mov dx, 0x3F5
     mov al, 0xE6
@@ -260,8 +280,9 @@ wait_read1:
     mov dx, 0x3F4
 wait_read2:
     in al, dx
-    test al, 0x80
-    jz wait_read2
+    and al, 0xC0
+    cmp al, 0x80
+    jne wait_read2
     
     mov dx, 0x3F5
     mov al, 0x00
@@ -270,8 +291,9 @@ wait_read2:
     mov dx, 0x3F4
 wait_read3:
     in al, dx
-    test al, 0x80
-    jz wait_read3
+    and al, 0xC0
+    cmp al, 0x80
+    jne wait_read3
     
     mov dx, 0x3F5
     mov al, 0x00
@@ -280,8 +302,9 @@ wait_read3:
     mov dx, 0x3F4
 wait_read4:
     in al, dx
-    test al, 0x80
-    jz wait_read4
+    and al, 0xC0
+    cmp al, 0x80
+    jne wait_read4
     
     mov dx, 0x3F5
     mov al, 0x00
@@ -290,8 +313,9 @@ wait_read4:
     mov dx, 0x3F4
 wait_read5:
     in al, dx
-    test al, 0x80
-    jz wait_read5
+    and al, 0xC0
+    cmp al, 0x80
+    jne wait_read5
     
     mov dx, 0x3F5
     mov al, 0x01
@@ -300,8 +324,9 @@ wait_read5:
     mov dx, 0x3F4
 wait_read6:
     in al, dx
-    test al, 0x80
-    jz wait_read6
+    and al, 0xC0
+    cmp al, 0x80
+    jne wait_read6
     
     mov dx, 0x3F5
     mov al, 0x01
@@ -310,8 +335,9 @@ wait_read6:
     mov dx, 0x3F4
 wait_read7:
     in al, dx
-    test al, 0x80
-    jz wait_read7
+    and al, 0xC0
+    cmp al, 0x80
+    jne wait_read7
     
     mov dx, 0x3F5
     mov al, 0x00
@@ -320,8 +346,9 @@ wait_read7:
     mov dx, 0x3F4
 wait_read8:
     in al, dx
-    test al, 0x80
-    jz wait_read8
+    and al, 0xC0
+    cmp al, 0x80
+    jne wait_read8
     
     mov dx, 0x3F5
     mov al, 0x02
@@ -330,8 +357,9 @@ wait_read8:
     mov dx, 0x3F4
 wait_read9:
     in al, dx
-    test al, 0x80
-    jz wait_read9
+    and al, 0xC0
+    cmp al, 0x80
+    jne wait_read9
     
     mov dx, 0x3F5
     mov al, 0x12
@@ -340,8 +368,20 @@ wait_read9:
     mov dx, 0x3F4
 wait_read10:
     in al, dx
-    test al, 0x80
-    jz wait_read10
+    and al, 0xC0
+    cmp al, 0x80
+    jne wait_read10
+    
+    mov dx, 0x3F5
+    mov al, 0x1B
+    out dx, al
+    
+    mov dx, 0x3F4
+wait_read11:
+    in al, dx
+    and al, 0xC0
+    cmp al, 0x80
+    jne wait_read11
     
     mov dx, 0x3F5
     mov al, 0xFF
@@ -353,13 +393,74 @@ wait_read_irq:
     
     mov byte ptr [floppy_irq_fired], 0
     
+    mov dx, 0x3F4
+wait_res1:
+    in al, dx
+    and al, 0xC0
+    cmp al, 0xC0
+    jne wait_res1
+    
     mov dx, 0x3F5
     in al, dx
+    
+    mov dx, 0x3F4
+wait_res2:
     in al, dx
+    and al, 0xC0
+    cmp al, 0xC0
+    jne wait_res2
+    
+    mov dx, 0x3F5
     in al, dx
+    
+    mov dx, 0x3F4
+wait_res3:
     in al, dx
+    and al, 0xC0
+    cmp al, 0xC0
+    jne wait_res3
+    
+    mov dx, 0x3F5
     in al, dx
+    
+    mov dx, 0x3F4
+wait_res4:
     in al, dx
+    and al, 0xC0
+    cmp al, 0xC0
+    jne wait_res4
+    
+    mov dx, 0x3F5
+    in al, dx
+    
+    mov dx, 0x3F4
+wait_res5:
+    in al, dx
+    and al, 0xC0
+    cmp al, 0xC0
+    jne wait_res5
+    
+    mov dx, 0x3F5
+    in al, dx
+    
+    mov dx, 0x3F4
+wait_res6:
+    in al, dx
+    and al, 0xC0
+    cmp al, 0xC0
+    jne wait_res6
+    
+    mov dx, 0x3F5
+    in al, dx
+    
+    mov dx, 0x3F4
+wait_res7:
+    in al, dx
+    and al, 0xC0
+    cmp al, 0xC0
+    jne wait_res7
+    
+    mov dx, 0x3F5
     in al, dx
     
     mov esi, 0x1000
