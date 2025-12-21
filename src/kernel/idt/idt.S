@@ -1,6 +1,6 @@
 .intel_syntax noprefix
 .section .text
-
+.extern printk
 .global setup_idt
 setup_idt:
     lea edi, [idt]
@@ -59,15 +59,27 @@ default_handler:
 keyboard_handler:
     push eax
     push ebx
+    push ecx
+    push edx
     
     in al, 0x60
+    
+    push offset key_msg
+    call printk
+    add esp, 4
     
     mov al, 0x20
     out 0x20, al
     
+    pop edx
+    pop ecx
     pop ebx
     pop eax
     iret
+
+.section .rodata
+key_msg:
+    .asciz "key\n"
 
 .section .data
 idt_ptr:
