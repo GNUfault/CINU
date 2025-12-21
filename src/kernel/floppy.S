@@ -8,18 +8,10 @@ floppy_init:
     push eax
     push edi
     
-    lea edi, [idt + 0x26 * 8]
-    lea eax, [floppy_handler]
-    mov dx, ax
-    shr eax, 16
-    mov [edi], dx
-    mov [edi + 2], word ptr 0x0008
-    mov [edi + 4], word ptr 0x8E00
-    mov [edi + 6], ax
-    
-    in al, 0x21
-    and al, 0xBF
-    out 0x21, al
+    lea eax, [msg_init]
+    push eax
+    call printk
+    add esp, 4
     
     mov al, 0x06
     out 0x0A, al
@@ -43,6 +35,51 @@ floppy_init:
     mov al, 0x02
     out 0x0A, al
     
+    lea eax, [msg_dma]
+    push eax
+    call printk
+    add esp, 4
+    
+    lea edi, [idt + 0x26 * 8]
+    lea eax, [floppy_handler]
+    mov dx, ax
+    shr eax, 16
+    mov [edi], dx
+    mov [edi + 2], word ptr 0x0008
+    mov [edi + 4], word ptr 0x8E00
+    mov [edi + 6], ax
+    
+    in al, 0x21
+    and al, 0xBF
+    out 0x21, al
+    
+    lea eax, [msg_idt]
+    push eax
+    call printk
+    add esp, 4
+    
+    call floppy_reset
+    
+    lea eax, [msg_ready]
+    push eax
+    call printk
+    add esp, 4
+    
+    pop edi
+    pop eax
+    ret
+
+floppy_reset:
+    push eax
+    push edx
+    
+    lea eax, [msg_reset]
+    push eax
+    call printk
+    add esp, 4
+    
+    mov byte ptr [floppy_irq_fired], 0
+    
     mov dx, 0x3F2
     mov al, 0x00
     out dx, al
@@ -55,190 +92,139 @@ floppy_init:
     mov al, 0x0C
     out dx, al
     
-    mov byte ptr [floppy_irq_fired], 0
+    lea eax, [msg_wait_reset]
+    push eax
+    call printk
+    add esp, 4
     
-wait_irq1:
+wait_reset_irq:
     cmp byte ptr [floppy_irq_fired], 0
-    je wait_irq1
+    je wait_reset_irq
+    
+    lea eax, [msg_irq1]
+    push eax
+    call printk
+    add esp, 4
     
     mov byte ptr [floppy_irq_fired], 0
+    call sense_interrupt
     
-    mov dx, 0x3F4
-wait_sense1:
-    in al, dx
-    and al, 0xC0
-    cmp al, 0xC0
-    jne wait_sense1
+    mov byte ptr [floppy_irq_fired], 0
+wait_reset_irq2:
+    cmp byte ptr [floppy_irq_fired], 0
+    je wait_reset_irq2
+    
+    lea eax, [msg_irq2]
+    push eax
+    call printk
+    add esp, 4
+    
+    mov byte ptr [floppy_irq_fired], 0
+    call sense_interrupt
+    
+    mov byte ptr [floppy_irq_fired], 0
+wait_reset_irq3:
+    cmp byte ptr [floppy_irq_fired], 0
+    je wait_reset_irq3
+    
+    lea eax, [msg_irq3]
+    push eax
+    call printk
+    add esp, 4
+    
+    mov byte ptr [floppy_irq_fired], 0
+    call sense_interrupt
+    
+    mov byte ptr [floppy_irq_fired], 0
+wait_reset_irq4:
+    cmp byte ptr [floppy_irq_fired], 0
+    je wait_reset_irq4
+    
+    lea eax, [msg_irq4]
+    push eax
+    call printk
+    add esp, 4
+    
+    mov byte ptr [floppy_irq_fired], 0
+    call sense_interrupt
+    
+    call send_specify
+    
+    lea eax, [msg_reset_done]
+    push eax
+    call printk
+    add esp, 4
+    
+    pop edx
+    pop eax
+    ret
+
+sense_interrupt:
+    push eax
+    push edx
+    
+    call wait_controller
     
     mov dx, 0x3F5
     mov al, 0x08
     out dx, al
     
-    mov dx, 0x3F4
-wait_result1:
-    in al, dx
-    and al, 0xC0
-    cmp al, 0xC0
-    jne wait_result1
+    call wait_controller
     
     mov dx, 0x3F5
     in al, dx
     
-    mov dx, 0x3F4
-wait_result2:
-    in al, dx
-    and al, 0xC0
-    cmp al, 0xC0
-    jne wait_result2
+    call wait_controller
     
     mov dx, 0x3F5
     in al, dx
     
-wait_irq2:
-    cmp byte ptr [floppy_irq_fired], 0
-    je wait_irq2
+    pop edx
+    pop eax
+    ret
+
+send_specify:
+    push eax
+    push edx
     
-    mov byte ptr [floppy_irq_fired], 0
+    lea eax, [msg_specify]
+    push eax
+    call printk
+    add esp, 4
     
-    mov dx, 0x3F4
-wait_sense2:
-    in al, dx
-    and al, 0xC0
-    cmp al, 0xC0
-    jne wait_sense2
-    
-    mov dx, 0x3F5
-    mov al, 0x08
-    out dx, al
-    
-    mov dx, 0x3F4
-wait_result3:
-    in al, dx
-    and al, 0xC0
-    cmp al, 0xC0
-    jne wait_result3
-    
-    mov dx, 0x3F5
-    in al, dx
-    
-    mov dx, 0x3F4
-wait_result4:
-    in al, dx
-    and al, 0xC0
-    cmp al, 0xC0
-    jne wait_result4
-    
-    mov dx, 0x3F5
-    in al, dx
-    
-wait_irq3:
-    cmp byte ptr [floppy_irq_fired], 0
-    je wait_irq3
-    
-    mov byte ptr [floppy_irq_fired], 0
-    
-    mov dx, 0x3F4
-wait_sense3:
-    in al, dx
-    and al, 0xC0
-    cmp al, 0xC0
-    jne wait_sense3
-    
-    mov dx, 0x3F5
-    mov al, 0x08
-    out dx, al
-    
-    mov dx, 0x3F4
-wait_result5:
-    in al, dx
-    and al, 0xC0
-    cmp al, 0xC0
-    jne wait_result5
-    
-    mov dx, 0x3F5
-    in al, dx
-    
-    mov dx, 0x3F4
-wait_result6:
-    in al, dx
-    and al, 0xC0
-    cmp al, 0xC0
-    jne wait_result6
-    
-    mov dx, 0x3F5
-    in al, dx
-    
-wait_irq4:
-    cmp byte ptr [floppy_irq_fired], 0
-    je wait_irq4
-    
-    mov byte ptr [floppy_irq_fired], 0
-    
-    mov dx, 0x3F4
-wait_sense4:
-    in al, dx
-    and al, 0xC0
-    cmp al, 0xC0
-    jne wait_sense4
-    
-    mov dx, 0x3F5
-    mov al, 0x08
-    out dx, al
-    
-    mov dx, 0x3F4
-wait_result7:
-    in al, dx
-    and al, 0xC0
-    cmp al, 0xC0
-    jne wait_result7
-    
-    mov dx, 0x3F5
-    in al, dx
-    
-    mov dx, 0x3F4
-wait_result8:
-    in al, dx
-    and al, 0xC0
-    cmp al, 0xC0
-    jne wait_result8
-    
-    mov dx, 0x3F5
-    in al, dx
-    
-    mov dx, 0x3F4
-wait_specify:
-    in al, dx
-    and al, 0xC0
-    cmp al, 0x80
-    jne wait_specify
+    call wait_controller
     
     mov dx, 0x3F5
     mov al, 0x03
     out dx, al
     
-    mov dx, 0x3F4
-wait_specify2:
-    in al, dx
-    and al, 0xC0
-    cmp al, 0x80
-    jne wait_specify2
+    call wait_controller
     
     mov dx, 0x3F5
     mov al, 0xDF
     out dx, al
     
-    mov dx, 0x3F4
-wait_specify3:
-    in al, dx
-    and al, 0xC0
-    cmp al, 0x80
-    jne wait_specify3
+    call wait_controller
     
     mov dx, 0x3F5
     mov al, 0x02
     out dx, al
     
-    pop edi
+    pop edx
+    pop eax
+    ret
+
+wait_controller:
+    push eax
+    push edx
+    
+    mov dx, 0x3F4
+wait_loop:
+    in al, dx
+    and al, 0x80
+    jz wait_loop
+    
+    pop edx
     pop eax
     ret
 
@@ -260,208 +246,151 @@ print_bytes:
     push edi
     push ebx
     
+    lea eax, [msg_print_start]
+    push eax
+    call printk
+    add esp, 4
+    
     mov byte ptr [floppy_irq_fired], 0
     
     mov dx, 0x3F2
     mov al, 0x1C
     out dx, al
     
-    mov dx, 0x3F4
-wait_read1:
-    in al, dx
-    and al, 0xC0
-    cmp al, 0x80
-    jne wait_read1
+    lea eax, [msg_motor_on]
+    push eax
+    call printk
+    add esp, 4
+    
+    call wait_controller
     
     mov dx, 0x3F5
     mov al, 0xE6
     out dx, al
     
-    mov dx, 0x3F4
-wait_read2:
-    in al, dx
-    and al, 0xC0
-    cmp al, 0x80
-    jne wait_read2
+    lea eax, [msg_cmd_sent]
+    push eax
+    call printk
+    add esp, 4
+    
+    call wait_controller
     
     mov dx, 0x3F5
     mov al, 0x00
     out dx, al
     
-    mov dx, 0x3F4
-wait_read3:
-    in al, dx
-    and al, 0xC0
-    cmp al, 0x80
-    jne wait_read3
+    call wait_controller
     
     mov dx, 0x3F5
     mov al, 0x00
     out dx, al
     
-    mov dx, 0x3F4
-wait_read4:
-    in al, dx
-    and al, 0xC0
-    cmp al, 0x80
-    jne wait_read4
+    call wait_controller
     
     mov dx, 0x3F5
     mov al, 0x00
     out dx, al
     
-    mov dx, 0x3F4
-wait_read5:
-    in al, dx
-    and al, 0xC0
-    cmp al, 0x80
-    jne wait_read5
+    call wait_controller
     
     mov dx, 0x3F5
     mov al, 0x01
     out dx, al
     
-    mov dx, 0x3F4
-wait_read6:
-    in al, dx
-    and al, 0xC0
-    cmp al, 0x80
-    jne wait_read6
+    call wait_controller
     
     mov dx, 0x3F5
     mov al, 0x01
     out dx, al
     
-    mov dx, 0x3F4
-wait_read7:
-    in al, dx
-    and al, 0xC0
-    cmp al, 0x80
-    jne wait_read7
+    call wait_controller
     
     mov dx, 0x3F5
     mov al, 0x00
     out dx, al
     
-    mov dx, 0x3F4
-wait_read8:
-    in al, dx
-    and al, 0xC0
-    cmp al, 0x80
-    jne wait_read8
+    call wait_controller
     
     mov dx, 0x3F5
     mov al, 0x02
     out dx, al
     
-    mov dx, 0x3F4
-wait_read9:
-    in al, dx
-    and al, 0xC0
-    cmp al, 0x80
-    jne wait_read9
+    call wait_controller
     
     mov dx, 0x3F5
     mov al, 0x12
     out dx, al
     
-    mov dx, 0x3F4
-wait_read10:
-    in al, dx
-    and al, 0xC0
-    cmp al, 0x80
-    jne wait_read10
+    call wait_controller
     
     mov dx, 0x3F5
     mov al, 0x1B
     out dx, al
     
-    mov dx, 0x3F4
-wait_read11:
-    in al, dx
-    and al, 0xC0
-    cmp al, 0x80
-    jne wait_read11
+    call wait_controller
     
     mov dx, 0x3F5
     mov al, 0xFF
     out dx, al
     
+    lea eax, [msg_params_sent]
+    push eax
+    call printk
+    add esp, 4
+    
+    lea eax, [msg_wait_irq]
+    push eax
+    call printk
+    add esp, 4
+    
 wait_read_irq:
     cmp byte ptr [floppy_irq_fired], 0
     je wait_read_irq
     
+    lea eax, [msg_irq_got]
+    push eax
+    call printk
+    add esp, 4
+    
     mov byte ptr [floppy_irq_fired], 0
     
-    mov dx, 0x3F4
-wait_res1:
-    in al, dx
-    and al, 0xC0
-    cmp al, 0xC0
-    jne wait_res1
-    
+    call wait_controller
     mov dx, 0x3F5
     in al, dx
     
-    mov dx, 0x3F4
-wait_res2:
-    in al, dx
-    and al, 0xC0
-    cmp al, 0xC0
-    jne wait_res2
-    
+    call wait_controller
     mov dx, 0x3F5
     in al, dx
     
-    mov dx, 0x3F4
-wait_res3:
-    in al, dx
-    and al, 0xC0
-    cmp al, 0xC0
-    jne wait_res3
-    
+    call wait_controller
     mov dx, 0x3F5
     in al, dx
     
-    mov dx, 0x3F4
-wait_res4:
-    in al, dx
-    and al, 0xC0
-    cmp al, 0xC0
-    jne wait_res4
-    
+    call wait_controller
     mov dx, 0x3F5
     in al, dx
     
-    mov dx, 0x3F4
-wait_res5:
-    in al, dx
-    and al, 0xC0
-    cmp al, 0xC0
-    jne wait_res5
-    
+    call wait_controller
     mov dx, 0x3F5
     in al, dx
     
-    mov dx, 0x3F4
-wait_res6:
-    in al, dx
-    and al, 0xC0
-    cmp al, 0xC0
-    jne wait_res6
-    
+    call wait_controller
     mov dx, 0x3F5
     in al, dx
     
-    mov dx, 0x3F4
-wait_res7:
-    in al, dx
-    and al, 0xC0
-    cmp al, 0xC0
-    jne wait_res7
-    
+    call wait_controller
     mov dx, 0x3F5
     in al, dx
+    
+    lea eax, [msg_results_read]
+    push eax
+    call printk
+    add esp, 4
+    
+    lea eax, [msg_printing]
+    push eax
+    call printk
+    add esp, 4
     
     mov esi, 0x1000
     mov ecx, 512
@@ -509,6 +438,11 @@ print_loop:
     call printk
     add esp, 4
     
+    lea eax, [msg_done]
+    push eax
+    call printk
+    add esp, 4
+    
     pop ebx
     pop edi
     pop esi
@@ -520,6 +454,48 @@ hex_chars:
     .ascii "0123456789ABCDEF"
 newline:
     .asciz "\n"
+msg_init:
+    .asciz "Floppy init start\n"
+msg_dma:
+    .asciz "DMA setup done\n"
+msg_idt:
+    .asciz "IDT setup done\n"
+msg_reset:
+    .asciz "Resetting floppy\n"
+msg_wait_reset:
+    .asciz "Waiting for reset IRQ\n"
+msg_irq1:
+    .asciz "IRQ 1\n"
+msg_irq2:
+    .asciz "IRQ 2\n"
+msg_irq3:
+    .asciz "IRQ 3\n"
+msg_irq4:
+    .asciz "IRQ 4\n"
+msg_specify:
+    .asciz "Sending specify\n"
+msg_reset_done:
+    .asciz "Reset complete\n"
+msg_ready:
+    .asciz "Floppy ready\n"
+msg_print_start:
+    .asciz "print_bytes called\n"
+msg_motor_on:
+    .asciz "Motor on\n"
+msg_cmd_sent:
+    .asciz "Read command sent\n"
+msg_params_sent:
+    .asciz "Parameters sent\n"
+msg_wait_irq:
+    .asciz "Waiting for read IRQ\n"
+msg_irq_got:
+    .asciz "Read IRQ received\n"
+msg_results_read:
+    .asciz "Results read\n"
+msg_printing:
+    .asciz "Printing data:\n"
+msg_done:
+    .asciz "Done\n"
 floppy_irq_fired:
     .byte 0
 
