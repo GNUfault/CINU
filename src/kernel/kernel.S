@@ -4,6 +4,7 @@
 .extern boot_logo
 .extern idt_setup
 .extern pit_setup
+.extern update_logo
 
 .section .rodata
 msg:
