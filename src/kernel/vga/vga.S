@@ -1,70 +1,126 @@
 .intel_syntax noprefix
+.equ PAGE_DIR, 0x90000
+.equ PAGE_TABLE, 0x91000
 
 .section .data
-cursor_x: .long 0
-cursor_y: .long 0
-
-.section .rodata
-font:
-.incbin "src/kernel/vga/font.bin"
+ram_low: .long 0
+ram_high: .long 0
+ram_free: .long 0
 
 .section .text
-.global printk
-printk:
-    push ebp
-    mov ebp, esp
-    push esi
-    push edi
-    mov esi, [ebp+8]
-    mov edi, [0x5000]
-.next:
-    lodsb
-    test al, al
-    jz .done
-    cmp al, 10
-    je .newline
-    cmp al, 32
-    jb .next
-    cmp al, 126
-    ja .next
-    movzx eax, al
-    shl eax, 4
-    lea edx, [font + eax]
-    mov eax, [cursor_y]
-    imul eax, 16*1024*3
-    mov ecx, [cursor_x]
-    imul ecx, 8*3
-    add eax, ecx
-    add eax, edi
-    mov ecx, 16
-.row:
-    push ecx
-    mov bl, [edx]
-    mov ecx, 8
-.col:
-    test bl, 0x80
-    jz .skip
-    mov byte ptr [eax], 0xC0
-    mov byte ptr [eax+1], 0xC0
-    mov byte ptr [eax+2], 0xC0
-.skip:
-    shl bl, 1
-    add eax, 3
-    loop .col
-    sub eax, 24
-    add eax, 3072
-    inc edx
-    pop ecx
-    loop .row
-    inc dword ptr [cursor_x]
-    cmp dword ptr [cursor_x], 128
-    jb .next
-.newline:
-    mov dword ptr [cursor_x], 0
-    inc dword ptr [cursor_y]
-    jmp .next
-.done:
-    pop edi
-    pop esi
-    pop ebp
+.global enable_paging
+.global detect_ram_low
+.global detect_ram_high
+.global detect_ram_free
+
+enable_paging:
+    mov edi, PAGE_DIR
+    mov ecx, 1024
+    xor eax, eax
+    rep stosd
+
+    mov edi, PAGE_TABLE
+    mov ecx, 1024
+    xor eax, eax
+    rep stosd
+
+    xor eax, eax
+    mov ecx, 1024
+.fill_pt:
+    mov ebx, eax
+    shl ebx, 12
+    or ebx, 3
+    mov [PAGE_TABLE + eax*4], ebx
+    inc eax
+    loop .fill_pt
+
+    mov eax, PAGE_TABLE
+    or eax, 3
+    mov [PAGE_DIR], eax
+
+    mov eax, PAGE_DIR
+    mov cr3, eax
+
+    mov eax, cr0
+    or eax, 0x80000000
+    mov cr0, eax
+    ret
+
+detect_ram_low:
+    xor eax, eax
+    xor ebx, ebx
+    xor ecx, ecx
+    xor edx, edx
+    xor esi, esi
+    xor edi, edi
+    mov ebx, 0
+    lea edi, [ram_low]
+.next_low:
+    mov eax, 0xE820
+    mov ecx, 24
+    mov edx, 0x534D4150
+    int 0x15
+    jc .done_low
+    cmp byte ptr [esi+4], 1
+    jne .skip_low
+    cmp eax, 0xA0000
+    ja .skip_low
+    add [edi], eax
+.skip_low:
+    test ebx, ebx
+    jnz .next_low
+.done_low:
+    mov eax, [ram_low]
+    ret
+
+detect_ram_high:
+    xor eax, eax
+    xor ebx, ebx
+    xor ecx, ecx
+    xor edx, edx
+    xor esi, esi
+    xor edi, edi
+    mov ebx, 0
+    lea edi, [ram_high]
+.next_high:
+    mov eax, 0xE820
+    mov ecx, 24
+    mov edx, 0x534D4150
+    int 0x15
+    jc .done_high
+    cmp byte ptr [esi+4], 1
+    jne .skip_high
+    cmp eax, 0x100000
+    jb .skip_high
+    add [edi], eax
+.skip_high:
+    test ebx, ebx
+    jnz .next_high
+.done_high:
+    mov eax, [ram_high]
+    ret
+
+detect_ram_free:
+    xor eax, eax
+    xor ebx, ebx
+    xor ecx, ecx
+    xor edx, edx
+    xor esi, esi
+    xor edi, edi
+    mov ebx, 0
+    lea edi, [ram_free]
+.next_free:
+    mov eax, 0xE820
+    mov ecx, 24
+    mov edx, 0x534D4150
+    int 0x15
+    jc .done_free
+    cmp byte ptr [esi+4], 1
+    jne .skip_free
+    add [edi], eax
+.skip_free:
+    test ebx, ebx
+    jnz .next_free
+.done_free:
+    mov eax, [ram_free]
     ret
