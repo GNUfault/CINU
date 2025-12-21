@@ -1,6 +1,6 @@
 .intel_syntax noprefix
-
 .global pit_init
+
 pit_init:
     push eax
     push edi
@@ -31,17 +31,18 @@ pit_init:
     ret
 
 pit_handler:
-    push eax
+    pushad
     
     inc dword ptr [tick_count]
     
-    mov al, 0x20
-    out 0x20, al
-
     push offset msg
     call printk
-
-    pop eax
+    add esp, 4
+    
+    mov al, 0x20
+    out 0x20, al
+    
+    popad
     iret
 
 .section .data
