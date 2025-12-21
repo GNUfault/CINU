@@ -10,7 +10,7 @@ msg:
 .section .text
 .global _start
 _start:
-    call enable_paging
+#    call enable_paging
     
     push offset msg
     call panic
