@@ -1,5 +1,8 @@
 .intel_syntax noprefix
+
 .global pit_init
+
+.extern idt
 
 pit_init:
     push eax
@@ -35,9 +38,7 @@ pit_handler:
     
     inc dword ptr [tick_count]
     
-    push offset msg
-    call printk
-    add esp, 4
+    # Put what you would like to do here
     
     mov al, 0x20
     out 0x20, al
@@ -49,7 +50,3 @@ pit_handler:
 .global tick_count
 tick_count:
     .long 0
-msg:
-    .asciz "tick\n"
-
-.extern idt
