@@ -14,7 +14,10 @@ panic:
     add esp, 4
 
     pop ebp
+#    cli
+.loop:
     hlt
+    jump .loop
 
 .section .rodata
 panic_msg:
