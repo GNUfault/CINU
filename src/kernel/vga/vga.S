@@ -18,67 +18,33 @@ logo_data:
 .incbin "src/kernel/vga/logo.bgr"
 
 sin_table:
-.incbin "src/kernel/vga/sin.tbl"
+.long 0,17,35,52,70,87,105,122,139,156,174,191,208,225,242,259
+.long 276,292,309,326,342,358,375,391,407,423,438,454,469,485,500,515
+.long 530,545,559,574,588,602,616,629,643,656,669,682,695,707,719,731
+.long 743,755,766,777,788,799,809,819,829,839,848,857,866,875,883,891
+.long 899,906,914,921,927,934,940,946,951,956,961,966,970,974,978,982
+.long 985,988,990,993,995,997,999,1000
+.long 1000,999,997,995,993,990,988,985,982,978,974,970,966,961,956,951
+.long 946,940,934,927,921,914,906,899,891,883,875,866,857,848,839,829
+.long 819,809,799,788,777,766,755,743,731,719,707,695,682,669,656,643
+.long 629,616,602,588,574,559,545,530,515,500,485,469,454,438,423,407
+.long 391,375,358,342,326,309,292,276,259,242,225,208,191,174,156,139
+.long 122,105,87,70,52,35,17,0
+.long -17,-35,-52,-70,-87,-105,-122,-139
+.long -156,-174,-191,-208,-225,-242,-259,-276
+.long -292,-309,-326,-342,-358,-375,-391,-407
+.long -423,-438,-454,-469,-485,-500,-515,-530
+.long -545,-559,-574,-588,-602,-616,-629,-643
+.long -656,-669,-682,-695,-707,-719,-731,-743
+.long -755,-766,-777,-788,-799,-809,-819,-829
+.long -839,-848,-857,-866,-875,-883,-891,-899
+.long -906,-914,-921,-927,-934,-940,-946,-951
+.long -956,-961,-966,-970,-974,-978,-982,-985
+.long -988,-990,-993,-995,-997,-999,-1000
 
 .section .text
-.global printk
 .global boot_logo
 .global update_logo
-
-printk:
-    push ebp
-    mov ebp, esp
-    mov esi, [ebp+8]
-    mov edi, [0x5000]
-.next:
-    lodsb
-    test al, al
-    jz .done
-    cmp al, 10
-    je .newline
-    cmp al, 32
-    jb .next
-    cmp al, 126
-    ja .next
-    movzx eax, al
-    shl eax, 4
-    lea edx, [font8x16 + eax]
-    mov eax, [cursor_y]
-    imul eax, 16*1024*3
-    mov ecx, [cursor_x]
-    imul ecx, 8*3
-    add eax, ecx
-    add eax, edi
-    mov ecx, 16
-.row:
-    push ecx
-    mov bl, [edx]
-    mov ecx, 8
-.col:
-    test bl, 0x80
-    jz .skip
-    mov byte ptr [eax], 0xC0
-    mov byte ptr [eax+1], 0xC0
-    mov byte ptr [eax+2], 0xC0
-.skip:
-    shl bl, 1
-    add eax, 3
-    loop .col
-    sub eax, 24
-    add eax, 3072
-    inc edx
-    pop ecx
-    loop .row
-    inc dword ptr [cursor_x]
-    cmp dword ptr [cursor_x], 128
-    jb .next
-.newline:
-    mov dword ptr [cursor_x], 0
-    inc dword ptr [cursor_y]
-    jmp .next
-.done:
-    pop ebp
-    ret
 
 boot_logo:
     call update_logo
@@ -105,9 +71,9 @@ update_logo:
     mov [ebp-8], edx
 
     xor ebx, ebx
-.row_loop:
+row_loop:
     xor ecx, ecx
-.col_loop:
+col_loop:
     mov eax, ecx
     sub eax, 25
     mov esi, eax
@@ -131,14 +97,13 @@ update_logo:
     add eax, 25
     mov esi, eax
 
-    mov eax, esi
-    sub eax, 25
-    mov eax, eax
-    imul dword ptr [ebp-4]
-    mov edx, eax
-
     mov eax, edi
     imul dword ptr [ebp-8]
+    mov edx, eax
+
+    mov eax, esi
+    sub eax, 25
+    imul dword ptr [ebp-4]
     add edx, eax
 
     mov eax, edx
@@ -149,13 +114,13 @@ update_logo:
     mov edi, eax
 
     test esi, esi
-    js .skip
+    js skip_px
     cmp esi, 50
-    jge .skip
+    jge skip_px
     test edi, edi
-    js .skip
+    js skip_px
     cmp edi, 50
-    jge .skip
+    jge skip_px
 
     mov eax, edi
     imul eax, 50
@@ -178,13 +143,13 @@ update_logo:
     mov [edi+1], dl
     mov [edi+2], dh
 
-.skip:
+skip_px:
     inc ecx
     cmp ecx, 50
-    jl .col_loop
+    jl col_loop
     inc ebx
     cmp ebx, 50
-    jl .row_loop
+    jl row_loop
 
     pop edi
     pop esi
