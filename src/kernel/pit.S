@@ -37,7 +37,10 @@ pit_handler:
     
     mov al, 0x20
     out 0x20, al
-    
+
+    push offset msg
+    call printk
+
     pop eax
     iret
 
@@ -45,5 +48,7 @@ pit_handler:
 .global tick_count
 tick_count:
     .long 0
+msg:
+    .asciz "tick\n"
 
 .extern idt
