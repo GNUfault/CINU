@@ -1,5 +1,4 @@
 .intel_syntax noprefix
-.section .text
 
 .extern idt
 
