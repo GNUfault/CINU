@@ -3,6 +3,10 @@
 .extern printk
 .global floppy_init
 .global print_bytes
+.global floppy_reset
+.global sense_interrupt
+.global send_specify
+.global wait_controller
 
 floppy_init:
     push eax
@@ -44,10 +48,10 @@ floppy_init:
     lea eax, [floppy_handler]
     mov dx, ax
     shr eax, 16
-    mov [edi], dx
-    mov [edi + 2], word ptr 0x0008
-    mov [edi + 4], word ptr 0x8E00
-    mov [edi + 6], ax
+    mov word ptr [edi], dx
+    mov word ptr [edi + 2], 0x0008
+    mov word ptr [edi + 4], 0x8E00
+    mov word ptr [edi + 6], ax
     
     in al, 0x21
     and al, 0xBF
@@ -194,15 +198,15 @@ wait_loop:
     ret
 
 floppy_handler:
-    push eax
+    pushad
     
     mov byte ptr [floppy_irq_fired], 1
     
     mov al, 0x20
     out 0x20, al
     
-    pop eax
-    iret
+    popad
+    iretd
 
 print_bytes:
     push ebp
@@ -322,12 +326,41 @@ wait_read_irq:
     call wait_controller
     mov dx, 0x3F5
     in al, dx
-    movzx eax, al
-    push eax
+    
+    lea edi, [hex_buffer]
+    movzx ebx, al
+    shr ebx, 4
+    and ebx, 0x0F
+    lea edx, [hex_chars]
+    add edx, ebx
+    movzx ebx, byte ptr [edx]
+    mov [edi], bl
+    
+    inc edi
+    movzx ebx, al
+    and ebx, 0x0F
+    lea edx, [hex_chars]
+    add edx, ebx
+    movzx ebx, byte ptr [edx]
+    mov [edi], bl
+    
+    inc edi
+    mov byte ptr [edi], 0x00
+    
     lea eax, [msg_st0]
     push eax
     call printk
-    add esp, 8
+    add esp, 4
+    
+    lea eax, [hex_buffer]
+    push eax
+    call printk
+    add esp, 4
+    
+    lea eax, [newline]
+    push eax
+    call printk
+    add esp, 4
     
     call wait_controller
     mov dx, 0x3F5
@@ -359,11 +392,41 @@ wait_read_irq:
     add esp, 4
     
     movzx eax, byte ptr [0x1000]
-    push eax
+    
+    lea edi, [hex_buffer]
+    mov ebx, eax
+    shr ebx, 4
+    and ebx, 0x0F
+    lea edx, [hex_chars]
+    add edx, ebx
+    movzx ebx, byte ptr [edx]
+    mov [edi], bl
+    
+    inc edi
+    mov ebx, eax
+    and ebx, 0x0F
+    lea edx, [hex_chars]
+    add edx, ebx
+    movzx ebx, byte ptr [edx]
+    mov [edi], bl
+    
+    inc edi
+    mov byte ptr [edi], 0x00
+    
     lea eax, [msg_first_byte]
     push eax
     call printk
-    add esp, 8
+    add esp, 4
+    
+    lea eax, [hex_buffer]
+    push eax
+    call printk
+    add esp, 4
+    
+    lea eax, [newline]
+    push eax
+    call printk
+    add esp, 4
     
     lea eax, [msg_printing]
     push eax
@@ -444,12 +507,6 @@ msg_wait_reset:
     .asciz "Waiting for reset IRQ\n"
 msg_irq1:
     .asciz "IRQ 1\n"
-msg_irq2:
-    .asciz "IRQ 2\n"
-msg_irq3:
-    .asciz "IRQ 3\n"
-msg_irq4:
-    .asciz "IRQ 4\n"
 msg_specify:
     .asciz "Sending specify\n"
 msg_reset_done:
@@ -475,9 +532,9 @@ msg_printing:
 msg_done:
     .asciz "Done\n"
 msg_st0:
-    .asciz "ST0: %d\n"
+    .asciz "ST0: "
 msg_first_byte:
-    .asciz "First byte at 0x1000: %d\n"
+    .asciz "First byte at 0x1000: "
 floppy_irq_fired:
     .byte 0
 
