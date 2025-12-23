@@ -6,11 +6,14 @@
 .global GDT_USER_CODE
 .global GDT_USER_DATA
 
-.equ GDT_NULL, 0x00
+.equ GDT_NULL,        0x00
 .equ GDT_KERNEL_CODE, 0x08
 .equ GDT_KERNEL_DATA, 0x10
-.equ GDT_USER_CODE, 0x18
-.equ GDT_USER_DATA, 0x20
+.equ GDT_USER_CODE,   0x18
+.equ GDT_USER_DATA,   0x20
+.equ GDT_TSS,         0x28
+
+.extern tss_entry
 
 .section .data
 gdt:
@@ -49,6 +52,13 @@ gdt:
     .byte 0xCF
     .byte 0x00
 
+    .word 0x0000
+    .word 0x0000
+    .byte 0x00
+    .byte 0x00
+    .byte 0x00
+    .byte 0x00
+
 gdt_descriptor:
     .word (gdt_end - gdt - 1)
     .long gdt
@@ -58,6 +68,22 @@ gdt_end:
 .section .text
 
 gdt_init:
+    mov eax, offset tss_entry
+    mov ebx, offset gdt
+    add ebx, 40
+
+    mov cx, 104
+    mov [ebx], cx
+    mov cx, ax
+    mov [ebx+2], cx
+    shr eax, 16
+    mov cl, al
+    mov [ebx+4], cl
+    mov byte ptr [ebx+5], 0x89
+    mov byte ptr [ebx+6], 0x00
+    mov cl, ah
+    mov [ebx+7], cl
+
     mov eax, offset gdt_descriptor
     lgdt [eax]
 

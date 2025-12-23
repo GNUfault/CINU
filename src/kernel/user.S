@@ -1,10 +1,10 @@
 .intel_syntax noprefix
 
-.global jump_usermode
+.global user_mode
 
 .extern init
 
-jump_usermode:
+user_mode:
     mov ax, (4 * 8) | 3
     mov ds, ax
     mov es, ax

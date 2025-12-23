@@ -9,6 +9,8 @@
 .extern gdt_init
 .extern build_time
 .extern gas_ver
+.extern user_mode
+.extern tss_init
 
 .global _start
 
@@ -40,6 +42,8 @@ _start:
     call pit_init
     call speaker_init
     call keyboard_init
+    call tss_init
+
 .loop:
     hlt
     jmp .loop
