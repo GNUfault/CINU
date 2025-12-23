@@ -20,5 +20,16 @@
 
 .global init
 
+.section .data
+msg:
+    .asciz "hello world\n"
+
+.section .text
 init:
-    ret
+    mov eax, 0
+    mov ebx, offset msg
+    int 0x80
+    
+.loop:
+    hlt
+    jmp .loop
