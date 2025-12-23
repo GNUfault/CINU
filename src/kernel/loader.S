@@ -28,3 +28,43 @@ load_user:
     push 32
     call ata_load
     add esp, 12
+
+    mov esi, 0x00080000
+    cmp dword ptr [esi], 0x464C457F
+    jne fail
+
+    mov ebx, [esi+28]
+    add ebx, esi
+    mov ecx, [esi+44]
+
+ph_loop:
+    cmp ecx, 0
+    je done
+
+    mov edx, [ebx]
+    cmp edx, 1
+    jne next
+
+    mov eax, [ebx+4]
+    add eax, 0x00080000
+    mov edi, [ebx+8]
+    mov edx, [ebx+16]
+    mov ecx, edx
+    rep movsb
+
+    mov ecx, [ebx+20]
+    sub ecx, edx
+    jle next
+    xor eax, eax
+    rep stosb
+
+next:
+    add ebx, [esi+42]
+    dec ecx
+    jmp ph_loop
+
+done:
+    ret
+
+fail:
+    ret
