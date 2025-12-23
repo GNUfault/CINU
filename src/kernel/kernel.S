@@ -29,6 +29,7 @@
 .extern gas_ver
 .extern user_mode
 .extern tss_init
+.extern load_user
 
 .global _start
 
@@ -62,6 +63,7 @@ _start:
     call keyboard_init
     call tss_init
 
+    call load_user
     call user_mode
 
 .loop:
