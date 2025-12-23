@@ -162,6 +162,52 @@ prot32:
     mov fs, ax
     mov gs, ax
     mov ss, ax
+    
+    mov edi, 0x1000
+    mov ecx, 0x3000
+    xor eax, eax
+    rep stosd
+    
+    mov edi, 0x1000
+    mov dword ptr [edi], 0x2003
+    
+    mov edi, 0x2000
+    mov dword ptr [edi], 0x3003
+    
+    mov edi, 0x3000
+    mov ebx, 0x00000003
+    mov ecx, 1024
+    
+fill_page_table:
+    mov [edi], ebx
+    add ebx, 0x1000
+    add edi, 4
+    loop fill_page_table
+    
+    mov edi, 0x1000
+    add dword ptr [edi + 0xFF8], 0x2003
+    
+    mov edi, 0x2000
+    add dword ptr [edi + 0xFFC], 0x4003
+    
+    mov edi, 0x4000
+    mov ebx, 0xC0000003
+    mov ecx, 1024
+    
+fill_high_page_table:
+    mov [edi], ebx
+    add ebx, 0x1000
+    add edi, 4
+    loop fill_high_page_table
+    
+    mov eax, 0x1000
+    mov cr3, eax
+    
+    mov eax, cr0
+    or eax, 0x80000000
+    mov cr0, eax
+    
+    add esi, 0xC0000000
     jmp esi
 
 .code16
