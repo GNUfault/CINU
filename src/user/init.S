@@ -1,7 +1,6 @@
 .intel_syntax noprefix
-.code32
 
-.globl init
+.global init
 
 init:
     int 0x80
