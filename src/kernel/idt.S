@@ -2,9 +2,9 @@
 .code32
 
 .global idt_init
-
 .extern isr_stub_table
 .extern irq_stub_table
+.extern syscall_handler
 
 .section .text
 
@@ -51,6 +51,16 @@ set_irqs:
     mov word ptr [edi + 6], ax
     inc ebx
     loop set_irqs
+
+    mov eax, offset syscall_handler
+    mov edi, idt
+    lea edi, [edi + 0x80*8]
+    mov dx, ax
+    shr eax, 16
+    mov word ptr [edi], dx
+    mov word ptr [edi + 2], 0x0008
+    mov word ptr [edi + 4], 0xEE00
+    mov word ptr [edi + 6], ax
 
     lidt [idt_ptr]
 

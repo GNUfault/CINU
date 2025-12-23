@@ -44,6 +44,8 @@ _start:
     call keyboard_init
     call tss_init
 
+    call user_mode
+
 .loop:
     hlt
     jmp .loop
