@@ -20,8 +20,6 @@
 
 .global user_mode
 
-.extern init
-
 user_mode:
     mov ax, (4 * 8) | 3
     mov ds, ax
@@ -34,5 +32,5 @@ user_mode:
     push eax
     pushf
     push (3 * 8) | 3
-    push offset init
+    push offset 0x00080000
     iret
