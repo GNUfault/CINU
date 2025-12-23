@@ -13,7 +13,8 @@ KERNEL="$BUILD_DIR/kernel.elf"
 USER="$BUILD_DIR/user.elf"
 
 IMG=cinux.img
-IMG_SIZE=1474560
+
+BOOT_DIR=$SRC_DIR/boot
 
 clean() {
     rm -rf "$BUILD_DIR" "$IMG"
@@ -54,14 +55,13 @@ EOF
     $LD $USER_LDFLAGS -o "$USER" $USER_OBJS
     objcopy --strip-all "$USER"
 
-    $AS $AS_FLAGS $SRC_DIR/boot/boot.S -o $BUILD_DIR/boot.o
+    $AS $AS_FLAGS $BOOT_DIR/boot.S -o $BUILD_DIR/boot.o
     $LD -T link.ld $BUILD_DIR/boot.o -o $BUILD_DIR/boot.bin
     cat $BUILD_DIR/boot.bin $BUILD_DIR/kernel.elf $BUILD_DIR/user.elf >> $IMG
-    truncate -s $IMG_SIZE $IMG
 }
 
 run() {
-    qemu-system-i386 -fda cinux.img
+    qemu-system-i386 cinux.img
 }
 
 case "$1" in
