@@ -15,7 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 .intel_syntax noprefix
 .extern idt
 .global ata_init
@@ -31,6 +30,29 @@ ata_drq_flag:
 ata_init:
     pushad
     
+    mov al, 0x11
+    out 0x20, al
+    out 0xA0, al
+    
+    mov al, 0x20
+    out 0x21, al
+    mov al, 0x28
+    out 0xA1, al
+    
+    mov al, 0x04
+    out 0x21, al
+    mov al, 0x02
+    out 0xA1, al
+    
+    mov al, 0x01
+    out 0x21, al
+    out 0xA1, al
+    
+    mov al, 0xFB
+    out 0x21, al
+    mov al, 0xBF
+    out 0xA1, al
+    
     mov eax, ata_irq_handler
     mov edx, 0x0008
     lea edi, [idt + 0x2E*8]
@@ -40,11 +62,6 @@ ata_init:
     mov word ptr [edi+2], dx
     mov byte ptr [edi+4], 0
     mov byte ptr [edi+5], 0x8E
-    
-    mov dx, 0xA1
-    in al, dx
-    and al, 0xBF
-    out dx, al
     
     popad
     ret
