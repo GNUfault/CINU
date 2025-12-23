@@ -31,10 +31,6 @@ load_user:
     push ebx
     push eax
     call ata_read_lba
-
-mov al, 0xFE
-out 0x64, al
-
-add esp, 12
+    add esp, 12
     popad
     ret
