@@ -30,7 +30,7 @@
 .extern user_mode
 .extern tss_init
 .extern load_user
-.extern ide_init
+.extern ata_init
 
 .global _start
 
@@ -63,7 +63,7 @@ _start:
     call speaker_init
     call keyboard_init
     call tss_init
-    call ide_init
+    call ata_init
 
     call load_user
     call user_mode
