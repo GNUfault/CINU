@@ -73,9 +73,13 @@ EOF
     $LD $USER_LDFLAGS -o "$USER" $USER_OBJS
     objcopy --strip-all "$USER"
 
-    $AS $AS_FLAGS $BOOT_DIR/boot.S -o $BUILD_DIR/boot.o
-    $LD -T $BOOT_DIR/link.ld $BUILD_DIR/boot.o -o $BUILD_DIR/boot.bin
-    cat $BUILD_DIR/boot.bin $BUILD_DIR/kernel.elf $BUILD_DIR/user.elf >> $IMG
+    $AS $AS_FLAGS $BOOT_DIR/stage1.S -o $BUILD_DIR/stage1.o
+    $LD -T $BOOT_DIR/stage1.ld $BUILD_DIR/stage1.o -o $BUILD_DIR/stage1.bin
+
+    $AS $AS_FLAGS $BOOT_DIR/stage2.S -o $BUILD_DIR/stage2.o
+    $LD -T $BOOT_DIR/stage2.ld $BUILD_DIR/stage2.o -o $BUILD_DIR/stage2.bin
+    
+    cat $BUILD_DIR/stage1.bin $BUILD_DIR/stage2.bin $BUILD_DIR/kernel.elf $BUILD_DIR/user.elf >> $IMG
 }
 
 run() {
