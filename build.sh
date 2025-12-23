@@ -75,7 +75,7 @@ EOF
 
     $AS $AS_FLAGS $BOOT_DIR/boot.S -o $BUILD_DIR/boot.o
     $LD -T $BOOT_DOR/link.ld $BUILD_DIR/boot.o -o $BUILD_DIR/boot.bin
-    cat $BUILD_DIR/boot.bin $BUILD_DIR/kernel.elf $BUILD_DIR/user.elf >> $IMG
+    cat $BOOT_DIR/boot.bin $BUILD_DIR/kernel.elf $BUILD_DIR/user.elf >> $IMG
 }
 
 run() {
