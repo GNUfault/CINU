@@ -30,11 +30,6 @@ load_user:
     push ecx
     push ebx
     push eax
-
-# debug
-mov al, 0xFE
-out 0x64, al
-
     call ata_read_lba
     add esp, 12
     popad
