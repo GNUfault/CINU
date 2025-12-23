@@ -1,0 +1,253 @@
+/*
+ * CINUX
+ * Copyright (C) 2025 Connor Thomson
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+.intel_syntax noprefix
+.code16
+
+.section .text
+.global stage2_start
+
+stage2_start:
+    mov si, offset dap
+    mov word ptr [si], 0x10
+    mov word ptr [si + 2], 1
+    mov word ptr [si + 4], 0x8000
+    mov word ptr [si + 6], 0
+    mov dword ptr [si + 8], 3
+    mov dword ptr [si + 12], 0
+    
+    mov ah, 0x42
+    int 0x13
+    jc load_fail
+    
+load_init:
+    mov ax, 0x800
+    mov ds, ax
+    mov si, [0x1C]
+    mov cl, [0x2C]
+
+load_segment:
+    push cx
+    mov eax, [si]
+    dec eax
+    jnz skip_seg
+    
+    mov eax, [si + 4]
+    shr eax, 9
+    inc eax
+    
+    push si
+    mov si, offset dap
+    mov dword ptr [si + 8], eax
+    mov dword ptr [si + 12], 0
+    
+    pop di
+    push di
+    
+    mov eax, [di + 16]
+    add eax, 511
+    shr eax, 9
+    
+    mov word ptr [si + 2], ax
+    mov word ptr [si + 4], 0
+    mov word ptr [si + 6], 0x9000
+    
+    mov ah, 0x42
+    int 0x13
+    pop si
+    jc load_seg_fail
+
+skip_seg:
+    pop cx
+    add si, 32
+    loop load_segment
+    
+    mov esi, [0x18]
+    
+    cld
+    mov ax, ds
+    mov es, ax
+    xor di, di
+    
+    xor eax, eax
+    mov al, 23
+    stosw
+    mov ax, 0x800C
+    stosd
+    stosw
+    
+    xor eax, eax
+    stosd
+    stosd
+    
+    lea bx, [gdt_code]
+    mov eax, cs:[bx]
+    mov edx, cs:[bx+4]
+    stosd
+    xchg eax, edx
+    stosd
+    xchg eax, edx
+    stosd
+    xchg eax, edx
+    stosd
+    
+    mov al, 0x92
+    mov ds:[0x1C + 5], al
+    
+    mov ax, 0x4F02
+    mov bx, 0x4118
+    int 0x10
+    
+    push ds
+    xor ax, ax
+    mov ds, ax
+    mov ax, 0x4F01
+    mov cx, 0x118
+    mov di, 0xA000
+    push di
+    pop es
+    xor di, di
+    int 0x10
+    
+    mov eax, es:[40]
+    xor ebx, ebx
+    mov ds, bx
+    mov ds:[0x5000], eax
+    pop ds
+    
+    in al, 0x92
+    or al, 2
+    out 0x92, al
+    
+    lgdt [0]
+    
+    mov eax, cr0
+    or eax, 1
+    mov cr0, eax
+    
+    jmp 8:prot32
+
+.code32
+prot32:
+    xor eax, eax
+    mov al, 16
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+    mov ss, ax
+    
+    mov edi, 0x1000
+    mov ecx, 0x3000
+    xor eax, eax
+    rep stosd
+    
+    mov edi, 0x1000
+    mov dword ptr [edi], 0x2003
+    
+    mov edi, 0x2000
+    mov dword ptr [edi], 0x3003
+    
+    mov edi, 0x3000
+    mov ebx, 0x00000003
+    mov ecx, 1024
+    
+fill_page_table:
+    mov [edi], ebx
+    add ebx, 0x1000
+    add edi, 4
+    loop fill_page_table
+    
+    mov edi, 0x1000
+    add dword ptr [edi + 0xFF8], 0x2003
+    
+    mov edi, 0x2000
+    add dword ptr [edi + 0xFFC], 0x4003
+    
+    mov edi, 0x4000
+    mov ebx, 0xC0000003
+    mov ecx, 1024
+    
+fill_high_page_table:
+    mov [edi], ebx
+    add ebx, 0x1000
+    add edi, 4
+    loop fill_high_page_table
+    
+    mov eax, 0x1000
+    mov cr3, eax
+    
+    mov eax, cr0
+    or eax, 0x80000000
+    mov cr0, eax
+    
+    add esi, 0xC0000000
+    jmp esi
+
+.code16
+print:
+    cld
+    mov ah, 0x0E
+    mov bx, 0x0007
+.loop:
+    lodsb
+    test al, al
+    jz .ret
+    int 0x10
+    jmp .loop
+.ret:
+    ret
+
+load_fail:
+    xor bx, bx
+    mov ds, bx
+    mov si, offset msg_load_fail
+    call print
+    cli
+    hlt
+
+load_seg_fail:
+    xor bx, bx
+    mov ds, bx
+    mov si, offset msg_load_seg_fail
+    call print
+    cli
+    hlt
+
+dap:
+    .word 0x10
+    .word 0
+    .word 0
+    .word 0
+    .quad 0
+
+msg_load_fail:
+    .asciz "Error: failed to load ELF header!"
+
+msg_load_seg_fail:
+    .asciz "Error: failed to load segment!"
+
+gdt_code:
+    .word 0xFFFF
+    .word 0x0000
+    .byte 0x0
+    .byte 0x9A
+    .byte 0xCF
+    .byte 0x0
+
+.space 0x400 - (. - stage2_start)
