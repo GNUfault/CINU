@@ -31,5 +31,4 @@ init:
     int 0x80
     
 .loop:
-    hlt
     jmp .loop
