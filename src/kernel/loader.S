@@ -19,10 +19,8 @@
 .intel_syntax noprefix
 
 .global load_user
-.extern ata_read_lba
 
-.section .text
-.code32
+.extern ata_read_lba
 
 load_user:
     pushad
