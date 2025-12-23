@@ -55,17 +55,53 @@ _start:
     call printk
     add esp, 4
 
+    push offset m_gdt
+    call printk
+    add esp, 4
     call gdt_init
+
+    push offset m_idt
+    call printk
+    add esp, 4
     call idt_init
+
     sti
+
+    push offset m_serial
+    call printk
+    add esp, 4
     call serial_init
+
+    push offset m_pit
+    call printk
+    add esp, 4
     call pit_init
+
+    push offset m_speaker
+    call printk
+    add esp, 4
     call speaker_init
+
+    push offset m_keyboard
+    call printk
+    add esp, 4
     call keyboard_init
+
+    push offset m_tss
+    call printk
+    add esp, 4
     call tss_init
+
+    push offset m_ata
+    call printk
+    add esp, 4
     call ata_init
 
+    push offset m_user
+    call printk
+    add esp, 4
     call load_user
+
     call user_mode
 
 .section .data
@@ -76,3 +112,21 @@ msg2:
 msg3:
     .asciz ")\n"
 
+m_gdt:
+    .asciz "Initializing GDT...\n"
+m_idt:
+    .asciz "Initializing IDT...\n"
+m_serial:
+    .asciz "Initializing Serial...\n"
+m_pit:
+    .asciz "Initializing PIT...\n"
+m_speaker:
+    .asciz "Initializing Speaker...\n"
+m_keyboard:
+    .asciz "Initializing Keyboard...\n"
+m_tss:
+    .asciz "Initializing TSS...\n"
+m_ata:
+    .asciz "Initializing ATA...\n"
+m_user:
+    .asciz "Loading User Program...\n"
