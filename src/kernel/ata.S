@@ -17,9 +17,7 @@
  */
 
 .intel_syntax noprefix
-
 .extern idt
-
 .global ata_init
 .global ata_read_lba
 
@@ -32,6 +30,7 @@ ata_drq_flag:
 
 ata_init:
     pushad
+    
     mov eax, ata_irq_handler
     mov edx, 0x0008
     lea edi, [idt + 0x2E*8]
@@ -41,11 +40,18 @@ ata_init:
     mov word ptr [edi+2], dx
     mov byte ptr [edi+4], 0
     mov byte ptr [edi+5], 0x8E
+    
+    mov dx, 0xA1
+    in al, dx
+    and al, 0xBF
+    out dx, al
+    
     popad
     ret
 
 ata_read_lba:
     pushad
+    
     mov edi, [esp+32]
     mov ebx, [esp+36]
     mov ecx, [esp+40]
@@ -53,25 +59,27 @@ ata_read_lba:
 .next_sector:
     mov byte ptr [ata_drq_flag], 0
     call ata_busy_clear
-
+    
     mov dx, 0x1F2
     mov al, 1
     out dx, al
+    
     inc dx
     mov eax, ebx
-    mov al, bl
     out dx, al
+    
     inc dx
     mov al, bh
     out dx, al
+    
     inc dx
     shr eax, 16
-    mov al, al
     out dx, al
+    
     inc dx
     mov al, 0xE0
     out dx, al
-
+    
     mov dx, 0x1F7
     mov al, 0x20
     out dx, al
@@ -81,7 +89,7 @@ ata_read_lba:
     cmp byte ptr [ata_drq_flag], 1
     jne .hlt_wait
     cli
-
+    
     mov dx, 0x1F0
     mov esi, 256
 
@@ -91,11 +99,11 @@ ata_read_lba:
     add edi, 2
     dec esi
     jnz .read
-
+    
     inc ebx
     dec ecx
     jnz .next_sector
-
+    
     popad
     ret
 
@@ -105,6 +113,7 @@ ata_read_lba:
 
 ata_busy_clear:
     mov dx, 0x1F7
+
 .busy:
     in al, dx
     test al, 0x80
@@ -113,13 +122,17 @@ ata_busy_clear:
 
 ata_irq_handler:
     pushad
+    
     mov dx, 0x1F7
     in al, dx
+    
     mov byte ptr [ata_drq_flag], 1
+    
     mov al, 0x20
     mov dx, 0xA0
     out dx, al
     mov dx, 0x20
     out dx, al
+    
     popad
     iretd
