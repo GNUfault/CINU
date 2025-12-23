@@ -1,44 +1,49 @@
 #!/bin/sh
 set -e
 
-CC=gcc
 AS=as
 LD=ld
 
+AS_FLAGS="--32"
+
 BUILD_DIR=build
-ISO_DIR="$BUILD_DIR/iso"
-BOOT_DIR="$ISO_DIR/boot"
-GRUB_DIR="$BOOT_DIR/grub"
+SRC_DIR=src
 
 KERNEL="$BUILD_DIR/kernel.elf"
 USER="$BUILD_DIR/user.elf"
-ISO="cdos.iso"
-GRUB_CFG=src/boot/grub.cfg
+
+IMG=cinux.img
+IMG_SIZE=1474560
 
 clean() {
-    rm -rf "$BUILD_DIR" "$ISO"
+    rm -rf "$BUILD_DIR" "$IMG"
 }
 
 all() {
     clean
     mkdir -p "$BUILD_DIR"
 
-    INCLUDES=$(find . -type d -exec echo -I{} \;)
-    CFLAGS="-m32 -march=i486 -mtune=i486 -ffreestanding -Ofast -Wall -Wextra -fno-stack-protector -fno-builtin-strcpy -fno-builtin-strncpy $INCLUDES"
     LDFLAGS="-m elf_i386 -T src/kernel/link.ld"
     USER_LDFLAGS="-m elf_i386 -T src/user/link.ld"
 
-    CFILES=$(find . -name "*.c")
-    SFILES=$(find . -path ./src/boot -prune -o -name "*.S" -print)
+    BUILD_TIME=$(date)
+    GAS_VER=$(as -version | grep -oE "[0-9]+\.[0-9]+" | head -n1)
 
-    for f in $CFILES; do
-        o="$BUILD_DIR/$(basename "${f%.*}").o"
-        $CC $CFLAGS -c "$f" -o "$o"
-    done
+    cat > info.S <<EOF
+.section .rodata
+.global build_time
+build_time:
+.asciz "$BUILD_TIME"
+.global gas_ver
+gas_ver:
+.asciz "GAS $GAS_VER"
+EOF
+
+    SFILES=$(find . -path ./src/boot -prune -o -name "*.S" -print)
 
     for f in $SFILES; do
         o="$BUILD_DIR/$(basename "${f%.*}").o"
-        $AS --32 "$f" -o "$o"
+        $AS $AS_FLAGS "$f" -o "$o"
     done
 
     KERNEL_OBJS=$(find "$BUILD_DIR" -maxdepth 1 -name "*.o")
@@ -48,18 +53,15 @@ all() {
     USER_OBJS="$BUILD_DIR/init.o"
     $LD $USER_LDFLAGS -o "$USER" $USER_OBJS
     objcopy --strip-all "$USER"
-  
-    # Quick and dirty, please fix me soon
-    as --32 src/boot/boot.S -o build/boot.o
-    ld -T link.ld build/boot.o -o build/boot.bin
-    cat build/boot.bin build/kernel.elf build/user.elf >> cinux.img
-    truncate -s 1474560 cinux.img
-    
-    rm -rf "$BUILD_DIR"
+
+    $AS $AS_FLAGS $SRC_DIR/boot/boot.S -o $BUILD_DIR/boot.o
+    $LD -T link.ld $BUILD_DIR/boot.o -o $BUILD_DIR/boot.bin
+    cat $BUILD_DIR/boot.bin $BUILD_DIR/kernel.elf $BUILD_DIR/user.elf >> $IMG
+    truncate -s $IMG_SIZE $IMG
 }
 
 run() {
-    qemu-system-i386 -drive file="$ISO",media=cdrom,if=ide
+    qemu-system-i386 -fda cinux.img
 }
 
 case "$1" in
