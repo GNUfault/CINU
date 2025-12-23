@@ -48,11 +48,6 @@ ata_init:
 ata_read_lba:
     pushad
     mov edi, [esp+36]
-  
-# debug
-mov al, 0xFE
-out 0x64, al
-
     mov ebx, [esp+40]
     mov ecx, [esp+44]
 
