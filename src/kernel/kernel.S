@@ -66,10 +66,6 @@ _start:
     call load_user
     call user_mode
 
-.loop:
-    hlt
-    jmp .loop
-
 .section .data
 msg1:
     .asciz "CINUX (Built with: "
