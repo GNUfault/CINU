@@ -20,7 +20,11 @@
 
 .global load_user
 
-.extern read_bytes
+.extern ata_load
 
 load_user:
-    call read_bytes
+    push 0x00080000
+    push 65
+    push 32
+    call ata_load
+    add esp, 12
