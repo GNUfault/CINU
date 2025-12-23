@@ -68,10 +68,12 @@ EOF
     KERNEL_OBJS=$(find "$BUILD_DIR" -maxdepth 1 -name "*.o")
     $LD $LDFLAGS -o "$KERNEL" $KERNEL_OBJS
     objcopy --strip-all "$KERNEL"
+    truncate -s 16384 $KERNEL
 
     USER_OBJS="$BUILD_DIR/init.o"
     $LD $USER_LDFLAGS -o "$USER" $USER_OBJS
     objcopy --strip-all "$USER"
+    truncate -S 16384 $USER
 
     $AS $AS_FLAGS $BOOT_DIR/boot.S -o $BUILD_DIR/boot.o
     $LD -T $BOOT_DIR/link.ld $BUILD_DIR/boot.o -o $BUILD_DIR/boot.bin
