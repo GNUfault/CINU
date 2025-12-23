@@ -29,7 +29,6 @@ ata_drq_flag:
     .byte 0
 
 .section .text
-.code32
 
 ata_init:
     pushad
@@ -47,9 +46,9 @@ ata_init:
 
 ata_read_lba:
     pushad
-    mov edi, [esp+36]
-    mov ebx, [esp+40]
-    mov ecx, [esp+44]
+    mov edi, [esp+32]
+    mov ebx, [esp+36]
+    mov ecx, [esp+40]
 
 .next_sector:
     mov byte ptr [ata_drq_flag], 0
