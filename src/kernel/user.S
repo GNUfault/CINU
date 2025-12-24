@@ -19,10 +19,14 @@
 .intel_syntax noprefix
 
 .global user_mode
-
+.extern printk
 .extern init
 
 user_mode:
+    push offset msg_enter_user
+    call printk
+    add esp, 4
+
     mov ax, (4 * 8) | 3
     mov ds, ax
     mov es, ax
@@ -36,3 +40,7 @@ user_mode:
     push (3 * 8) | 3
     push offset init
     iret
+
+.section .data
+msg_enter_user:
+    .asciz "Entering user mode...\n"
