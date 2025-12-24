@@ -19,6 +19,7 @@
 .intel_syntax noprefix
 
 .extern printk
+.extern panic
 .extern setup_idt
 .extern serial_init
 .extern pit_init
@@ -62,6 +63,9 @@ _start:
     call tss_init
     call user_mode
 
+    push offset panic
+    call panic
+
 .section .data
 msg1:
     .asciz "CINUX (Built with: "
@@ -69,4 +73,5 @@ msg2:
     .asciz ") (Built on: "
 msg3:
     .asciz ")\n"
-
+panic:
+    .asciz "Init exited!\n"
