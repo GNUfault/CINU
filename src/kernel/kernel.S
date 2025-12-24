@@ -57,10 +57,6 @@ _start:
     call idt_init
     call serial_init
     call pit_init
-
-    push offset m_speaker
-    call printk
-    add esp, 4
     call speaker_init
 
     push offset m_keyboard
