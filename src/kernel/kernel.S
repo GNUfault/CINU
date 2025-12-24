@@ -60,10 +60,6 @@ _start:
     call speaker_init
     call keyboard_init
     call tss_init
-
-    push offset m_user
-    call printk
-    add esp, 4
     call user_mode
 
 .section .data
@@ -74,19 +70,3 @@ msg2:
 msg3:
     .asciz ")\n"
 
-m_gdt:
-    .asciz "Initializing GDT...\n"
-m_idt:
-    .asciz "Initializing IDT...\n"
-m_serial:
-    .asciz "Initializing Serial...\n"
-m_pit:
-    .asciz "Initializing PIT...\n"
-m_speaker:
-    .asciz "Initializing Speaker...\n"
-m_keyboard:
-    .asciz "Initializing Keyboard...\n"
-m_tss:
-    .asciz "Initializing TSS...\n"
-m_user:
-    .asciz "Entering ring 3...\n"
