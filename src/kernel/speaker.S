@@ -20,6 +20,7 @@
 
 .global speaker_init
 .global speaker_tone
+.extern printk
 
 .equ PIT_CTRL, 0x43
 .equ PIT_CH2, 0x42
@@ -28,6 +29,11 @@
 
 speaker_init:
     push eax
+
+    push offset msg_init_speaker
+    call printk
+    add esp, 4
+
     in al, PORT_SPKR
     and al, 0xFC
     out PORT_SPKR, al
@@ -74,3 +80,7 @@ tone_done:
     mov esp, ebp
     pop ebp
     ret
+
+.section .data
+msg_init_speaker:
+    .asciz "Initializing speaker...\n"
