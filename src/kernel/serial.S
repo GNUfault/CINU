@@ -28,6 +28,7 @@ serial_init:
 
     push offset msg_init_serial
     call printk
+    add esp, 4
 
     mov dx, 0x3F8 + 1
     mov al, 0x00
@@ -59,6 +60,7 @@ serial_init:
 
     push offset msg_init_idt
     call printk
+    add esp, 4
 
     lea edi, [idt + 0x24 * 8]
     lea eax, [serial_handler]
@@ -68,9 +70,6 @@ serial_init:
     mov [edi + 2], word ptr 0x0008
     mov [edi + 4], word ptr 0x8E00
     mov [edi + 6], ax
-
-    push offset msg_enable_irq
-    call printk
 
     mov dx, 0x3F8 + 1
     mov al, 0x02
@@ -84,10 +83,169 @@ serial_init:
     pop eax
     ret
 
+serial_handler:
+    push eax
+    push ebx
+    push esi
+    push edi
+
+    mov dx, 0x3F8 + 5
+    in al, dx
+    test al, 0x20
+    jz serial_done
+
+    mov esi, [write_buffer_read]
+    mov edi, [write_buffer_write]
+    cmp esi, edi
+    je serial_done
+
+    lea ebx, [write_buffer]
+    add ebx, esi
+    mov al, [ebx]
+
+    mov dx, 0x3F8
+    out dx, al
+
+    inc esi
+    and esi, 4095
+    mov [write_buffer_read], esi
+
+serial_done:
+    mov al, 0x20
+    out 0x20, al
+
+    pop edi
+    pop esi
+    pop ebx
+    pop eax
+    iret
+
+serial_console_write:
+    push ebp
+    mov ebp, esp
+    push esi
+    push edi
+    push ebx
+    pushf
+
+    mov esi, [ebp + 8]
+
+write_loop:
+    lodsb
+    test al, al
+    jz write_done
+    cmp al, 0x0A
+    je write_newline_start
+
+write_char:
+    mov bl, al
+
+wait_space:
+    cli
+    mov edi, [write_buffer_write]
+    mov ecx, edi
+    inc ecx
+    and ecx, 4095
+    cmp ecx, [write_buffer_read]
+    je wait_space_full
+
+    lea eax, [write_buffer]
+    add eax, edi
+    mov [eax], bl
+    mov [write_buffer_write], ecx
+
+    cmp edi, [write_buffer_read]
+    jne skip_trigger
+
+    mov dx, 0x3F8 + 5
+    in al, dx
+    test al, 0x20
+    jz skip_trigger
+
+    mov al, bl
+    mov dx, 0x3F8
+    out dx, al
+
+    mov edi, [write_buffer_read]
+    inc edi
+    and edi, 4095
+    mov [write_buffer_read], edi
+
+skip_trigger:
+    sti
+    jmp write_loop
+
+wait_space_full:
+    sti
+    pause
+    jmp wait_space
+
+write_newline_start:
+    mov bl, 0x0D
+
+wait_space_cr:
+    cli
+    mov edi, [write_buffer_write]
+    mov ecx, edi
+    inc ecx
+    and ecx, 4095
+    cmp ecx, [write_buffer_read]
+    je wait_space_cr_full
+
+    lea eax, [write_buffer]
+    add eax, edi
+    mov [eax], bl
+    mov [write_buffer_write], ecx
+    sti
+
+    mov bl, 0x0A
+
+wait_space_lf:
+    cli
+    mov edi, [write_buffer_write]
+    mov ecx, edi
+    inc ecx
+    and ecx, 4095
+    cmp ecx, [write_buffer_read]
+    je wait_space_lf_full
+
+    lea eax, [write_buffer]
+    add eax, edi
+    mov [eax], bl
+    mov [write_buffer_write], ecx
+    sti
+
+    jmp write_loop
+
+wait_space_cr_full:
+    sti
+    pause
+    jmp wait_space_cr
+
+wait_space_lf_full:
+    sti
+    pause
+    jmp wait_space_lf
+
+write_done:
+    popf
+    pop ebx
+    pop edi
+    pop esi
+    pop ebp
+    ret
+
 .section .data
 msg_init_serial:
     .asciz "Initializing serial...\n"
-msg_init_idt:
-    .asciz "Initializing serial IDT...\n"
 msg_enable_irq:
     .asciz "Enabling serial IRQ...\n"
+
+write_buffer_read:
+    .long 0
+write_buffer_write:
+    .long 0
+
+.section .bss
+write_buffer:
+    .skip 4096
