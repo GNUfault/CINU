@@ -28,7 +28,8 @@ pit_init:
 
     push offset msg_init_pit
     call printk
-
+    add esp, 4
+   
     lea edi, [idt + 0x20 * 8]
     lea eax, [pit_handler]
     mov dx, ax
@@ -48,6 +49,7 @@ pit_init:
 
     push offset msg_enable_pit_irq
     call printk
+    add esp, 4
 
     in al, 0x21
     and al, 0xFE
