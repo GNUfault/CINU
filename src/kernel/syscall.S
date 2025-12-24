@@ -21,6 +21,11 @@
 .global syscall_handler
 .extern printk
 
+.section .data
+syscall_table:
+    dd sys_printk
+
+.section .text
 syscall_handler:
     push eax
     push dword gs
