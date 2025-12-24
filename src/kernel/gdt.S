@@ -23,12 +23,13 @@
 .extern tss_entry
 .extern printk
 
-.section .rodata
-msg_init:      .string "GDT: Init\n"
-msg_lgdt:      .string "GDT: LGDT\n"
-msg_done:      .string "GDT: Done\n"
-
 .section .data
+msg_init:
+    .asciz "GDT: Init\n"
+msg_lgdt:
+    .asciz "GDT: LGDT\n"
+msg_done:
+    .asciz "GDT: Done\n"
 gdt:
     .word 0x0000, 0x0000; .byte 0x00, 0x00, 0x00, 0x00
     .word 0xFFFF, 0x0000; .byte 0x00, 0x9A, 0xCF, 0x00
@@ -36,15 +37,12 @@ gdt:
     .word 0xFFFF, 0x0000; .byte 0x00, 0xFA, 0xCF, 0x00
     .word 0xFFFF, 0x0000; .byte 0x00, 0xF2, 0xCF, 0x00
     .word 0x0000, 0x0000; .byte 0x00, 0x00, 0x00, 0x00
-
 gdt_descriptor:
     .word (gdt_end - gdt - 1)
     .long gdt
-
 gdt_end:
 
 .section .text
-
 gdt_init:
     push offset msg_init
     call printk
