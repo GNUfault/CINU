@@ -22,10 +22,29 @@
 .extern isr_stub_table
 .extern irq_stub_table
 .extern syscall_handler
+.extern printk
+
+.section .rodata
+msg_idt_start:
+    .asciz "Initializing IDT...\n"
+msg_idt_isr: 
+    .asciz "Initializing ISR...\n"
+msg_idt_irq:
+    .asciz "Initializing IRQ...\n"
+msg_idt_lidt:
+    .asciz "Initializing IDTR...\n"
+msg_idt_pic:
+    .asciz "Remapping PIC...\n"
+msg_idt_sti:
+    .asciz "Enabling interrupts...\n"
 
 .section .text
 
 idt_init:
+    push offset msg_idt_start
+    call printk
+    add esp, 4
+
     lea edi, idt
     mov ecx, 256
     lea eax, default_handler
@@ -54,6 +73,10 @@ set_isrs:
     inc ebx
     loop set_isrs
 
+    push offset msg_idt_isr
+    call printk
+    add esp, 4
+
     mov ecx, 16
     mov ebx, 32
 set_irqs:
@@ -69,6 +92,10 @@ set_irqs:
     inc ebx
     loop set_irqs
 
+    push offset msg_idt_irq
+    call printk
+    add esp, 4
+
     mov eax, offset syscall_handler
     mov edi, idt
     lea edi, [edi + 0x80*8]
@@ -79,7 +106,15 @@ set_irqs:
     mov word ptr [edi + 4], 0xEE00
     mov word ptr [edi + 6], ax
 
+    push offset msg_idt_lidt
+    call printk
+    add esp, 4
+
     lidt [idt_ptr]
+
+    push offset msg_idt_pic
+    call printk
+    add esp, 4
 
     mov al, 0x11
     out 0x20, al
@@ -103,7 +138,12 @@ set_irqs:
     out 0x21, al
     out 0xA1, al
 
+    push offset msg_idt_sti
+    call printk
+    add esp, 4
+ 
     sti
+
     ret
 
 default_handler:
