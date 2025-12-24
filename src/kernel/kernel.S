@@ -90,6 +90,7 @@ _start:
     add esp, 4
     call tss_init
 
+    pu
     call user_mode
 
 .section .data
@@ -114,3 +115,5 @@ m_keyboard:
     .asciz "Initializing Keyboard...\n"
 m_tss:
     .asciz "Initializing TSS...\n"
+m_user:
+    .asciz "Entering ring 3...\n"
