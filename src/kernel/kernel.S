@@ -53,9 +53,6 @@ _start:
     call printk
     add esp, 4
 
-    push offset m_gdt
-    call printk
-    add esp, 4
     call gdt_init
 
     push offset m_idt
