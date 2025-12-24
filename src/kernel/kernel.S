@@ -59,10 +59,6 @@ _start:
     call pit_init
     call speaker_init
     call keyboard_init
-
-    push offset m_tss
-    call printk
-    add esp, 4
     call tss_init
 
     push offset m_user
