@@ -90,7 +90,9 @@ _start:
     add esp, 4
     call tss_init
 
-    pu
+    push offset m_user
+    call printk
+    add esp, 4
     call user_mode
 
 .section .data
