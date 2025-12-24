@@ -21,6 +21,7 @@
 .global tss_entry
 .global tss_init
 .global flush_tss
+.extern printk
 
 .section .bss
 .align 16
@@ -30,15 +31,31 @@ tss_entry:
 .section .text
 
 tss_init:
+    push eax
+
+    push offset msg_init_tss
+    call printk
+    add esp, 4
+
     mov ecx, 104
     mov edi, offset tss_entry
     xor eax, eax
     rep stosb
+
     mov eax, 0x00900000
     mov dword ptr [tss_entry + 4], eax
-    mov eax, 0x10 
+
+    mov eax, 0x10
     mov dword ptr [tss_entry + 8], eax
+
     mov word ptr [tss_entry + 102], 104
+
     mov ax, (5 * 8)
     ltr ax
+
+    pop eax
     ret
+
+.section .data
+msg_init_tss:
+    .asciz "Initializing TSS...\n"
