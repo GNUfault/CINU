@@ -22,11 +22,6 @@
 .global speaker_tone
 .extern printk
 
-.equ PIT_CTRL, 0x43
-.equ PIT_CH2, 0x42
-.equ PORT_SPKR, 0x61
-.equ PIT_BASE, 1193180
-
 speaker_init:
     push eax
 
@@ -34,9 +29,10 @@ speaker_init:
     call printk
     add esp, 4
 
-    in al, PORT_SPKR
+    in al, 0x61
     and al, 0xFC
-    out PORT_SPKR, al
+    out 0x61, al
+
     pop eax
     ret
 
@@ -46,32 +42,37 @@ speaker_tone:
     push eax
     push ebx
     push edx
+
     mov  ebx, [ebp+8]
     test ebx, ebx
     jz   tone_off
-    mov  eax, PIT_BASE
+
+    mov  eax, 1193180
     xor  edx, edx
     div  ebx
     test eax, eax
     jnz  tone_div_ok
     mov  eax, 1
+
 tone_div_ok:
     mov al, 0xB6
-    out PIT_CTRL, al
+    out 0x43, al
+
     mov edx, eax
     mov al, dl
-    out PIT_CH2, al
+    out 0x42, al
     mov al, dh
-    out PIT_CH2, al
-    in al, PORT_SPKR
+    out 0x42, al
+
+    in al, 0x61
     or al, 0x03
-    out PORT_SPKR, al
+    out 0x61, al
     jmp tone_done
 
 tone_off:
-    in al, PORT_SPKR
+    in al, 0x61
     and al, 0xFC
-    out PORT_SPKR, al
+    out 0x61, al
 
 tone_done:
     pop edx
