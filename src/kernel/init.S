@@ -26,7 +26,7 @@ hello_msg:
 
 .section .text
 init:
-    mov eax, 1
+    mov eax, 0
     mov ebx, offset hello_msg
     int 0x80
 loop:
