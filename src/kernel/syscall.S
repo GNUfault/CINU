@@ -25,6 +25,8 @@
 .section .data
 syscall_table:
     .long printk
+invalid_syscall:
+    .asciz "Invalid syscall!\n"
 
 .section .text
 syscall_handler:
@@ -65,5 +67,8 @@ syscall_dispatcher:
     call eax
     ret
 .bad:
+    push offset invalid_syscall
+    call printk
+    add esp, 
     mov eax, -38
     ret
