@@ -44,7 +44,11 @@ char_buffer: .space 2
 keyboard_init:
     push eax
     push edi
-    
+
+    push offset msg_init_keyboard
+    call printk
+    add esp, 4
+
     lea edi, [idt + 0x21 * 8]
     lea eax, [keyboard_handler]
     mov dx, ax
@@ -53,11 +57,19 @@ keyboard_init:
     mov [edi + 2], word ptr 0x0008
     mov [edi + 4], word ptr 0x8E00
     mov [edi + 6], ax
-    
+
+    push offset msg_init_keyboard_idt
+    call printk
+    add esp, 4
+
     in al, 0x21
     and al, 0xFD
     out 0x21, al
-    
+
+    push offset msg_enable_keyboard_irq
+    call printk
+    add esp, 4
+
     pop edi
     pop eax
     ret
@@ -67,51 +79,51 @@ keyboard_handler:
     push ebx
     push ecx
     push edx
-    
+
     in al, 0x60
     movzx ebx, al
-    
+
     cmp bl, 0x2A
     je shift_down
     cmp bl, 0x36
     je shift_down
-    
+
     cmp bl, 0xAA
     je shift_up
     cmp bl, 0xB6
     je shift_up
-    
+
     cmp bl, 0x3A
     je caps_toggle
-    
+
     test bl, 0x80
     jnz done
-    
+
     cmp bl, 58
     jge done
-    
+
     lea eax, [scancode_to_ascii]
     mov cl, [shift_pressed]
     test cl, cl
     jz got_table
     lea eax, [scancode_to_ascii_shift]
-    
+
 got_table:
     movzx ecx, byte ptr [eax + ebx]
     test cl, cl
     jz done
-    
+
     mov dl, [caps_lock_on]
     test dl, dl
     jz print_it
-    
+
     cmp cl, 'a'
     jl check_upper
     cmp cl, 'z'
     jg check_upper
     sub cl, 32
     jmp print_it
-    
+
 check_upper:
     mov dl, [shift_pressed]
     test dl, dl
@@ -121,34 +133,42 @@ check_upper:
     cmp cl, 'Z'
     jg print_it
     add cl, 32
-    
+
 print_it:
     mov [char_buffer], cl
     mov byte ptr [char_buffer + 1], 0
-    
+
     push offset char_buffer
     call printk
     add esp, 4
     jmp done
-    
+
 shift_down:
     mov byte ptr [shift_pressed], 1
     jmp done
-    
+
 shift_up:
     mov byte ptr [shift_pressed], 0
     jmp done
-    
+
 caps_toggle:
     xor byte ptr [caps_lock_on], 1
     jmp done
-    
+
 done:
     mov al, 0x20
     out 0x20, al
-    
+
     pop edx
     pop ecx
     pop ebx
     pop eax
     iret
+
+.section .data
+msg_init_keyboard:
+    .asciz "Initializing keyboard...\n"
+msg_init_keyboard_idt:
+    .asciz "Initializing keyboard IDT...\n"
+msg_enable_keyboard_irq:
+    .asciz "Enabling keyboard IRQ...\n"
