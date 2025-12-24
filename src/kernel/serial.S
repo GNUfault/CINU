@@ -58,10 +58,6 @@ serial_init:
     mov al, 0x0B
     out dx, al
 
-    push offset msg_init_idt
-    call printk
-    add esp, 4
-
     lea edi, [idt + 0x24 * 8]
     lea eax, [serial_handler]
     mov dx, ax
