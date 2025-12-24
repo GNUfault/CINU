@@ -21,43 +21,43 @@
 .global syscall_handler
 .extern printk
 
-.section .data
-syscall_table:
-    .long sys_print
-
-.section .text
-
 syscall_handler:
-    pusha
-    push ds
-    push es
-    push fs
-    push gs
-
-    mov ax, 0x10
-    mov ds, ax
-    mov es, ax
-
-    cmp eax, 0
-    jne sys_invalid
-
-    mov eax, [syscall_table]
-    call eax
-    jmp sys_return
-
-sys_invalid:
-    jmp sys_return
-
-sys_print:
+    push eax
+    push dword gs
+    push dword fs
+    push dword es
+    push dword ds
+    push dword -ENOSYS
+    push ebp
+    push edi
+    push esi
+    push edx
+    push ecx
     push ebx
-    call printk
+    push esp
+    call syscall_dispatcher
     add esp, 4
-    ret
-
-sys_return:
-    pop gs
-    pop fs
-    pop es
+    pop ebx
+    pop ecx
+    pop edx
+    pop esi
+    pop edi
+    pop ebp
+    add esp, 4
     pop ds
-    popa
+    pop es
+    pop fs
+    pop gs
+    pop eax
     iretd
+
+syscall_dispatcher:
+    mov edx, eax
+    cmp edx, NR_SYSCALLS
+    jae .bad
+    mov eax, [syscall_table + edx*4]
+    call eax
+    ret
+.bad:
+    mov eax, -ENOSYS
+    ret
