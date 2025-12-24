@@ -38,21 +38,21 @@ speaker_init:
 
 speaker_tone:
     push ebp
-    mov  ebp, esp
+    mov ebp, esp
     push eax
     push ebx
     push edx
 
-    mov  ebx, [ebp+8]
+    mov ebx, [ebp+8]
     test ebx, ebx
-    jz   tone_off
+    jz tone_off
 
-    mov  eax, 1193180
-    xor  edx, edx
-    div  ebx
+    mov eax, 1193180
+    xor edx, edx
+    div ebx
     test eax, eax
-    jnz  tone_div_ok
-    mov  eax, 1
+    jnz tone_div_ok
+    mov eax, 1
 
 tone_div_ok:
     mov al, 0xB6
