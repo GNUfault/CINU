@@ -19,20 +19,21 @@
 .intel_syntax noprefix
 
 .global syscall_handler
+
 .extern printk
 
 .section .data
 syscall_table:
-    dd sys_printk
+    .long sys_printk
 
 .section .text
 syscall_handler:
     push eax
-    push dword gs
-    push dword fs
-    push dword es
-    push dword ds
-    push dword -ENOSYS
+    push gs
+    push fs
+    push es
+    push ds
+    push -38
     push ebp
     push edi
     push esi
@@ -64,5 +65,5 @@ syscall_dispatcher:
     call eax
     ret
 .bad:
-    mov eax, -ENOSYS
+    mov eax, -38
     ret
