@@ -55,12 +55,12 @@ _start:
     add esp, 4
 
     call gdt_init
+    call tss_init
     call idt_init
     call serial_init
     call pit_init
     call speaker_init
     call keyboard_init
-    call tss_init
     call user_mode
 
     push offset panic
