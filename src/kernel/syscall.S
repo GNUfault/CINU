@@ -24,7 +24,7 @@
 
 .section .data
 syscall_table:
-    .long sys_printk
+    .long printk
 
 .section .text
 syscall_handler:
@@ -59,7 +59,7 @@ syscall_handler:
 
 syscall_dispatcher:
     mov edx, eax
-    cmp edx, NR_SYSCALLS
+    cmp edx, 1
     jae .bad
     mov eax, [syscall_table + edx*4]
     call eax
