@@ -19,63 +19,23 @@
 .intel_syntax noprefix
 
 .global gdt_init
-.global GDT_KERNEL_CODE
-.global GDT_KERNEL_DATA
-.global GDT_USER_CODE
-.global GDT_USER_DATA
-
-.equ GDT_NULL,        0x00
-.equ GDT_KERNEL_CODE, 0x08
-.equ GDT_KERNEL_DATA, 0x10
-.equ GDT_USER_CODE,   0x18
-.equ GDT_USER_DATA,   0x20
-.equ GDT_TSS,         0x28
 
 .extern tss_entry
+.extern printk
+
+.section .rodata
+msg_init:      .string "GDT: Init\n"
+msg_lgdt:      .string "GDT: LGDT\n"
+msg_done:      .string "GDT: Done\n"
 
 .section .data
 gdt:
-    .word 0x0000
-    .word 0x0000
-    .byte 0x00
-    .byte 0x00
-    .byte 0x00
-    .byte 0x00
-
-    .word 0xFFFF
-    .word 0x0000
-    .byte 0x00
-    .byte 0x9A
-    .byte 0xCF
-    .byte 0x00
-
-    .word 0xFFFF
-    .word 0x0000
-    .byte 0x00
-    .byte 0x92
-    .byte 0xCF
-    .byte 0x00
-
-    .word 0xFFFF
-    .word 0x0000
-    .byte 0x00
-    .byte 0xFA
-    .byte 0xCF
-    .byte 0x00
-
-    .word 0xFFFF
-    .word 0x0000
-    .byte 0x00
-    .byte 0xF2
-    .byte 0xCF
-    .byte 0x00
-
-    .word 0x0000
-    .word 0x0000
-    .byte 0x00
-    .byte 0x00
-    .byte 0x00
-    .byte 0x00
+    .word 0x0000, 0x0000; .byte 0x00, 0x00, 0x00, 0x00
+    .word 0xFFFF, 0x0000; .byte 0x00, 0x9A, 0xCF, 0x00
+    .word 0xFFFF, 0x0000; .byte 0x00, 0x92, 0xCF, 0x00
+    .word 0xFFFF, 0x0000; .byte 0x00, 0xFA, 0xCF, 0x00
+    .word 0xFFFF, 0x0000; .byte 0x00, 0xF2, 0xCF, 0x00
+    .word 0x0000, 0x0000; .byte 0x00, 0x00, 0x00, 0x00
 
 gdt_descriptor:
     .word (gdt_end - gdt - 1)
@@ -86,6 +46,10 @@ gdt_end:
 .section .text
 
 gdt_init:
+    push offset msg_init
+    call printk
+    add esp, 4
+
     mov eax, offset tss_entry
     mov ebx, offset gdt
     add ebx, 40
@@ -102,17 +66,24 @@ gdt_init:
     mov cl, ah
     mov [ebx+7], cl
 
+    push offset msg_lgdt
+    call printk
+    add esp, 4
+
     mov eax, offset gdt_descriptor
     lgdt [eax]
 
-    mov ax, GDT_KERNEL_DATA
+    mov ax, 0x10
     mov ds, ax
     mov es, ax
     mov fs, ax
     mov gs, ax
     mov ss, ax
 
-    jmp GDT_KERNEL_CODE:flush_cs
+    jmp 0x08:flush_cs
 
 flush_cs:
+    push offset msg_done
+    call printk
+    add esp, 4
     ret
