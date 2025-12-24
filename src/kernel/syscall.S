@@ -69,6 +69,6 @@ syscall_dispatcher:
 .bad:
     push offset invalid_syscall
     call printk
-    add esp, 
+    add esp, 4
     mov eax, -38
     ret
