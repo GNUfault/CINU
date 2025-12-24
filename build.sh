@@ -43,8 +43,7 @@ all() {
     mkdir -p "$BUILD_DIR"
 
     LDFLAGS="-m elf_i386 -T src/kernel/link.ld"
-    USER_LDFLAGS="-m elf_i386 -T src/user/link.ld"
-
+    
     BUILD_TIME=$(date)
     GAS_VER=$(as -version | grep -oE "[0-9]+\.[0-9]+" | head -n1)
 
@@ -70,14 +69,9 @@ EOF
     objcopy --strip-all "$KERNEL"
     truncate -s 16384 $KERNEL
 
-    USER_OBJS="$BUILD_DIR/init.o"
-    $LD $USER_LDFLAGS -o "$USER" $USER_OBJS
-    objcopy --strip-all "$USER"
-    truncate -s 16384 $USER
-
     $AS $AS_FLAGS $BOOT_DIR/boot.S -o $BUILD_DIR/boot.o
     $LD -T $BOOT_DIR/link.ld $BUILD_DIR/boot.o -o $BUILD_DIR/boot.bin
-    cat $BUILD_DIR/boot.bin $BUILD_DIR/kernel.elf $BUILD_DIR/user.elf >> $IMG
+    cat $BUILD_DIR/boot.bin $BUILD_DIR/kernel.elf >> $IMG
 }
 
 run() {
