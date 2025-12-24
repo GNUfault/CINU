@@ -56,10 +56,6 @@ _start:
     call gdt_init
     call idt_init
     call serial_init
-
-    push offset m_pit
-    call printk
-    add esp, 4
     call pit_init
 
     push offset m_speaker
