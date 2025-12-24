@@ -29,8 +29,6 @@
 .extern gas_ver
 .extern user_mode
 .extern tss_init
-.extern load_user
-.extern ata_init
 
 .global _start
 
@@ -92,16 +90,6 @@ _start:
     add esp, 4
     call tss_init
 
-    push offset m_ata
-    call printk
-    add esp, 4
-    call ata_init
-
-    push offset m_user
-    call printk
-    add esp, 4
-    call load_user
-
     call user_mode
 
 .section .data
@@ -126,7 +114,3 @@ m_keyboard:
     .asciz "Initializing Keyboard...\n"
 m_tss:
     .asciz "Initializing TSS...\n"
-m_ata:
-    .asciz "Initializing ATA...\n"
-m_user:
-    .asciz "Loading User Program...\n"
