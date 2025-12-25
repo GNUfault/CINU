@@ -31,6 +31,8 @@
 .extern user_mode
 .extern tss_init
 
+.extern print_bytes
+
 .global _start
 
 _start:
@@ -61,7 +63,10 @@ _start:
     call pit_init
     call speaker_init
     call keyboard_init
-    call user_mode
+  
+call print_bytes
+
+call user_mode
 
     push offset panic
     call panic
