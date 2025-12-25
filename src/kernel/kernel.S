@@ -68,10 +68,12 @@ _start:
 
 call print_bytes
 
-call user_mode
+# call user_mode
 
-    push offset panic
-    call panic
+    # push offset panic
+   # call panic
+.thing:
+jmp .thing
 
 .section .data
 msg1:
