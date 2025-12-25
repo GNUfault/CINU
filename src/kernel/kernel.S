@@ -30,6 +30,7 @@
 .extern gas_ver
 .extern user_mode
 .extern tss_init
+.extern floppy_init
 
 .extern print_bytes
 
@@ -63,7 +64,8 @@ _start:
     call pit_init
     call speaker_init
     call keyboard_init
-  
+    call floppy_init
+
 call print_bytes
 
 call user_mode
