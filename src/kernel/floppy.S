@@ -1,5 +1,4 @@
 .intel_syntax noprefix
-.code32
 
 .extern idt
 .extern printk
