@@ -1,2 +1,2 @@
 # CINUX
-Custom kernel in assembly.
+Custom kernel in C.
