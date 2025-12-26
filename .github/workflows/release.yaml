@@ -24,11 +24,11 @@ jobs:
           
       - name: Update package database
         run: |
-          sudo apt update
+          sudo apt-get update
 
       - name: Install dependencies
         run: |
-           sudo apt install -y nasm clang lld llvm xorriso mformat
+           sudo apt-get install -y nasm clang lld llvm xorriso mtools
      
       - name: Run build script
         run: ./build.sh
