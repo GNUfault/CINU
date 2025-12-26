@@ -28,7 +28,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-           sudo apt install -y nasm clang lld llvm-tools
+           sudo apt install -y nasm clang lld llvm
      
       - name: Run build script
         run: ./build.sh
