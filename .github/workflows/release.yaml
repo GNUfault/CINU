@@ -21,6 +21,14 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+      - name: Update package database
+        run: |
+          sudo apt update
+
+      - name: Install dependencies
+        run: |
+           sudo apt install -y nasm clang lld
      
       - name: Run build script
         run: ./build.sh
