@@ -28,7 +28,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-           sudo apt install -y nasm clang lld llvm
+           sudo apt install -y nasm clang lld llvm xorriso
      
       - name: Run build script
         run: ./build.sh
