@@ -37,7 +37,7 @@ KERNEL="$BUILD_DIR/kernel.elf"
 ISO=cinux.iso
 
 CFLAGS="-m32 -std=c99 -ffreestanding -fno-pic -fno-pie -nostdlib -nostartfiles -Wall -Wextra -I$SRC_DIR"
-LDFLAGS="-m elf_i386 -T $SRC_DIR/kernel/link.ld"
+LDFLAGS="-m elf_i386 -T $SRC_DIR/link.ld"
 
 clean() {
     rm -rf "$BUILD_DIR" "$IMG"
