@@ -12,6 +12,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
+      - name: Correct time
+        run: |
+          sudo timedatectl set-timezone America/Los_Angeles
+          sudo timedatectl set-ntp true
+      
+      - name: Generate timestamp
+        id: generate_tag
+        run: |
+          TAG="a$(date +"%m%d%y%H%M")"
+          echo "TAG=$TAG" >> $GITHUB_ENV
+          sed -i "s/#define VERSION \".*\"/#define VERSION \"$TAG\"/" src/version/versi
+          
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -23,19 +35,15 @@ jobs:
       - name: Build
         run: make
       
-      - name: Generate run number tag
-        id: tag
-        run: |
-          TAG_NAME="run-${{ github.run_number }}"
-          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
-      
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
+      - name: Upload IMG artifact
+        uses: actions/upload-artifact@v4
         with:
-          tag_name: ${{ steps.tag.outputs.tag_name }}
-          name: Continuous release
-          files: cinux.iso
-          draft: false
-          prerelease: true
+          name: cheeseDOS-img
+          path: cheeseDOS.img
+      
+      - name: Create GitHub Release and Upload artifacts
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TITLE="Continuous release"
+          gh release create "$TAG" cinux.img --title "$TITLE"
