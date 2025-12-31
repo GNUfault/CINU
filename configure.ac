@@ -23,10 +23,10 @@ AS_IF([test "x$GRUB_MKIMAGE" = "x"],
 
 AC_ARG_WITH([iso],
   [AS_HELP_STRING([--with-iso=NAME], [Set the output ISO filename])],
-  [ISO_NAME="$withval"],
-  [ISO_NAME="cinux.iso"])
+  [ISO="$withval"],
+  [ISO="cinux.iso"])
 
-AC_SUBST([ISO_NAME])
+AC_SUBST([ISO])
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
