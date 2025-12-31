@@ -22,4 +22,4 @@ iso:
 	mkdir $(ISO_DIR)
     grub-mkrescue -o $(ISO) $(ISO_DIR)
 
-CLEANFILES = $(ISO)
+CLEANFILES = $(ISO) $(ISO_DIR)
