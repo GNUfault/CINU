@@ -33,16 +33,20 @@ GRUB_DIR = $(BOOT_DIR)/grub
 
 QEMU = qemu-system-i386
 
-all: font.o iso
+all: font.o $(ISO)
 
 font.o: font.bin
 	objcopy -O elf32-i386 -B i386 -I binary $(FONT) font.o
 
-iso:
+if USE_GRUB
+
+$(ISO):
 	mkdir -p $(GRUB_DIR)
 	cp $(GRUB_CFG) $(GRUB_DIR)
 	cp $(KERNEL) $(ISO_DIR)
 	grub-mkrescue --install-modules="multiboot part_msdos iso9660 normal ls boot reboot" -o $(ISO) $(ISO_DIR)
+
+endif
 
 run:
 	$(QEMU) $(ISO)
