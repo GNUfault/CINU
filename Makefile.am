@@ -13,11 +13,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-bin_PROGRAMS       = cinux.elf
+bin_PROGRAMS = cinux.elf
 
 cinux_elf_PROGRAMS = $(KERNEL)
-cinux_elf_SOURCES = boot.s main.c vga.c cpu.s idt.c interrupts.s io.s log.c serial.c
-cinux_elf_LDADD   = font.o
+cinux_elf_SOURCES  = boot.s main.c vga.c cpu.s idt.c interrupts.s io.s log.c serial.c
+cinux_elf_LDADD    = font.o
 
 LINKER_SCRIPT = link.ld
 
