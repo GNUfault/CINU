@@ -36,8 +36,8 @@ jobs:
       - name: Upload IMG artifact
         uses: actions/upload-artifact@v4
         with:
-          name: cheeseDOS-img
-          path: cheeseDOS.img
+          name: cinux-iso
+          path: cinux.iso
       
       - name: Create GitHub Release and Upload artifacts
         env:
