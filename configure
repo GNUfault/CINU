@@ -617,7 +617,7 @@ am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
 ISO
-GRUB_MKIMAGE
+GRUB_MKRESCUE
 CCASFLAGS
 CCAS
 OBJEXT
@@ -3925,17 +3925,17 @@ test "${CCASFLAGS+set}" = set || CCASFLAGS=$CFLAGS
 
 
 
-# Extract the first word of "grub-mkimage", so it can be a program name with args.
-set dummy grub-mkimage; ac_word=$2
+# Extract the first word of "grub-mkrescue", so it can be a program name with args.
+set dummy grub-mkrescue; ac_word=$2
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
 printf %s "checking for $ac_word... " >&6; }
-if test ${ac_cv_path_GRUB_MKIMAGE+y}
+if test ${ac_cv_path_GRUB_MKRESCUE+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  case $GRUB_MKIMAGE in
+  case $GRUB_MKRESCUE in
   [\\/]* | ?:[\\/]*)
-  ac_cv_path_GRUB_MKIMAGE="$GRUB_MKIMAGE" # Let the user override the test with a path.
+  ac_cv_path_GRUB_MKRESCUE="$GRUB_MKRESCUE" # Let the user override the test with a path.
   ;;
   *)
   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
@@ -3949,7 +3949,7 @@ do
   esac
     for ac_exec_ext in '' $ac_executable_extensions; do
   if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
-    ac_cv_path_GRUB_MKIMAGE="$as_dir$ac_word$ac_exec_ext"
+    ac_cv_path_GRUB_MKRESCUE="$as_dir$ac_word$ac_exec_ext"
     printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
     break 2
   fi
@@ -3960,19 +3960,19 @@ IFS=$as_save_IFS
   ;;
 esac
 fi
-GRUB_MKIMAGE=$ac_cv_path_GRUB_MKIMAGE
-if test -n "$GRUB_MKIMAGE"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $GRUB_MKIMAGE" >&5
-printf "%s\n" "$GRUB_MKIMAGE" >&6; }
+GRUB_MKRESCUE=$ac_cv_path_GRUB_MKRESCUE
+if test -n "$GRUB_MKRESCUE"; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $GRUB_MKRESCUE" >&5
+printf "%s\n" "$GRUB_MKRESCUE" >&6; }
 else
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 fi
 
 
-if test "x$GRUB_MKIMAGE" = "x"
+if test "x$GRUB_MKRESCUE" = "x"
 then :
-  as_fn_error $? "grub-mkimage not found. Please install GRUB2 development tools." "$LINENO" 5
+  as_fn_error $? "grub-mkrescue not found. Please install GRUB2 development tools." "$LINENO" 5
 fi
 
 
