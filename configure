@@ -616,6 +616,7 @@ ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
+KERNEL
 ISO
 USE_GRUB_FALSE
 USE_GRUB_TRUE
@@ -708,6 +709,7 @@ enable_option_checking
 enable_silent_rules
 enable_grub
 with_iso
+with_kernel
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1350,6 +1352,7 @@ Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-iso=NAME         Set the ISO filename
+  --with-kernel=NAME      Set the kernel filename
 
 Some influential environment variables:
   CC          C compiler command
@@ -4205,6 +4208,17 @@ then :
 else $as_nop
   ISO="cinux.iso"
 fi
+
+
+
+# Check whether --with-kernel was given.
+if test ${with_kernel+y}
+then :
+  withval=$with_kernel; KERNEL="$withval"
+else $as_nop
+  KERNEL="cinux.elf"
+fi
+
 
 
 
