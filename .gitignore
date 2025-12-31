@@ -17,7 +17,9 @@
 build/
 *.iso
 *.o
-*.elf
+cinux.elf
 Makefile
 autom4te.cache/
 configure~
+config.log
+config.status
