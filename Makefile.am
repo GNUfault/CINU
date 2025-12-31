@@ -42,7 +42,7 @@ iso:
 	mkdir -p $(GRUB_DIR)
 	cp $(GRUB_CFG) $(GRUB_DIR)
 	cp $(KERNEL) $(ISO_DIR)
-	grub-mkrescue --install-modules="normal multiboot" -o $(ISO) $(ISO_DIR)
+	grub-mkrescue --install-modules="multiboot biosdisk part_msdos iso9660 normal ls boot menu" -o $(ISO) $(ISO_DIR)
 
 run:
 	$(QEMU) $(ISO)
