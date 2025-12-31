@@ -27,8 +27,12 @@ cinux_elf_LDFLAGS   = -nostdlib -T $(LINKER_SCRIPT)
 ISO_DIR  = iso
 GRUB_CFG = grub.cfg
 KERNEL   = cinux.elf
+FONT     = font.bin
 
-all: iso
+all: font.o iso
+
+font.o: font.bin
+	objcopy -O elf32-i386 -B i386 -I binary $(FONT) font.o
 
 iso:
 	mkdir -p $(ISO_DIR)
