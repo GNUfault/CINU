@@ -16,6 +16,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-void kmain() {
+#include "vga.h"
+
+void kmain(unsigned int *framebuffer) {
+    printk_init(framebuffer);
+    printk("hi\n");
+
     for (;;);
 }
