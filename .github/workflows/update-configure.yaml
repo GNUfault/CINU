@@ -5,6 +5,7 @@ on:
     paths:
       - 'configure.ac'
       - 'Makefile.am'
+      - '.github/workflows/update_configure.yaml'
     branches:
       - main
 
@@ -26,7 +27,7 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
-          git add Makefile.in aclocal.m4 configure install-sh missing
+          git add Makefile.in aclocal.m4 configure install-sh missing compile
           
           if git diff --staged --quiet; then
             echo "No changes"
