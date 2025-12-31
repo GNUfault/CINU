@@ -19,7 +19,7 @@ ISO_DIR = iso
 all: iso
 
 iso:
-	mkdir $(ISO_DIR)
-    grub-mkrescue -o $(ISO) $(ISO_DIR)
+	mkdir -p $(ISO_DIR)
+	grub-mkrescue -o $(ISO) $(ISO_DIR)
 
 CLEANFILES = $(ISO) $(ISO_DIR)
