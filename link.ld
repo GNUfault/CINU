@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-ENTRY(_start)
+OUTPUT_ARCH(i386)
 
 SECTIONS {
   . =  0x00010000;
