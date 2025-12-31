@@ -15,7 +15,7 @@ dnl You should have received a copy of the GNU General Public License
 dnl along with this program. If not, see <https://www.gnu.org/licenses/>
 
 AC_INIT([CINUX], [0.0.0])
-AM_INIT_AUTOMAKE([foreign])
+AM_INIT_AUTOMAKE([foreign no-dependencies])
 
 AC_PROG_CC
 AM_PROG_AS
