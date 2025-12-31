@@ -24,7 +24,7 @@ jobs:
           sudo apt-get install -y automake autoconf
 
       - name: Regenerate configure script
-        run: ./autogen.sh
+        run: autoreconf --install --force
 
       - name: Commit and Push changes
         run: |
