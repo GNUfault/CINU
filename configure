@@ -614,7 +614,7 @@ PACKAGE_URL=''
 
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
-ISO_NAME
+ISO
 GRUB_MKIMAGE
 AM_BACKSLASH
 AM_DEFAULT_VERBOSITY
@@ -2536,9 +2536,9 @@ fi
 # Check whether --with-iso was given.
 if test ${with_iso+y}
 then :
-  withval=$with_iso; ISO_NAME="$withval"
+  withval=$with_iso; ISO="$withval"
 else $as_nop
-  ISO_NAME="cinux.iso"
+  ISO="cinux.iso"
 fi
 
 
