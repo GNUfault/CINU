@@ -16,11 +16,6 @@ jobs:
         run: |
           sudo timedatectl set-timezone America/Los_Angeles
           sudo timedatectl set-ntp true
-      
-      - name: Generate timestamp
-        id: generate_tag
-        run: |
-          TAG="a$(date +"%m%d%y%H%M")"
           
       - name: Install dependencies
         run: |
@@ -43,5 +38,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          TITLE="Continuous release"
-          gh release create "$TAG" cinux.iso --title "$TITLE"
+          gh release create "$(date +"%m%d%y%H%M")" cinux.iso --title "Continuous release"
