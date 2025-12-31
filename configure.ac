@@ -1,4 +1,4 @@
-AC_INIT([CINUX], [])
+AC_INIT([CINUX], [0.0.0])
 AM_INIT_AUTOMAKE([foreign])
 
 AC_PATH_PROG([GRUB_MKIMAGE], [grub-mkimage])
