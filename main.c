@@ -19,7 +19,7 @@
 #include "vga.h"
 
 void kmain(unsigned int *framebuffer) {
-    printk_init(framebuffer);
+    vga_init(framebuffer);
     printk("hi\n");
 
     for (;;);
