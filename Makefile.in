@@ -233,7 +233,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ISO_DIR = iso
-CLEANFILES = $(ISO)
+CLEANFILES = $(ISO) $(ISO_DIR)
 all: all-am
 
 .SUFFIXES:
