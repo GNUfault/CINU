@@ -20,14 +20,9 @@
 #include "idt.h"
 #include "serial.h"
 
-#include "cpu.h"
-
 void kmain(unsigned int *framebuffer) {
     vga_init(framebuffer);
     idt_init();
-    
-    halt();
-    
     serial_init();
     log("hi\n");
 
