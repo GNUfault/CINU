@@ -295,7 +295,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 cinux_elf_SOURCES = boot.s main.c vga.c
 LINKER_SCRIPT = link.ld
-cinux_elf_CFLAGS = -ffreestanding -Wall -Wextra -fno-stack-protector -fno-builtin -nostdinc -std=c99 -pedantic -pedantic-errors -fno-common -fno-pie -fno-pic
+cinux_elf_CFLAGS = -m32 -ffreestanding -Wall -Wextra -fno-stack-protector -fno-builtin -nostdinc -std=c99 -pedantic -pedantic-errors -fno-common -fno-pie -fno-pic
 cinux_elf_CCASFLAGS = -m32
 cinux_elf_LDFLAGS = -nostdlib -T $(LINKER_SCRIPT)
 ISO_DIR = iso
