@@ -117,7 +117,8 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_cinux_elf_OBJECTS = cinux_elf-boot.$(OBJEXT)
+am_cinux_elf_OBJECTS = cinux_elf-boot.$(OBJEXT) \
+	cinux_elf-init.$(OBJEXT) cinux_elf-vga.$(OBJEXT)
 cinux_elf_OBJECTS = $(am_cinux_elf_OBJECTS)
 cinux_elf_LDADD = $(LDADD)
 cinux_elf_LINK = $(CCLD) $(cinux_elf_CFLAGS) $(CFLAGS) \
@@ -141,11 +142,6 @@ AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
-CCASCOMPILE = $(CCAS) $(AM_CCASFLAGS) $(CCASFLAGS)
-AM_V_CCAS = $(am__v_CCAS_@AM_V@)
-am__v_CCAS_ = $(am__v_CCAS_@AM_DEFAULT_V@)
-am__v_CCAS_0 = @echo "  CCAS    " $@;
-am__v_CCAS_1 = 
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 AM_V_CC = $(am__v_CC_@AM_V@)
@@ -158,6 +154,11 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
+CCASCOMPILE = $(CCAS) $(AM_CCASFLAGS) $(CCASFLAGS)
+AM_V_CCAS = $(am__v_CCAS_@AM_V@)
+am__v_CCAS_ = $(am__v_CCAS_@AM_DEFAULT_V@)
+am__v_CCAS_0 = @echo "  CCAS    " $@;
+am__v_CCAS_1 = 
 SOURCES = $(cinux_elf_SOURCES)
 DIST_SOURCES = $(cinux_elf_SOURCES)
 am__can_run_installinfo = \
@@ -292,10 +293,10 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-cinux_elf_SOURCES = boot.s
+cinux_elf_SOURCES = boot.s init.c vga.c
 cinux_elf_CFLAGS = -ffreestanding -Wall -Wextra -fno-stack-protector -fno-builtin -nostdinc -std=c99 -pedantic -pedantic-errors -fno-common -fno-pie -fno-pic
 cinux_elf_CCASFLAGS = -m32
-cinux_elf_LDFLAGS = -m32
+cinux_elf_LDFLAGS = -T link.ld
 ISO_DIR = iso
 GRUB_CFG = grub.cfg
 KERNEL = cinux.elf
@@ -303,7 +304,7 @@ CLEANFILES = $(KERNEL) $(ISO) $(ISO_DIR
 all: all-am
 
 .SUFFIXES:
-.SUFFIXES: .o .obj .s
+.SUFFIXES: .c .o .obj .s
 am--refresh: Makefile
 	@:
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
@@ -389,6 +390,24 @@ mostlyclean-compile:
 
 distclean-compile:
 	-rm -f *.tab.c
+
+.c.o:
+	$(AM_V_CC)$(COMPILE) -c -o $@ $<
+
+.c.obj:
+	$(AM_V_CC)$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+
+cinux_elf-init.o: init.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cinux_elf_CFLAGS) $(CFLAGS) -c -o cinux_elf-init.o `test -f 'init.c' || echo '$(srcdir)/'`init.c
+
+cinux_elf-init.obj: init.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cinux_elf_CFLAGS) $(CFLAGS) -c -o cinux_elf-init.obj `if test -f 'init.c'; then $(CYGPATH_W) 'init.c'; else $(CYGPATH_W) '$(srcdir)/init.c'; fi`
+
+cinux_elf-vga.o: vga.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cinux_elf_CFLAGS) $(CFLAGS) -c -o cinux_elf-vga.o `test -f 'vga.c' || echo '$(srcdir)/'`vga.c
+
+cinux_elf-vga.obj: vga.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cinux_elf_CFLAGS) $(CFLAGS) -c -o cinux_elf-vga.obj `if test -f 'vga.c'; then $(CYGPATH_W) 'vga.c'; else $(CYGPATH_W) '$(srcdir)/vga.c'; fi`
 
 .s.o:
 	$(AM_V_CCAS)$(CCASCOMPILE) -c -o $@ $<
