@@ -17,6 +17,9 @@ dnl along with this program. If not, see <https://www.gnu.org/licenses/>
 AC_INIT([CINUX], [0.0.0])
 AM_INIT_AUTOMAKE([foreign])
 
+AC_PROG_CC
+AM_PROG_AS
+
 AC_PATH_PROG([GRUB_MKIMAGE], [grub-mkimage])
 AS_IF([test "x$GRUB_MKIMAGE" = "x"],
   [AC_MSG_ERROR([grub-mkimage not found. Please install GRUB2 development tools.])])
