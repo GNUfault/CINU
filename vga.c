@@ -22,7 +22,7 @@
 #define FONT_HEIGHT 16
 #define COLOR_LIGHT_GREY 0xC0C0C0
 
-static unsigned int *framebuffer = NULL;
+static unsigned int *framebuffer = 0;
 static unsigned char font_data[256 * FONT_HEIGHT];
 static int cursor_x = 0;
 static int cursor_y = 0;
