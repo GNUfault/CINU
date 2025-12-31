@@ -3976,7 +3976,7 @@ fi
 
 if test "x$GRUB_MKRESCUE" = "x"
 then :
-  as_fn_error $? "grub-mkrescue not found. Please install grub-mkrescue." "$LINENO" 5
+  as_fn_error $? "grub-mkrescue not found. Please install grub2." "$LINENO" 5
 fi
 
 # Extract the first word of "grub-mkimage", so it can be a program name with args.
@@ -4026,7 +4026,7 @@ fi
 
 if test "x$GRUB_MKIMAGE" = "x"
 then :
-  as_fn_error $? "grub-mkimage not found. Please install grub-mkimage." "$LINENO" 5
+  as_fn_error $? "grub-mkimage not found. Please install grub2." "$LINENO" 5
 fi
 
 # Extract the first word of "xorriso", so it can be a program name with args.
@@ -4129,8 +4129,8 @@ then :
   as_fn_error $? "mformat not found. Please install mtools." "$LINENO" 5
 fi
 
-# Extract the first word of "MCOPY", so it can be a program name with args.
-set dummy MCOPY; ac_word=$2
+# Extract the first word of "mcopy", so it can be a program name with args.
+set dummy mcopy; ac_word=$2
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
 printf %s "checking for $ac_word... " >&6; }
 if test ${ac_cv_path_MCOPY+y}
