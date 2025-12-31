@@ -14,8 +14,8 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 bin_PROGRAMS       = cinux.elf
-cinux.elf_PROGRAMS = $(KERNEL)
 
+cinux_elf_PROGRAMS = $(KERNEL)
 cinux_elf_SOURCES = boot.s main.c vga.c cpu.s idt.c interrupts.s io.s log.c serial.c
 cinux_elf_LDADD   = font.o
 
