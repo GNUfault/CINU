@@ -44,4 +44,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TITLE="Continuous release"
-          gh release create "$TAG" cinux.img --title "$TITLE"
+          gh release create "$TAG" cinux.iso --title "$TITLE"
