@@ -790,7 +790,7 @@ font.o: font.bin
 	objcopy -O elf32-i386 -B i386 -I binary $(FONT) font.o
 
 iso:
-	mkdir -p $(ISO_DIR)
+	mkdir -p $(GRUB_DIR)
 	cp $(GRUB_CFG) $(GRUB_DIR)
 	cp $(KERNEL) $(ISO_DIR)
 	grub-mkrescue -o $(ISO) $(ISO_DIR)
