@@ -120,7 +120,7 @@ PROGRAMS = $(bin_PROGRAMS)
 am_cinux_elf_OBJECTS = cinux_elf-boot.$(OBJEXT) \
 	cinux_elf-main.$(OBJEXT) cinux_elf-vga.$(OBJEXT)
 cinux_elf_OBJECTS = $(am_cinux_elf_OBJECTS)
-cinux_elf_LDADD = $(LDADD)
+cinux_elf_DEPENDENCIES = font.o
 cinux_elf_LINK = $(CCLD) $(cinux_elf_CFLAGS) $(CFLAGS) \
 	$(cinux_elf_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
@@ -294,6 +294,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 cinux_elf_SOURCES = boot.s main.c vga.c
+cinux_elf_LDADD = font.o
 LINKER_SCRIPT = link.ld
 cinux_elf_CFLAGS = -m32 -ffreestanding -Wall -Wextra -fno-stack-protector -fno-builtin -nostdinc -std=c99 -pedantic -pedantic-errors -fno-common -fno-pie -fno-pic
 cinux_elf_CCASFLAGS = -m32
@@ -302,7 +303,7 @@ ISO_DIR = iso
 GRUB_CFG = grub.cfg
 KERNEL = cinux.elf
 FONT = font.bin
-CLEANFILES = $(KERNEL) $(ISO) $(ISO_DIR
+CLEANFILES = $(KERNEL) $(ISO) $(ISO_DIR)
 all: all-am
 
 .SUFFIXES:
@@ -691,8 +692,6 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
-clean: clean-am
-
 clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
 
 distclean: distclean-am
@@ -792,6 +791,9 @@ iso:
 	mkdir -p $(ISO_DIR)
 	cp $(GRUB_CFG) $(ISO_DIR)
 	grub-mkrescue -o $(ISO) $(ISO_DIR)
+
+clean:
+	rm -rf $(CLEANFILES)
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
