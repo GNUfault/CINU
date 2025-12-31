@@ -15,38 +15,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-.intel_syntax noprefix
-
-.section .multiboot
 .align 4
+.long 0x1BADB002
+.long 0
+.long -(0x1BADB002)
 
-multiboot_header:
-    .long 0x1BADB002
-    .long 0x00000003
-    .long -(0x1BADB002 + 0x00000003)
-    .long 0
-    .long 0
-    .long 0
-    .long 0
-    .long 0
-    .long 0
-    .long 1024
-    .long 768
-    .long 32
-
-.section .bss
-.align 16
-stack_bottom:
-    .skip 16384
-stack_top:
-
-.section .text
 .global _start
-
 _start:
-    mov esp, offset stack_top
-    
-    mov eax, [ebx + 88]
-    push eax
-    
     call kmain
