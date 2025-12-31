@@ -22,11 +22,11 @@ AM_PROG_AS
 
 AC_PATH_PROG([GRUB_MKRESCUE], [grub-mkrescue])
 AS_IF([test "x$GRUB_MKRESCUE" = "x"],
-  [AC_MSG_ERROR([grub-mkrescue not found. Please install grub-mkrescue.])])
+  [AC_MSG_ERROR([grub-mkrescue not found. Please install grub2.])])
 
 AC_PATH_PROG([GRUB_MKIMAGE], [grub-mkimage])
 AS_IF([test "x$GRUB_MKIMAGE" = "x"],
-  [AC_MSG_ERROR([grub-mkimage not found. Please install grub-mkimage.])])
+  [AC_MSG_ERROR([grub-mkimage not found. Please install grub2.])])
 
 AC_PATH_PROG([XORRISO], [xorriso])
 AS_IF([test "x$XORRISO" = "x"],
@@ -36,7 +36,7 @@ AC_PATH_PROG([MFORMAT], [mformat])
 AS_IF([test "x$MFORMAT" = "x"],
   [AC_MSG_ERROR([mformat not found. Please install mtools.])])
 
-AC_PATH_PROG([MCOPY], [MCOPY])
+AC_PATH_PROG([MCOPY], [mcopy])
 AS_IF([test "x$MCOPY" = "x"],
   [AC_MSG_ERROR([mcopy not found. Please install mtools.])])
 
