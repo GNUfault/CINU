@@ -13,8 +13,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Configue
-        run: ./configue
+      - name: Configure
+        run: ./configure
    
       - name: Build
         run: make
