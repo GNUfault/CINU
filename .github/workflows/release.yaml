@@ -21,7 +21,7 @@ on:
       - main
 
 jobs:
-  regenerate:
+  release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
