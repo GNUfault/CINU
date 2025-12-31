@@ -20,5 +20,5 @@
 
 void log(const char *msg) {
     printk(msg);
-    serial_print(msg);
+    serial_write(msg);
 }
