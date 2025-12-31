@@ -827,16 +827,16 @@ uninstall-am: uninstall-binPROGRAMS
 .PRECIOUS: Makefile
 
 
-all: font.o iso
+all: font.o $(ISO)
 
 font.o: font.bin
 	objcopy -O elf32-i386 -B i386 -I binary $(FONT) font.o
 
-iso:
-	mkdir -p $(GRUB_DIR)
-	cp $(GRUB_CFG) $(GRUB_DIR)
-	cp $(KERNEL) $(ISO_DIR)
-	grub-mkrescue --install-modules="multiboot part_msdos iso9660 normal ls boot reboot" -o $(ISO) $(ISO_DIR)
+@USE_GRUB_TRUE@$(ISO):
+@USE_GRUB_TRUE@	mkdir -p $(GRUB_DIR)
+@USE_GRUB_TRUE@	cp $(GRUB_CFG) $(GRUB_DIR)
+@USE_GRUB_TRUE@	cp $(KERNEL) $(ISO_DIR)
+@USE_GRUB_TRUE@	grub-mkrescue --install-modules="multiboot part_msdos iso9660 normal ls boot reboot" -o $(ISO) $(ISO_DIR)
 
 run:
 	$(QEMU) $(ISO)
