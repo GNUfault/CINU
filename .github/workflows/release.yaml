@@ -1,3 +1,5 @@
+name: Continuous release
+
 on:
   push:
     branches:
