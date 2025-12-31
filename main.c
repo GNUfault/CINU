@@ -16,6 +16,7 @@
  */
 
 #include "vga.h"
+#include "log.h"
 
 void kmain(unsigned int *framebuffer) {
     vga_init(framebuffer);
