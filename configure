@@ -617,6 +617,8 @@ am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
 ISO
+USE_GRUB_FALSE
+USE_GRUB_TRUE
 MCOPY
 MFORMAT
 XORRISO
@@ -704,6 +706,7 @@ ac_subst_files=''
 ac_user_opts='
 enable_option_checking
 enable_silent_rules
+enable_grub
 with_iso
 '
       ac_precious_vars='build_alias
@@ -1341,11 +1344,12 @@ Optional Features:
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --enable-silent-rules   less verbose build output (undo: "make V=1")
   --disable-silent-rules  verbose build output (undo: "make V=0")
+  --disable-grub          Disable the ISO and output only the ELF
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
-  --with-iso=NAME         Set the output ISO filename
+  --with-iso=NAME         Set the ISO filename
 
 Some influential environment variables:
   CC          C compiler command
@@ -3929,7 +3933,19 @@ test "${CCASFLAGS+set}" = set || CCASFLAGS=$CFLAGS
 
 
 
-# Extract the first word of "grub-mkrescue", so it can be a program name with args.
+# Check whether --enable-grub was given.
+if test ${enable_grub+y}
+then :
+  enableval=$enable_grub; enable_grub="$enableval"
+else $as_nop
+  enable_grub="yes"
+fi
+
+
+if test "x$enable_grub" = "xyes"
+then :
+
+  # Extract the first word of "grub-mkrescue", so it can be a program name with args.
 set dummy grub-mkrescue; ac_word=$2
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
 printf %s "checking for $ac_word... " >&6; }
@@ -3974,12 +3990,12 @@ printf "%s\n" "no" >&6; }
 fi
 
 
-if test "x$GRUB_MKRESCUE" = "x"
+  if test "x$GRUB_MKRESCUE" = "x"
 then :
-  as_fn_error $? "grub-mkrescue not found. Please install grub2." "$LINENO" 5
+  as_fn_error $? "grub-mkrescue not found." "$LINENO" 5
 fi
 
-# Extract the first word of "grub-mkimage", so it can be a program name with args.
+  # Extract the first word of "grub-mkimage", so it can be a program name with args.
 set dummy grub-mkimage; ac_word=$2
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
 printf %s "checking for $ac_word... " >&6; }
@@ -4024,12 +4040,12 @@ printf "%s\n" "no" >&6; }
 fi
 
 
-if test "x$GRUB_MKIMAGE" = "x"
+  if test "x$GRUB_MKIMAGE" = "x"
 then :
-  as_fn_error $? "grub-mkimage not found. Please install grub2." "$LINENO" 5
+  as_fn_error $? "grub-mkimage not found." "$LINENO" 5
 fi
 
-# Extract the first word of "xorriso", so it can be a program name with args.
+  # Extract the first word of "xorriso", so it can be a program name with args.
 set dummy xorriso; ac_word=$2
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
 printf %s "checking for $ac_word... " >&6; }
@@ -4074,12 +4090,12 @@ printf "%s\n" "no" >&6; }
 fi
 
 
-if test "x$XORRISO" = "x"
+  if test "x$XORRISO" = "x"
 then :
-  as_fn_error $? "xorriso not found. Please install xorriso." "$LINENO" 5
+  as_fn_error $? "xorriso not found." "$LINENO" 5
 fi
 
-# Extract the first word of "mformat", so it can be a program name with args.
+  # Extract the first word of "mformat", so it can be a program name with args.
 set dummy mformat; ac_word=$2
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
 printf %s "checking for $ac_word... " >&6; }
@@ -4124,12 +4140,7 @@ printf "%s\n" "no" >&6; }
 fi
 
 
-if test "x$MFORMAT" = "x"
-then :
-  as_fn_error $? "mformat not found. Please install mtools." "$LINENO" 5
-fi
-
-# Extract the first word of "mcopy", so it can be a program name with args.
+  # Extract the first word of "mcopy", so it can be a program name with args.
 set dummy mcopy; ac_word=$2
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
 printf %s "checking for $ac_word... " >&6; }
@@ -4174,10 +4185,17 @@ printf "%s\n" "no" >&6; }
 fi
 
 
-if test "x$MCOPY" = "x"
-then :
-  as_fn_error $? "mcopy not found. Please install mtools." "$LINENO" 5
+
 fi
+
+ if test "x$enable_grub" = "xyes"; then
+  USE_GRUB_TRUE=
+  USE_GRUB_FALSE='#'
+else
+  USE_GRUB_TRUE='#'
+  USE_GRUB_FALSE=
+fi
+
 
 
 # Check whether --with-iso was given.
@@ -4187,7 +4205,6 @@ then :
 else $as_nop
   ISO="cinux.iso"
 fi
-
 
 
 
@@ -4354,6 +4371,10 @@ else
   am__EXEEXT_FALSE=
 fi
 
+if test -z "${USE_GRUB_TRUE}" && test -z "${USE_GRUB_FALSE}"; then
+  as_fn_error $? "conditional \"USE_GRUB\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
 
 : "${CONFIG_STATUS=./config.status}"
 ac_write_fail=0
