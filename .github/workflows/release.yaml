@@ -21,8 +21,6 @@ jobs:
         id: generate_tag
         run: |
           TAG="a$(date +"%m%d%y%H%M")"
-          echo "TAG=$TAG" >> $GITHUB_ENV
-          sed -i "s/#define VERSION \".*\"/#define VERSION \"$TAG\"/" src/version/versi
           
       - name: Install dependencies
         run: |
