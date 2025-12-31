@@ -29,6 +29,7 @@ ISO_DIR  = iso
 GRUB_CFG = grub.cfg
 KERNEL   = cinux.elf
 FONT     = font.bin
+BOOT_DIR = $(ISO_DIR)/boot
 
 all: font.o iso
 
@@ -37,7 +38,8 @@ font.o: font.bin
 
 iso:
 	mkdir -p $(ISO_DIR)
-	cp $(GRUB_CFG) $(KERNEL) $(ISO_DIR)
+	cp $(GRUB_CFG) $(ISO_DIR)
+    cp $(KERNEL) $(BOOT_DIR)
 	grub-mkrescue -o $(ISO) $(ISO_DIR)
 
 clean:
