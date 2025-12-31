@@ -14,9 +14,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 bin_PROGRAMS    = cinux.elf
-noinst_PROGRAMS = cinux_elf
 
-cinux_elf_PROGRAMS = $(KERNEL)
 cinux_elf_SOURCES  = boot.s main.c vga.c cpu.s idt.c interrupts.s io.s log.c serial.c
 cinux_elf_LDADD    = font.o
 
@@ -26,12 +24,12 @@ cinux_elf_CFLAGS    = -m32 -ffreestanding -Wall -Wextra -fno-stack-protector -fn
 cinux_elf_CCASFLAGS = -m32
 cinux_elf_LDFLAGS   = -nostdlib -T $(LINKER_SCRIPT)
 
-ISO_DIR     = iso
-GRUB_CFG    = grub.cfg
-KERNEL_GRUB = cinux.elf
-FONT        = font.bin
-BOOT_DIR    = $(ISO_DIR)/boot
-GRUB_DIR    = $(BOOT_DIR)/grub
+ISO_DIR  = iso
+GRUB_CFG = grub.cfg
+KERNEL   = cinux.elf
+FONT     = font.bin
+BOOT_DIR = $(ISO_DIR)/boot
+GRUB_DIR = $(BOOT_DIR)/grub
 
 QEMU = qemu-system-i386
 
@@ -45,7 +43,7 @@ if USE_GRUB
 $(ISO):
 	mkdir -p $(GRUB_DIR)
 	cp $(GRUB_CFG) $(GRUB_DIR)
-	cp $(KERNEL) $(ISO_DIR)/$(KERNEL_GRUB)
+	cp $(KERNEL) $(ISO_DIR)
 	grub-mkrescue --install-modules="multiboot part_msdos iso9660 normal ls boot reboot" -o $(ISO) $(ISO_DIR)
 
 endif
