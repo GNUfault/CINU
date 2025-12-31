@@ -1,3 +1,5 @@
-cinux.img
 build/
-info.S
+*.iso
+Makefile
+autom4te.cache/
+configure~
