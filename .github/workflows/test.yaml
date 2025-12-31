@@ -1,0 +1,21 @@
+name: Test build
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  regenerate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Regenerate configure script
+        run: |
+           ./configue
+           make
