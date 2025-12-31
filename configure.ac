@@ -46,12 +46,6 @@ AC_ARG_WITH([iso],
   [ISO="$withval"],
   [ISO="cinux.iso"])
 
-AC_ARG_WITH([kernel],
-  [AS_HELP_STRING([--with-kernel=NAME], [Set the kernel filename])],
-  [KERNEL="$withval"],
-  [KERNEL="cinux.elf"])
-
 AC_SUBST([ISO])
-AC_SUBST([KERNEL])
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
