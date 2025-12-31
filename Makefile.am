@@ -17,6 +17,7 @@
 bin_PROGRAMS = cinux.elf
 
 cinux_elf_SOURCES = boot.s main.c vga.c
+cinux_elf_LDADD   = font.o
 
 LINKER_SCRIPT = link.ld
 
@@ -39,4 +40,7 @@ iso:
 	cp $(GRUB_CFG) $(ISO_DIR)
 	grub-mkrescue -o $(ISO) $(ISO_DIR)
 
-CLEANFILES = $(KERNEL) $(ISO) $(ISO_DIR
+clean:
+	rm -rf $(CLEANFILES)
+
+CLEANFILES = $(KERNEL) $(ISO) $(ISO_DIR)
