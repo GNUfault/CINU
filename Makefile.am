@@ -14,12 +14,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-ISO_DIR = iso
+ISO_DIR  = iso
+GRUB_CFG = grub.cfg
 
 all: iso
 
 iso:
 	mkdir -p $(ISO_DIR)
+	mv $(GRUB_CFG) $(ISO_DIR)
 	grub-mkrescue -o $(ISO) $(ISO_DIR)
 
 CLEANFILES = $(ISO) $(ISO_DIR)
