@@ -36,7 +36,12 @@ multiboot_header:
 _start:
     mov esp, offset stack_top
     push ebx
+    push eax
     call kmain
+    cli
+.hang:
+    hlt
+    jmp .hang
 
 .section .bss
 .align 16
