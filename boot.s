@@ -23,13 +23,13 @@
 
 multiboot_header:
     .long 0x1BADB002
-    .long 0x00000007
-    .long -(0x1BADB002 + 0x00000007)
-    .long multiboot_header
-    .long multiboot_header
+    .long 0x00000003
+    .long -(0x1BADB002 + 0x00000003)
     .long 0
     .long 0
-    .long _start
+    .long 0
+    .long 0
+    .long 0
     .long 0
     .long 1024
     .long 768
@@ -51,4 +51,3 @@ _start:
     push eax
     
     call kmain
-    
