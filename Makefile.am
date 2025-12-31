@@ -28,6 +28,8 @@ ISO_DIR  = iso
 GRUB_CFG = grub.cfg
 KERNEL   = cinux.elf
 FONT     = font.bin
+BOOT_DIR = $(ISO_DIR)/boot
+GRUB_DIR = $(BOOT_DIR)/grub
 
 QEMU = qemu-system-i386
 
@@ -38,7 +40,8 @@ font.o: font.bin
 
 iso:
 	mkdir -p $(ISO_DIR)
-	cp $(GRUB_CFG) $(KERNEL) $(ISO_DIR)
+	cp $(GRUB_CFG) $(GRUB_DIR)
+    cp $(KERNEL) $(ISO_DIR)
 	grub-mkrescue -o $(ISO) $(ISO_DIR)
 
 run:
