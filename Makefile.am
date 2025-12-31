@@ -16,11 +16,11 @@
 
 bin_PROGRAMS = cinux.elf
 
-cinux_elf_SOURCES = boot.s
+cinux_elf_SOURCES = boot.s init.c vga.c
 
 cinux_elf_CFLAGS    = -ffreestanding -Wall -Wextra -fno-stack-protector -fno-builtin -nostdinc -std=c99 -pedantic -pedantic-errors -fno-common -fno-pie -fno-pic
 cinux_elf_CCASFLAGS = -m32
-cinux_elf_LDFLAGS   = -m32
+cinux_elf_LDFLAGS   = -T link.ld
 
 ISO_DIR  = iso
 GRUB_CFG = grub.cfg
