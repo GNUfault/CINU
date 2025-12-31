@@ -35,13 +35,35 @@ multiboot_header:
 .global _start
 _start:
     mov esp, offset stack_top
-    push ebx
+
+    mov eax, [ebx + 0x50]
+    mov edx, [ebx + 0x54]
+    mov ecx, [ebx + 0x5C]
+    mov edi, [ebx + 0x60]
+    mov bl,  [ebx + 0x64]
+    mov bh,  [ebx + 0x65]
+
+    cmp bh, 1
+    jne .no_fb
+
+    cmp bl, 24
+    je .fb_ok
+    cmp bl, 32
+    jne .no_fb
+
+.fb_ok:
     push eax
     call kmain
     cli
 .hang:
     hlt
     jmp .hang
+
+.no_fb:
+    cli
+.hang2:
+    hlt
+    jmp .hang2
 
 .section .bss
 .align 16
