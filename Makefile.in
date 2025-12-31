@@ -791,7 +791,7 @@ font.o: font.bin
 iso:
 	mkdir -p $(ISO_DIR)
 	cp $(GRUB_CFG) $(ISO_DIR)
-    cp $(KERNEL) $(BOOT_DIR)
+	cp $(KERNEL) $(BOOT_DIR)
 	grub-mkrescue -o $(ISO) $(ISO_DIR)
 
 clean:
