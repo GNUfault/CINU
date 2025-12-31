@@ -1,30 +1,28 @@
-#include <stdint.h>
-
 #define SCREEN_WIDTH 1024
 #define SCREEN_HEIGHT 768
 #define FONT_WIDTH 8
 #define FONT_HEIGHT 16
 #define COLOR_LIGHT_GREY 0xC0C0C0
 
-static uint32_t *framebuffer = NULL;
-static uint8_t font_data[256 * FONT_HEIGHT];
+static unsigned int *framebuffer = NULL;
+static unsigned char font_data[256 * FONT_HEIGHT];
 static int cursor_x = 0;
 static int cursor_y = 0;
 
 void load_font(void) {
-    extern uint8_t _binary_font_bin_start[];
-    uint8_t *font_ptr = _binary_font_bin_start;
+    extern unsigned char _binary_font_bin_start[];
+    unsigned char *font_ptr = _binary_font_bin_start;
     
     for (int i = 0; i < 256 * FONT_HEIGHT; i++) {
         font_data[i] = font_ptr[i];
     }
 }
 
-static void draw_char(char c, int x, int y, uint32_t color) {
-    uint8_t *glyph = &font_data[(unsigned char)c * FONT_HEIGHT];
+static void draw_char(char c, int x, int y, unsigned int color) {
+    unsigned char *glyph = &font_data[(unsigned char)c * FONT_HEIGHT];
     
     for (int row = 0; row < FONT_HEIGHT; row++) {
-        uint8_t line = glyph[row];
+        unsigned char line = glyph[row];
         for (int col = 0; col < FONT_WIDTH; col++) {
             if (line & (0x80 >> col)) {
                 int px = x + col;
@@ -183,7 +181,7 @@ void printk(const char *format, ...) {
     va_end_impl(&args);
 }
 
-void vga_init(uint32_t *fb_address) {
+void vga_init(unsigned int *fb_address) {
     framebuffer = fb_address;
     cursor_x = 0;
     cursor_y = 0;
