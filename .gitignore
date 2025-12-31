@@ -16,6 +16,8 @@
 
 build/
 *.iso
+*.o
+*.elf
 Makefile
 autom4te.cache/
 configure~
