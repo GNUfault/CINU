@@ -52,6 +52,6 @@ AC_ARG_WITH([kernel],
   [KERNEL="cinux.elf"])
 
 AC_SUBST([ISO])
-AC_SUBSET([KERNEL])
+AC_SUBST([KERNEL])
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
