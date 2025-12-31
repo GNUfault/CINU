@@ -617,6 +617,10 @@ am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
 ISO
+MCOPY
+MFORMAT
+XORRISO
+GRUB_MKIMAGE
 GRUB_MKRESCUE
 CCASFLAGS
 CCAS
@@ -3972,7 +3976,207 @@ fi
 
 if test "x$GRUB_MKRESCUE" = "x"
 then :
-  as_fn_error $? "grub-mkrescue not found. Please install GRUB2 development tools." "$LINENO" 5
+  as_fn_error $? "grub-mkrescue not found. Please install grub-mkrescue." "$LINENO" 5
+fi
+
+# Extract the first word of "grub-mkimage", so it can be a program name with args.
+set dummy grub-mkimage; ac_word=$2
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+printf %s "checking for $ac_word... " >&6; }
+if test ${ac_cv_path_GRUB_MKIMAGE+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+  case $GRUB_MKIMAGE in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_GRUB_MKIMAGE="$GRUB_MKIMAGE" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  case $as_dir in #(((
+    '') as_dir=./ ;;
+    */) ;;
+    *) as_dir=$as_dir/ ;;
+  esac
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
+    ac_cv_path_GRUB_MKIMAGE="$as_dir$ac_word$ac_exec_ext"
+    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+GRUB_MKIMAGE=$ac_cv_path_GRUB_MKIMAGE
+if test -n "$GRUB_MKIMAGE"; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $GRUB_MKIMAGE" >&5
+printf "%s\n" "$GRUB_MKIMAGE" >&6; }
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+fi
+
+
+if test "x$GRUB_MKIMAGE" = "x"
+then :
+  as_fn_error $? "grub-mkimage not found. Please install grub-mkimage." "$LINENO" 5
+fi
+
+# Extract the first word of "xorriso", so it can be a program name with args.
+set dummy xorriso; ac_word=$2
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+printf %s "checking for $ac_word... " >&6; }
+if test ${ac_cv_path_XORRISO+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+  case $XORRISO in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_XORRISO="$XORRISO" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  case $as_dir in #(((
+    '') as_dir=./ ;;
+    */) ;;
+    *) as_dir=$as_dir/ ;;
+  esac
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
+    ac_cv_path_XORRISO="$as_dir$ac_word$ac_exec_ext"
+    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+XORRISO=$ac_cv_path_XORRISO
+if test -n "$XORRISO"; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $XORRISO" >&5
+printf "%s\n" "$XORRISO" >&6; }
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+fi
+
+
+if test "x$XORRISO" = "x"
+then :
+  as_fn_error $? "xorriso not found. Please install xorriso." "$LINENO" 5
+fi
+
+# Extract the first word of "mformat", so it can be a program name with args.
+set dummy mformat; ac_word=$2
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+printf %s "checking for $ac_word... " >&6; }
+if test ${ac_cv_path_MFORMAT+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+  case $MFORMAT in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_MFORMAT="$MFORMAT" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  case $as_dir in #(((
+    '') as_dir=./ ;;
+    */) ;;
+    *) as_dir=$as_dir/ ;;
+  esac
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
+    ac_cv_path_MFORMAT="$as_dir$ac_word$ac_exec_ext"
+    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+MFORMAT=$ac_cv_path_MFORMAT
+if test -n "$MFORMAT"; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $MFORMAT" >&5
+printf "%s\n" "$MFORMAT" >&6; }
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+fi
+
+
+if test "x$MFORMAT" = "x"
+then :
+  as_fn_error $? "mformat not found. Please install mtools." "$LINENO" 5
+fi
+
+# Extract the first word of "MCOPY", so it can be a program name with args.
+set dummy MCOPY; ac_word=$2
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+printf %s "checking for $ac_word... " >&6; }
+if test ${ac_cv_path_MCOPY+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+  case $MCOPY in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_MCOPY="$MCOPY" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  case $as_dir in #(((
+    '') as_dir=./ ;;
+    */) ;;
+    *) as_dir=$as_dir/ ;;
+  esac
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
+    ac_cv_path_MCOPY="$as_dir$ac_word$ac_exec_ext"
+    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+MCOPY=$ac_cv_path_MCOPY
+if test -n "$MCOPY"; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $MCOPY" >&5
+printf "%s\n" "$MCOPY" >&6; }
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+fi
+
+
+if test "x$MCOPY" = "x"
+then :
+  as_fn_error $? "mcopy not found. Please install mtools." "$LINENO" 5
 fi
 
 
