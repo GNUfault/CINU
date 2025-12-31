@@ -14,14 +14,23 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+bin_PROGRAMS = cinux.elf
+
+cinux.elf_SOURCES = boot.s
+
+cinux.elf_CFLAGS    = -ffreestanding -Wall -Wextra -fno-stack-protector -fno-builtin -nostdinc -std=c99 -pedantic -pedantic-errors -fno-common -fno-pie -fno-pic
+cinux.elf_CCASFLAGS = -m32
+cinux.elf_LDFLAGS   = -m32
+
 ISO_DIR  = iso
 GRUB_CFG = grub.cfg
+KERNEL   = cinux.elf
 
 all: iso
 
 iso:
 	mkdir -p $(ISO_DIR)
-	mv $(GRUB_CFG) $(ISO_DIR)
+	cp $(GRUB_CFG) $(ISO_DIR)
 	grub-mkrescue -o $(ISO) $(ISO_DIR)
 
-CLEANFILES = $(ISO) $(ISO_DIR)
+CLEANFILES = $(KERNEL) $(ISO) $(ISO_DIR
