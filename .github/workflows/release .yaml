@@ -1,0 +1,39 @@
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  regenerate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xorriso mtools grub-pc-bin grub-common gcc-multilib
+      
+      - name: Configure
+        run: ./configure
+   
+      - name: Build
+        run: make
+      
+      - name: Generate run number tag
+        id: tag
+        run: |
+          TAG_NAME="run-${{ github.run_number }}"
+          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.tag.outputs.tag_name }}
+          name: Continuous release
+          files: cinux.iso
+          draft: false
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
