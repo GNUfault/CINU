@@ -120,7 +120,7 @@ am_cinux_elf_OBJECTS = cinux_elf-boot.$(OBJEXT) \
 	cinux_elf-main.$(OBJEXT) cinux_elf-vga.$(OBJEXT) \
 	cinux_elf-cpu.$(OBJEXT) cinux_elf-io.$(OBJEXT)
 cinux_elf_OBJECTS = $(am_cinux_elf_OBJECTS)
-cinux_elf_DEPENDENCIES = font.o
+cinux_elf_LDADD = $(LDADD)
 cinux_elf_LINK = $(CCLD) $(cinux_elf_CFLAGS) $(CFLAGS) \
 	$(cinux_elf_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
@@ -298,7 +298,6 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 cinux_elf_SOURCES = boot.s main.c vga.c cpu.s io.s
-cinux_elf_LDADD = font.o
 LINKER_SCRIPT = link.ld
 cinux_elf_CFLAGS = -m32 -ffreestanding -Wall -Wextra -fno-stack-protector -fno-builtin -nostdinc -std=c99 -pedantic -pedantic-errors -fno-common -fno-pie -fno-pic
 cinux_elf_CCASFLAGS = -m32
@@ -801,10 +800,7 @@ uninstall-am: uninstall-binPROGRAMS
 .PRECIOUS: Makefile
 
 
-all: font.o $(ISO)
-
-font.o: font.bin
-	objcopy -O elf32-i386 -B i386 -I binary $(FONT) font.o
+all: $(ISO)
 
 @USE_GRUB_TRUE@$(ISO):
 @USE_GRUB_TRUE@	mkdir -p $(GRUB_DIR)
