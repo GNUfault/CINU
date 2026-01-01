@@ -20,6 +20,7 @@
 #define VGA_MEMORY ((unsigned short*)0xB8000)
 #define SCREEN_WIDTH 80
 #define SCREEN_HEIGHT 25
+#define SCREEN_SIZE (SCREEN_WIDTH * SCREEN_HEIGHT)
 
 static unsigned int vga_cursor_x = 0;
 static unsigned int vga_cursor_y = 0;
@@ -89,8 +90,8 @@ void printk(const char *str) {
 }
 
 void clear_screen(void) {
-    unsigned short blank = (unsigned short)(' ' | (get_vga_color() << 8));
     unsigned short *video = (unsigned short *)VGA_MEMORY;
+    unsigned short blank = (unsigned short)(' ' | (0x07 << 8));
 
     int i;
     for (i = 0; i < SCREEN_SIZE; i++) {
@@ -101,4 +102,3 @@ void clear_screen(void) {
     vga_cursor_y = 0;
     set_cursor(0);
 }
-
