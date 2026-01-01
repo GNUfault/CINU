@@ -16,13 +16,8 @@
  */
 
 #include "vga.h"
-#include "idt.h"
-#include "serial.h"
 
-void kmain(unsigned int *framebuffer) {
-    store_fb_address(framebuffer);
-    idt_init();
-    serial_init();
+void kmain(void) {
     printk("hi\n");
 
     for (;;);
