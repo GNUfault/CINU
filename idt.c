@@ -15,26 +15,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "idt.h"
 #include "idt_load.h"
 #include "io.h"
 #include "cpu.h"
-
-unsigned char idt[256 * 8];
-
-struct idt_entry {
-    unsigned short base_low;
-    unsigned short selector;
-    unsigned char zero;
-    unsigned char flags;
-    unsigned short base_high;
-} __attribute__((packed));
 
 struct idt_ptr {
     unsigned short limit;
     unsigned int base;
 } __attribute__((packed));
 
-static struct idt_entry idt[256];
+struct idt_entry idt[256];
 static struct idt_ptr idtp;
 
 extern void idt_load(unsigned int);
