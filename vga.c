@@ -25,20 +25,25 @@ static unsigned int vga_cursor_x = 0;
 static unsigned int vga_cursor_y = 0;
 static int vga_scrolling_enabled = 1;
 
+static void set_cursor(unsigned int pos) {
+    outb(0x3D4, 0x0F);
+    outb(0x3D5, (unsigned char)(pos & 0xFF));
+    outb(0x3D4, 0x0E);
+    outb(0x3D5, (unsigned char)((pos >> 8) & 0xFF));
+}
+
 static inline unsigned short vga_entry(char c) {
     return (unsigned short)c | (0x07u << 8);
 }
 
 static void scroll_screen(void) {
     unsigned int row, col;
-
     for (row = 1; row < SCREEN_HEIGHT; row++) {
         for (col = 0; col < SCREEN_WIDTH; col++) {
             VGA_MEMORY[(row - 1) * SCREEN_WIDTH + col] =
                 VGA_MEMORY[row * SCREEN_WIDTH + col];
         }
     }
-
     for (col = 0; col < SCREEN_WIDTH; col++) {
         VGA_MEMORY[(SCREEN_HEIGHT - 1) * SCREEN_WIDTH + col] = vga_entry(' ');
     }
@@ -80,7 +85,5 @@ static void putchar(char c) {
 }
 
 void printk(const char *str) {
-    while (*str) {
-        putchar(*str++);
-    }
+    while (*str) putchar(*str++);
 }
