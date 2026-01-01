@@ -17,6 +17,7 @@
 
 #include "idt.h"
 #include "io.h"
+#include "cpu.h"
 
 struct idt_entry {
     unsigned short base_low;
@@ -68,5 +69,5 @@ void idt_init(void) {
 
     idt_load((unsigned int)&idtp);
 
-    __asm__ volatile("sti");
+    sti();
 }
