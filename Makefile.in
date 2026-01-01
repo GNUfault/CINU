@@ -120,7 +120,7 @@ am_cinux_elf_OBJECTS = cinux_elf-boot.$(OBJEXT) \
 	cinux_elf-main.$(OBJEXT) cinux_elf-vga.$(OBJEXT) \
 	cinux_elf-cpu.$(OBJEXT) cinux_elf-idt.$(OBJEXT) \
 	cinux_elf-idt_load.$(OBJEXT) cinux_elf-io.$(OBJEXT) \
-	cinux_elf-log.$(OBJEXT) cinux_elf-serial.$(OBJEXT)
+	cinux_elf-serial.$(OBJEXT)
 cinux_elf_OBJECTS = $(am_cinux_elf_OBJECTS)
 cinux_elf_DEPENDENCIES = font.o
 cinux_elf_LINK = $(CCLD) $(cinux_elf_CFLAGS) $(CFLAGS) \
@@ -299,7 +299,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-cinux_elf_SOURCES = boot.s main.c vga.c cpu.s idt.c idt_load.s io.s log.c serial.c
+cinux_elf_SOURCES = boot.s main.c vga.c cpu.s idt.c idt_load.s io.s serial.c
 cinux_elf_LDADD = font.o
 LINKER_SCRIPT = link.ld
 cinux_elf_CFLAGS = -m32 -ffreestanding -Wall -Wextra -fno-stack-protector -fno-builtin -nostdinc -std=c99 -pedantic -pedantic-errors -fno-common -fno-pie -fno-pic
@@ -426,12 +426,6 @@ cinux_elf-idt.o: idt.c
 
 cinux_elf-idt.obj: idt.c
 	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cinux_elf_CFLAGS) $(CFLAGS) -c -o cinux_elf-idt.obj `if test -f 'idt.c'; then $(CYGPATH_W) 'idt.c'; else $(CYGPATH_W) '$(srcdir)/idt.c'; fi`
-
-cinux_elf-log.o: log.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cinux_elf_CFLAGS) $(CFLAGS) -c -o cinux_elf-log.o `test -f 'log.c' || echo '$(srcdir)/'`log.c
-
-cinux_elf-log.obj: log.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cinux_elf_CFLAGS) $(CFLAGS) -c -o cinux_elf-log.obj `if test -f 'log.c'; then $(CYGPATH_W) 'log.c'; else $(CYGPATH_W) '$(srcdir)/log.c'; fi`
 
 cinux_elf-serial.o: serial.c
 	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cinux_elf_CFLAGS) $(CFLAGS) -c -o cinux_elf-serial.o `test -f 'serial.c' || echo '$(srcdir)/'`serial.c
