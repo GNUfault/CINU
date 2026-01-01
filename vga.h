@@ -19,5 +19,6 @@
 #define VGA_H
 
 void printk(const char *str);
+void store_fb_address(unsigned int *fb);
 
 #endif
