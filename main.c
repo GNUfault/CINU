@@ -20,6 +20,7 @@
 #include "serial.h"
 
 void kmain(unsigned int *framebuffer) {
+    store_fb_address(framebuffer);
     idt_init();
     serial_init();
     printk("hi\n");
