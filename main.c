@@ -21,7 +21,6 @@
 #include "serial.h"
 
 void kmain(unsigned int *framebuffer) {
-    vga_init(framebuffer);
     idt_init();
     serial_init();
     log("hi\n");
