@@ -16,7 +16,6 @@
 bin_PROGRAMS    = cinux.elf
 
 cinux_elf_SOURCES  = boot.s main.c vga.c cpu.s io.s
-cinux_elf_LDADD    = font.o
 
 LINKER_SCRIPT = link.ld
 
@@ -33,10 +32,7 @@ GRUB_DIR = $(BOOT_DIR)/grub
 
 QEMU = qemu-system-i386
 
-all: font.o $(ISO)
-
-font.o: font.bin
-	objcopy -O elf32-i386 -B i386 -I binary $(FONT) font.o
+all: $(ISO)
 
 if USE_GRUB
 
