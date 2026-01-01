@@ -18,6 +18,7 @@
 #include "vga.h"
 
 void kmain(void) {
+    clear_screen();
     printk("hi\n");
 
     for (;;);
