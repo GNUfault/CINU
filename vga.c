@@ -87,3 +87,18 @@ static void putchar(char c) {
 void printk(const char *str) {
     while (*str) putchar(*str++);
 }
+
+void clear_screen(void) {
+    unsigned short blank = (unsigned short)(' ' | (get_vga_color() << 8));
+    unsigned short *video = (unsigned short *)VGA_MEMORY;
+
+    int i;
+    for (i = 0; i < SCREEN_SIZE; i++) {
+        video[i] = blank;
+    }
+
+    vga_cursor_x = 0;
+    vga_cursor_y = 0;
+    set_cursor(0);
+}
+
