@@ -20,6 +20,16 @@
 #include "io.h"
 #include "cpu.h"
 
+struct idt_entry {
+    unsigned short base_low;
+    unsigned short selector;
+    unsigned char zero;
+    unsigned char flags;
+    unsigned short base_high;
+} __attribute__((packed));
+
+extern struct idt_entry idt[256];
+
 struct idt_ptr {
     unsigned short limit;
     unsigned int base;
