@@ -17,6 +17,7 @@
 
 #include "vga.h"
 #include "idt.h"
+#include "io.h"
 #include "cpu.h"
 
 static unsigned int write_buffer_read = 0;
