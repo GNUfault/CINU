@@ -15,7 +15,7 @@
 
 bin_PROGRAMS    = cinux.elf
 
-cinux_elf_SOURCES  = boot.s main.c vga.c cpu.s idt.c interrupts.s io.s log.c serial.c
+cinux_elf_SOURCES  = boot.s main.c vga.c cpu.s idt.c idt_load.s io.s log.c serial.c
 cinux_elf_LDADD    = font.o
 
 LINKER_SCRIPT = link.ld
