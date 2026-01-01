@@ -17,27 +17,29 @@
 
 #include "io.h"
 
-#define VGA_MEMORY ((uint16_t*)0xB8000)
+#define VGA_MEMORY ((unsigned short*)0xB8000)
 #define SCREEN_WIDTH 80
 #define SCREEN_HEIGHT 25
 
-static uint8_t vga_cursor_x = 0;
-static uint8_t vga_cursor_y = 0;
-static bool vga_scrolling_enabled = true;
+static unsigned int vga_cursor_x = 0;
+static unsigned int vga_cursor_y = 0;
+static int vga_scrolling_enabled = 1;
 
-static inline uint16_t vga_entry(char c) {
-    return (uint16_t)c | (0x07 << 8);
+static inline unsigned short vga_entry(char c) {
+    return (unsigned short)c | (0x07u << 8);
 }
 
 static void scroll_screen(void) {
-    for (uint8_t row = 1; row < SCREEN_HEIGHT; row++) {
-        for (uint8_t col = 0; col < SCREEN_WIDTH; col++) {
+    unsigned int row, col;
+
+    for (row = 1; row < SCREEN_HEIGHT; row++) {
+        for (col = 0; col < SCREEN_WIDTH; col++) {
             VGA_MEMORY[(row - 1) * SCREEN_WIDTH + col] =
                 VGA_MEMORY[row * SCREEN_WIDTH + col];
         }
     }
 
-    for (uint8_t col = 0; col < SCREEN_WIDTH; col++) {
+    for (col = 0; col < SCREEN_WIDTH; col++) {
         VGA_MEMORY[(SCREEN_HEIGHT - 1) * SCREEN_WIDTH + col] = vga_entry(' ');
     }
 }
@@ -78,5 +80,7 @@ static void putchar(char c) {
 }
 
 void printk(const char *str) {
-    while (*str) putchar(*str++);
+    while (*str) {
+        putchar(*str++);
+    }
 }
