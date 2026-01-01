@@ -15,6 +15,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "serial.h"
+
 #define VGA_WIDTH 128
 #define VGA_HEIGHT 48
 #define VGA_MEM ((unsigned char*)0x5000)
@@ -25,9 +27,8 @@ unsigned int cursor_x = 0;
 unsigned int cursor_y = 0;
 
 extern unsigned char font[];
-extern void serial_console_write(const char* str);
 
-void scroll_screen(void) {
+static void scroll_screen(void) {
     int i;
     unsigned char* vga = VGA_MEM;
     unsigned int* src = (unsigned int*)(vga + FONT_HEIGHT * VGA_WIDTH * 3);
