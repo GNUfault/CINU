@@ -42,3 +42,18 @@ outw:
     mov ax, [esp+8]
     out dx, ax
     ret
+
+.global cli
+cli:
+    cli
+    ret
+
+.global sti
+sti:
+    sti
+    ret
+
+.global pause
+pause:
+    pause
+    ret
