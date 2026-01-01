@@ -18,8 +18,6 @@
 #ifndef VGA_H
 #define VGA_H
 
-void scroll_screen(void);
-void vga_putchar(char c);
 void print(const char *str);
 
 #endif
