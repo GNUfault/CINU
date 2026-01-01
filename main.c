@@ -16,14 +16,13 @@
  */
 
 #include "vga.h"
-#include "log.h"
 #include "idt.h"
 #include "serial.h"
 
 void kmain(unsigned int *framebuffer) {
     idt_init();
     serial_init();
-    log("hi\n");
+    printk("hi\n");
 
     for (;;);
 }
