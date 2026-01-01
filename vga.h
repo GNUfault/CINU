@@ -18,7 +18,6 @@
 #ifndef VGA_H
 #define VGA_H
 
-void vga_init(unsigned int *fb_address);
-void printk(const char *format, ...);
+void printk(const char *str);
 
 #endif
