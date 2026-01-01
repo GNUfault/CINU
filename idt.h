@@ -18,7 +18,15 @@
 #ifndef IDT_H
 #define IDT_H
 
-unsigned char idt[256 * 8];
+struct idt_entry {
+    unsigned short base_low;
+    unsigned short selector;
+    unsigned char zero;
+    unsigned char flags;
+    unsigned short base_high;
+} __attribute__((packed));
+
+extern struct idt_entry idt[256];
 
 void idt_init(void);
 void idt_set_gate(int num, unsigned int handler, unsigned short sel, unsigned char flags);
