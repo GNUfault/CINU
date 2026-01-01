@@ -56,7 +56,7 @@ void serial_init(void) {
     outb(0x3F8 + 2, 0xC7);
     outb(0x3F8 + 4, 0x0B);
 
-    idt_set_gate(36, (unsigned int)serial_handler, 0x08, 0x8E);
+    idt_set_gate(36, (unsigned int)serial_irq_handler, 0x08, 0x8E);
     
     outb(0x3F8 + 1, 0x02);
 
