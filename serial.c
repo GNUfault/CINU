@@ -25,7 +25,7 @@ static unsigned int write_buffer_write = 0;
 static unsigned char write_buffer[4096];
 
 __attribute__((interrupt))
-static void serial_handler(void* frame) {
+void serial_handler(void* frame) {
     unsigned char status = inb(0x3F8 + 5);
     if (!(status & 0x20))
         goto done;
