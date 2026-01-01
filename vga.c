@@ -29,7 +29,7 @@ static inline uint16_t vga_entry(char c) {
     return (uint16_t)c | (0x07 << 8);
 }
 
-void scroll_screen(void) {
+static void scroll_screen(void) {
     for (uint8_t row = 1; row < SCREEN_HEIGHT; row++) {
         for (uint8_t col = 0; col < SCREEN_WIDTH; col++) {
             VGA_MEMORY[(row - 1) * SCREEN_WIDTH + col] =
@@ -42,7 +42,7 @@ void scroll_screen(void) {
     }
 }
 
-void vga_putchar(char c) {
+static void putchar(char c) {
     if (c == '\n') {
         vga_cursor_x = 0;
         vga_cursor_y++;
@@ -78,5 +78,5 @@ void vga_putchar(char c) {
 }
 
 void printk(const char *str) {
-    while (*str) vga_putchar(*str++);
+    while (*str) putchar(*str++);
 }
