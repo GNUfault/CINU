@@ -19,5 +19,6 @@
 #define VGA_H
 
 void printk(const char *str);
+void clear_screen(void);
 
 #endif
