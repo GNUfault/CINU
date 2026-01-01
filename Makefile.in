@@ -119,7 +119,7 @@ PROGRAMS = $(bin_PROGRAMS)
 am_cinux_elf_OBJECTS = cinux_elf-boot.$(OBJEXT) \
 	cinux_elf-main.$(OBJEXT) cinux_elf-vga.$(OBJEXT) \
 	cinux_elf-cpu.$(OBJEXT) cinux_elf-idt.$(OBJEXT) \
-	cinux_elf-interrupts.$(OBJEXT) cinux_elf-io.$(OBJEXT) \
+	cinux_elf-idt_load.$(OBJEXT) cinux_elf-io.$(OBJEXT) \
 	cinux_elf-log.$(OBJEXT) cinux_elf-serial.$(OBJEXT)
 cinux_elf_OBJECTS = $(am_cinux_elf_OBJECTS)
 cinux_elf_DEPENDENCIES = font.o
@@ -299,7 +299,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-cinux_elf_SOURCES = boot.s main.c vga.c cpu.s idt.c interrupts.s io.s log.c serial.c
+cinux_elf_SOURCES = boot.s main.c vga.c cpu.s idt.c idt_load.s io.s log.c serial.c
 cinux_elf_LDADD = font.o
 LINKER_SCRIPT = link.ld
 cinux_elf_CFLAGS = -m32 -ffreestanding -Wall -Wextra -fno-stack-protector -fno-builtin -nostdinc -std=c99 -pedantic -pedantic-errors -fno-common -fno-pie -fno-pic
@@ -457,11 +457,11 @@ cinux_elf-cpu.o: cpu.s
 cinux_elf-cpu.obj: cpu.s
 	$(AM_V_CCAS)$(CCAS) $(cinux_elf_CCASFLAGS) $(CCASFLAGS) -c -o cinux_elf-cpu.obj `if test -f 'cpu.s'; then $(CYGPATH_W) 'cpu.s'; else $(CYGPATH_W) '$(srcdir)/cpu.s'; fi`
 
-cinux_elf-interrupts.o: interrupts.s
-	$(AM_V_CCAS)$(CCAS) $(cinux_elf_CCASFLAGS) $(CCASFLAGS) -c -o cinux_elf-interrupts.o `test -f 'interrupts.s' || echo '$(srcdir)/'`interrupts.s
+cinux_elf-idt_load.o: idt_load.s
+	$(AM_V_CCAS)$(CCAS) $(cinux_elf_CCASFLAGS) $(CCASFLAGS) -c -o cinux_elf-idt_load.o `test -f 'idt_load.s' || echo '$(srcdir)/'`idt_load.s
 
-cinux_elf-interrupts.obj: interrupts.s
-	$(AM_V_CCAS)$(CCAS) $(cinux_elf_CCASFLAGS) $(CCASFLAGS) -c -o cinux_elf-interrupts.obj `if test -f 'interrupts.s'; then $(CYGPATH_W) 'interrupts.s'; else $(CYGPATH_W) '$(srcdir)/interrupts.s'; fi`
+cinux_elf-idt_load.obj: idt_load.s
+	$(AM_V_CCAS)$(CCAS) $(cinux_elf_CCASFLAGS) $(CCASFLAGS) -c -o cinux_elf-idt_load.obj `if test -f 'idt_load.s'; then $(CYGPATH_W) 'idt_load.s'; else $(CYGPATH_W) '$(srcdir)/idt_load.s'; fi`
 
 cinux_elf-io.o: io.s
 	$(AM_V_CCAS)$(CCAS) $(cinux_elf_CCASFLAGS) $(CCASFLAGS) -c -o cinux_elf-io.o `test -f 'io.s' || echo '$(srcdir)/'`io.s
