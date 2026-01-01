@@ -40,7 +40,7 @@ $(ISO):
 	mkdir -p $(GRUB_DIR)
 	cp $(GRUB_CFG) $(GRUB_DIR)
 	cp $(KERNEL) $(ISO_DIR)
-	grub-mkrescue --install-modules="multiboot part_msdos iso9660 normal ls boot reboot" -o $(ISO) $(ISO_DIR)
+	grub-mkrescue --install-modules="" -o $(ISO) $(ISO_DIR)
 
 endif
 
