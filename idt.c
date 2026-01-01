@@ -19,6 +19,8 @@
 #include "io.h"
 #include "cpu.h"
 
+unsigned char idt[256 * 8];
+
 struct idt_entry {
     unsigned short base_low;
     unsigned short selector;
