@@ -19,11 +19,30 @@
 #include "idt.h"
 #include "cpu.h"
 
-unsigned int write_buffer_read = 0;
-unsigned int write_buffer_write = 0;
-unsigned char write_buffer[4096];
+static unsigned int write_buffer_read = 0;
+static unsigned int write_buffer_write = 0;
+static unsigned char write_buffer[4096];
 
-void serial_handler(void);
+__attribute__((interrupt))
+static void serial_handler(void* frame) {
+    unsigned char status = inb(0x3F8 + 5);
+    if (!(status & 0x20))
+        goto done;
+
+    unsigned int r = write_buffer_read;
+    unsigned int w = write_buffer_write;
+    if (r == w)
+        goto done;
+
+    unsigned char c = write_buffer[r];
+    outb(0x3F8, c);
+
+    r = (r + 1) & 4095;
+    write_buffer_read = r;
+
+done:
+    outb(0x20, 0x20);
+}
 
 void serial_init(void) {
     printk("Initializing serial...\n");
@@ -53,27 +72,6 @@ void serial_init(void) {
     unsigned char mask = inb(0x21);
     mask &= 0xEF;
     outb(0x21, mask);
-}
-
-__attribute__((interrupt))
-void serial_handler(void* frame) {
-    unsigned char status = inb(0x3F8 + 5);
-    if (!(status & 0x20))
-        goto done;
-
-    unsigned int r = write_buffer_read;
-    unsigned int w = write_buffer_write;
-    if (r == w)
-        goto done;
-
-    unsigned char c = write_buffer[r];
-    outb(0x3F8, c);
-
-    r = (r + 1) & 4095;
-    write_buffer_read = r;
-
-done:
-    outb(0x20, 0x20);
 }
 
 void serial_console_write(const char* s) {
