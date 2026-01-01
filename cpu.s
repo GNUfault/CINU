@@ -15,11 +15,24 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-.intel_syntax noprefix  # Use intel syntax
-.global halt            # Export halt to linker
-                        #
-halt:                   # halt();
-    cli                 # Disable interrupts
-.loop:                  # Loop label
-    hlt                 # Halt CPU
-    jmp .loop           # Halt again if CPU unhalts
+.intel_syntax noprefix
+
+.global hlt
+hlt:
+    hlt
+    ret
+
+.global cli
+cli:
+    cli
+    ret
+
+.global sti
+sti:
+    sti
+    ret
+
+.global pause
+pause:
+    pause
+    ret
