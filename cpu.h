@@ -18,6 +18,9 @@
 #ifndef CPU_H
 #define CPU_H
 
-void halt(void);
+void hlt(void);
+void cli(void);
+void sti(void);
+void pause(void);
 
 #endif
