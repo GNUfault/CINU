@@ -26,7 +26,11 @@
 unsigned int cursor_x = 0;
 unsigned int cursor_y = 0;
 
-extern unsigned char font[];
+extern unsigned char _binary_src_kernel_font_bin_start[];
+extern unsigned char _binary_src_kernel_font_bin_end[];
+extern unsigned char _binary_src_kernel_font_bin_size[];
+
+#define font _binary_src_kernel_font_bin_start
 
 static void scroll_screen(void) {
     int i;
