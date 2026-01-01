@@ -56,18 +56,8 @@ void serial_init(void) {
     outb(0x3F8 + 2, 0xC7);
     outb(0x3F8 + 4, 0x0B);
 
-    unsigned int handler = (unsigned int)serial_handler;
-    unsigned char* gate = idt + 0x24 * 8;
-
-    gate[0] = handler & 0xFF;
-    gate[1] = (handler >> 8) & 0xFF;
-    gate[2] = 0x08;
-    gate[3] = 0x00;
-    gate[4] = 0x00;
-    gate[5] = 0x8E;
-    gate[6] = (handler >> 16) & 0xFF;
-    gate[7] = (handler >> 24) & 0xFF;
-
+    idt_set_gate(36, (unsigned int)serial_handler, 0x08, 0x8E);
+    
     outb(0x3F8 + 1, 0x02);
 
     unsigned char mask = inb(0x21);
