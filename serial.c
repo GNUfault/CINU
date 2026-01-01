@@ -15,6 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "serial_isr.h"
 #include "vga.h"
 #include "idt.h"
 #include "io.h"
@@ -24,8 +25,7 @@ static unsigned int write_buffer_read = 0;
 static unsigned int write_buffer_write = 0;
 static unsigned char write_buffer[4096];
 
-__attribute__((interrupt))
-void serial_handler(void* frame) {
+void serial_irq_handler(void) {
     unsigned char status = inb(0x3F8 + 5);
     if (!(status & 0x20))
         goto done;
