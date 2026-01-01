@@ -18,9 +18,9 @@
 #ifndef IDT_H
 #define IDT_H
 
+unsigned char idt[256 * 8];
+
 void idt_init(void);
 void idt_set_gate(int num, unsigned int handler, unsigned short sel, unsigned char flags);
-
-unsigned char idt[256 * 8];
 
 #endif
