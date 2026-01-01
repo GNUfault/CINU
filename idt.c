@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "idt.h"
+#include "idt_load.h"
 #include "io.h"
 #include "cpu.h"
 
