@@ -15,74 +15,98 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "serial.h"
-#include "io.h"
+#include "vga.h"
+#include "idt.h"
+#include "cpu.h"
 
-#define COM1 0x3F8
+unsigned int write_buffer_read = 0;
+unsigned int write_buffer_write = 0;
+unsigned char write_buffer[4096];
 
-#define DATA_REG 0
-#define INT_ENABLE_REG 1
-#define FIFO_CTRL_REG 2
-#define LINE_CTRL_REG 3
-#define MODEM_CTRL_REG 4
-#define LINE_STATUS_REG 5
-#define MODEM_STATUS_REG 6
-
-#define DLAB 0x80
-#define INT_DATA_AVAILABLE 0x01
-
-#define RX_BUFFER_SIZE 256
-static char rx_buffer[RX_BUFFER_SIZE];
-static volatile int rx_head = 0;
-static volatile int rx_tail = 0;
-
-void serial_irq_handler(void) {
-    while (inb(COM1 + LINE_STATUS_REG) & 0x01) {
-        char c = inb(COM1 + DATA_REG);
-        int next = (rx_head + 1) % RX_BUFFER_SIZE;
-        if (next != rx_tail) {
-            rx_buffer[rx_head] = c;
-            rx_head = next;
-        }
-    }
-}
+void serial_handler(void);
 
 void serial_init(void) {
-    outb(COM1 + INT_ENABLE_REG, 0x00);
-    outb(COM1 + LINE_CTRL_REG, DLAB);
-    outb(COM1 + DATA_REG, 0x03);
-    outb(COM1 + INT_ENABLE_REG, 0x00);
-    outb(COM1 + LINE_CTRL_REG, 0x03);
-    outb(COM1 + FIFO_CTRL_REG, 0xC7);
-    outb(COM1 + MODEM_CTRL_REG, 0x0B);
-    outb(COM1 + INT_ENABLE_REG, INT_DATA_AVAILABLE);
+    printk("Initializing serial...\n");
+
+    outb(0x3F8 + 1, 0x00);
+    outb(0x3F8 + 3, 0x80);
+    outb(0x3F8 + 0, 0x03);
+    outb(0x3F8 + 1, 0x00);
+    outb(0x3F8 + 3, 0x03);
+    outb(0x3F8 + 2, 0xC7);
+    outb(0x3F8 + 4, 0x0B);
+
+    unsigned int handler = (unsigned int)serial_handler;
+    unsigned char* gate = idt + 0x24 * 8;
+
+    gate[0] = handler & 0xFF;
+    gate[1] = (handler >> 8) & 0xFF;
+    gate[2] = 0x08;
+    gate[3] = 0x00;
+    gate[4] = 0x00;
+    gate[5] = 0x8E;
+    gate[6] = (handler >> 16) & 0xFF;
+    gate[7] = (handler >> 24) & 0xFF;
+
+    outb(0x3F8 + 1, 0x02);
+
+    unsigned char mask = inb(0x21);
+    mask &= 0xEF;
+    outb(0x21, mask);
 }
 
-int serial_transmit_empty(void) {
-    return inb(COM1 + LINE_STATUS_REG) & 0x20;
+__attribute__((interrupt))
+void serial_handler(void* frame) {
+    unsigned char status = inb(0x3F8 + 5);
+    if (!(status & 0x20))
+        goto done;
+
+    unsigned int r = write_buffer_read;
+    unsigned int w = write_buffer_write;
+    if (r == w)
+        goto done;
+
+    unsigned char c = write_buffer[r];
+    outb(0x3F8, c);
+
+    r = (r + 1) & 4095;
+    write_buffer_read = r;
+
+done:
+    outb(0x20, 0x20);
 }
 
-void serial_putchar(char c) {
-    while (!serial_transmit_empty());
-    outb(COM1 + DATA_REG, c);
-}
+void serial_console_write(const char* s) {
+    while (*s) {
+        unsigned char c = *s++;
 
-void serial_write(const char *str) {
-    while (*str) {
-        if (*str == '\n') {
-            serial_putchar('\r');
+        if (c == '\n') {
+            serial_console_write("\r");
+            c = '\n';
         }
-        serial_putchar(*str++);
+
+    retry:
+        cli();
+        unsigned int w = write_buffer_write;
+        unsigned int next = (w + 1) & 4095;
+        if (next == write_buffer_read) {
+            sti();
+            pause();
+            goto retry;
+        }
+
+        write_buffer[w] = c;
+        write_buffer_write = next;
+
+        if (w == write_buffer_read) {
+            unsigned char status = inb(0x3F8 + 5);
+            if (status & 0x20) {
+                outb(0x3F8, c);
+                unsigned int r = (write_buffer_read + 1) & 4095;
+                write_buffer_read = r;
+            }
+        }
+
+        sti();
     }
-}
-
-int serial_received(void) {
-    return rx_head != rx_tail;
-}
-
-char serial_getchar(void) {
-    while (!serial_received());
-    char c = rx_buffer[rx_tail];
-    rx_tail = (rx_tail + 1) % RX_BUFFER_SIZE;
-    return c;
 }
