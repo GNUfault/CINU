@@ -806,7 +806,7 @@ all: $(ISO)
 @USE_GRUB_TRUE@	mkdir -p $(GRUB_DIR)
 @USE_GRUB_TRUE@	cp $(GRUB_CFG) $(GRUB_DIR)
 @USE_GRUB_TRUE@	cp $(KERNEL) $(ISO_DIR)
-@USE_GRUB_TRUE@	grub-mkrescue --install-modules="multiboot part_msdos iso9660 normal ls boot reboot" -o $(ISO) $(ISO_DIR)
+@USE_GRUB_TRUE@	grub-mkrescue --install-modules="" -o $(ISO) $(ISO_DIR)
 
 run:
 	$(QEMU) $(ISO)
