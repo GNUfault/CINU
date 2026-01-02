@@ -125,7 +125,7 @@ am_cinux_elf_OBJECTS = cinux_elf-main.$(OBJEXT) \
 	cinux_elf-vga.$(OBJEXT) cinux_elf-cpu.$(OBJEXT) \
 	cinux_elf-io.$(OBJEXT) cinux_elf-gdt.$(OBJEXT) \
 	cinux_elf-gdt_s.$(OBJEXT) cinux_elf-idt.$(OBJEXT) \
-	cinux_elf-idt_s.$(OBJEXT)
+	cinux_elf-idt_s.$(OBJEXT) cinux_elf-pic.$(OBJEXT)
 cinux_elf_OBJECTS = $(am_cinux_elf_OBJECTS)
 cinux_elf_LDADD = $(LDADD)
 cinux_elf_LINK = $(CCLD) $(cinux_elf_CFLAGS) $(CFLAGS) \
@@ -299,7 +299,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-cinux_elf_SOURCES = main.c vga.c cpu.s io.s gdt.c gdt_s.s idt.c idt_s.s
+cinux_elf_SOURCES = main.c vga.c cpu.s io.s gdt.c gdt_s.s idt.c idt_s.s pic.c
 boot_bin_SOURCES = boot.s
 cinux_elf_LINKER_SCRIPT = link.ld
 boot_bin_LINKER_SCRIPT = boot.ld
@@ -435,6 +435,12 @@ cinux_elf-idt.o: idt.c
 
 cinux_elf-idt.obj: idt.c
 	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cinux_elf_CFLAGS) $(CFLAGS) -c -o cinux_elf-idt.obj `if test -f 'idt.c'; then $(CYGPATH_W) 'idt.c'; else $(CYGPATH_W) '$(srcdir)/idt.c'; fi`
+
+cinux_elf-pic.o: pic.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cinux_elf_CFLAGS) $(CFLAGS) -c -o cinux_elf-pic.o `test -f 'pic.c' || echo '$(srcdir)/'`pic.c
+
+cinux_elf-pic.obj: pic.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cinux_elf_CFLAGS) $(CFLAGS) -c -o cinux_elf-pic.obj `if test -f 'pic.c'; then $(CYGPATH_W) 'pic.c'; else $(CYGPATH_W) '$(srcdir)/pic.c'; fi`
 
 .s.o:
 	$(AM_V_CCAS)$(CCASCOMPILE) -c -o $@ $<
