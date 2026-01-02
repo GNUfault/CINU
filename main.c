@@ -21,6 +21,18 @@
 #include "pic.h"
 #include "pit.h"
 
+void task1(void) {
+    while(1) {
+        printk("Task 1\n");
+    }
+}
+
+void task2(void) {
+    while(1) {
+        printk("Task 2\n");
+    }
+}
+
 void kmain(void) {
     clear_screen();
    
@@ -39,6 +51,11 @@ void kmain(void) {
     printk("Initializing PIT... ");
     pit_init();
     printk("ok.\n");
-    
-    for (;;); // Loop forever for now
+
+    pmt_create_task(task1);
+    pmt_create_task(task2);
+
+    printk("Initializing Multitaskinf... ");
+    pmt_init();
+    printk("ok.\n");
 }
