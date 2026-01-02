@@ -17,6 +17,7 @@
 
 .intel_syntax noprefix
 
+# void outb(unsigned short port, unsigned char value)
 .global outb
 outb:
     mov dx, [esp+4]
@@ -24,18 +25,21 @@ outb:
     out dx, al
     ret
 
+# unsigned char inb(unsigned short port)
 .global inb
 inb:
     mov dx, [esp+4]
     in al, dx
     ret
 
+# unsigned short inw(unsigned short port)
 .global inw
 inw:
     mov dx, [esp+4]
     in ax, dx
     ret
 
+# void outw(unsigned short port, unsigned short value)
 .global outw
 outw:
     mov dx, [esp+4]
