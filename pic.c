@@ -18,7 +18,7 @@
 #include "pic.h"
 #include "io.h"
 
-void pic_remap(void) {
+void pic_init(void) {
     // ICW1: Init
     outb(PIC1_COMMAND, 0x11);
     outb(PIC2_COMMAND, 0x11);
