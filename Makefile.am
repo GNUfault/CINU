@@ -1,5 +1,5 @@
 # CINUX
-# Copyright (C) 2025 Connor Thomson
+# Copyright (C) 2025-2026 Connor Thomson
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
