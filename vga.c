@@ -69,8 +69,8 @@ static void scroll_screen(void) {
 
 // Puts a single character on the screen
 // It handles:
-// 1. Newline
-// 2. Backspace
+// 1. Newline (\n)
+// 2. Backspace (\b)
 // 3. Wrapping
 // 4. Scrolling (with scroll_screen())
 static void putchar(char c) {
