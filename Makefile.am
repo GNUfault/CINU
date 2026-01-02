@@ -13,36 +13,29 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-bin_PROGRAMS    = cinux.elf
+bin_PROGRAMS = cinux.elf boot.bin
 
-cinux_elf_SOURCES  = boot.s main.c vga.c cpu.s io.s
+cinux_elf_SOURCES  = main.c vga.c cpu.s io.s
+boot_bin_SOURCES   = boot.s
 
-LINKER_SCRIPT = link.ld
+cinux_elf_LINKER_SCRIPT = link.ld
+boot_bin_LINKER_SCRIPT  = boot.ld
 
 cinux_elf_CFLAGS    = -m32 -march=i386 -mtune=i386 -Ofast -ffreestanding -Wall -Wextra -fno-stack-protector -fno-builtin -nostdinc -std=c99 -pedantic -pedantic-errors -fno-common -fno-pie -fno-pic
 cinux_elf_CCASFLAGS = -m32
-cinux_elf_LDFLAGS   = -nostdlib -T $(LINKER_SCRIPT)
+cinux_elf_LDFLAGS   = -nostdlib -T $(cinux_elf_LINKER_SCRIPT)
+boot_bin_CCASFLAGS  = -m32
+boot_bin_LDFLAGS    = -nostdlib -T $(boot_bin_LINKER_SCRIPT)
 
-ISO_DIR  = iso
-GRUB_CFG = grub.cfg
-KERNEL   = cinux.elf
-FONT     = font.bin
-BOOT_DIR = $(ISO_DIR)/boot
-GRUB_DIR = $(BOOT_DIR)/grub
+BOOTLOADER = boot.bin
+KERNEL     = cinux.elf
 
 QEMU = qemu-system-i386
 
-all: $(ISO)
+all: $(FLOPPY)
 
-if USE_GRUB
-
-$(ISO):
-	mkdir -p $(GRUB_DIR)
-	cp $(GRUB_CFG) $(GRUB_DIR)
-	cp $(KERNEL) $(ISO_DIR)
-	grub-mkrescue --install-modules="normal multiboot" -o $(ISO) $(ISO_DIR)
-
-endif
+$(FLOPPY):
+	cat $(BOOTLOADER) $(KERNEL) >> $(FLOPPY)
 
 run:
 	$(QEMU) $(ISO)
