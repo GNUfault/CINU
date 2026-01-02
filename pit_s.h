@@ -18,6 +18,6 @@
 #ifndef PIT_S_H
 #define PIT_S_H
 
-extern void irq0_stub(void);
+void irq0_stub(void);
 
 #endif
