@@ -126,7 +126,7 @@ am_cinux_elf_OBJECTS = cinux_elf-main.$(OBJEXT) \
 	cinux_elf-io.$(OBJEXT) cinux_elf-gdt.$(OBJEXT) \
 	cinux_elf-gdt_s.$(OBJEXT) cinux_elf-idt.$(OBJEXT) \
 	cinux_elf-idt_s.$(OBJEXT) cinux_elf-pic.$(OBJEXT) \
-	cinux_elf-pit.$(OBJEXT)
+	cinux_elf-pit.$(OBJEXT) cinux_elf-pit_s.$(OBJEXT)
 cinux_elf_OBJECTS = $(am_cinux_elf_OBJECTS)
 cinux_elf_LDADD = $(LDADD)
 cinux_elf_LINK = $(CCLD) $(cinux_elf_CFLAGS) $(CFLAGS) \
@@ -300,7 +300,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-cinux_elf_SOURCES = main.c vga.c cpu.s io.s gdt.c gdt_s.s idt.c idt_s.s pic.c pit.c
+cinux_elf_SOURCES = main.c vga.c cpu.s io.s gdt.c gdt_s.s idt.c idt_s.s pic.c pit.c pit_s.s
 boot_bin_SOURCES = boot.s
 cinux_elf_LINKER_SCRIPT = link.ld
 boot_bin_LINKER_SCRIPT = boot.ld
@@ -484,6 +484,12 @@ cinux_elf-idt_s.o: idt_s.s
 
 cinux_elf-idt_s.obj: idt_s.s
 	$(AM_V_CCAS)$(CCAS) $(cinux_elf_CCASFLAGS) $(CCASFLAGS) -c -o cinux_elf-idt_s.obj `if test -f 'idt_s.s'; then $(CYGPATH_W) 'idt_s.s'; else $(CYGPATH_W) '$(srcdir)/idt_s.s'; fi`
+
+cinux_elf-pit_s.o: pit_s.s
+	$(AM_V_CCAS)$(CCAS) $(cinux_elf_CCASFLAGS) $(CCASFLAGS) -c -o cinux_elf-pit_s.o `test -f 'pit_s.s' || echo '$(srcdir)/'`pit_s.s
+
+cinux_elf-pit_s.obj: pit_s.s
+	$(AM_V_CCAS)$(CCAS) $(cinux_elf_CCASFLAGS) $(CCASFLAGS) -c -o cinux_elf-pit_s.obj `if test -f 'pit_s.s'; then $(CYGPATH_W) 'pit_s.s'; else $(CYGPATH_W) '$(srcdir)/pit_s.s'; fi`
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
