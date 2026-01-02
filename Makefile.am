@@ -37,6 +37,7 @@ all: $(FLOPPY)
 $(FLOPPY):
 	cat $(BOOTLOADER) $(KERNEL) >> $(FLOPPY)
 
+# I made this as fast as possible and this needs fixing
 run:
 	$(QEMU) $(ISO)
 
