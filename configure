@@ -616,14 +616,7 @@ ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
-ISO
-USE_GRUB_FALSE
-USE_GRUB_TRUE
-MCOPY
-MFORMAT
-XORRISO
-GRUB_MKIMAGE
-GRUB_MKRESCUE
+FLOPPY
 CCASFLAGS
 CCAS
 OBJEXT
@@ -706,8 +699,7 @@ ac_subst_files=''
 ac_user_opts='
 enable_option_checking
 enable_silent_rules
-enable_grub
-with_iso
+with_floppy
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1344,12 +1336,11 @@ Optional Features:
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --enable-silent-rules   less verbose build output (undo: "make V=1")
   --disable-silent-rules  verbose build output (undo: "make V=0")
-  --disable-grub          Disable the ISO and output only the ELF
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
-  --with-iso=NAME         Set the ISO filename
+  --with-floppy=NAME      Set the floppy filename
 
 Some influential environment variables:
   CC          C compiler command
@@ -3933,277 +3924,13 @@ test "${CCASFLAGS+set}" = set || CCASFLAGS=$CFLAGS
 
 
 
-# Check whether --enable-grub was given.
-if test ${enable_grub+y}
+
+# Check whether --with-floppy was given.
+if test ${with_floppy+y}
 then :
-  enableval=$enable_grub; enable_grub="$enableval"
+  withval=$with_floppy; FLOPPY="$withval"
 else $as_nop
-  enable_grub="yes"
-fi
-
-
-if test "x$enable_grub" = "xyes"
-then :
-
-  # Extract the first word of "grub-mkrescue", so it can be a program name with args.
-set dummy grub-mkrescue; ac_word=$2
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-printf %s "checking for $ac_word... " >&6; }
-if test ${ac_cv_path_GRUB_MKRESCUE+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  case $GRUB_MKRESCUE in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_GRUB_MKRESCUE="$GRUB_MKRESCUE" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  case $as_dir in #(((
-    '') as_dir=./ ;;
-    */) ;;
-    *) as_dir=$as_dir/ ;;
-  esac
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
-    ac_cv_path_GRUB_MKRESCUE="$as_dir$ac_word$ac_exec_ext"
-    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  ;;
-esac
-fi
-GRUB_MKRESCUE=$ac_cv_path_GRUB_MKRESCUE
-if test -n "$GRUB_MKRESCUE"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $GRUB_MKRESCUE" >&5
-printf "%s\n" "$GRUB_MKRESCUE" >&6; }
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-fi
-
-
-  if test "x$GRUB_MKRESCUE" = "x"
-then :
-  as_fn_error $? "grub-mkrescue not found." "$LINENO" 5
-fi
-
-  # Extract the first word of "grub-mkimage", so it can be a program name with args.
-set dummy grub-mkimage; ac_word=$2
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-printf %s "checking for $ac_word... " >&6; }
-if test ${ac_cv_path_GRUB_MKIMAGE+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  case $GRUB_MKIMAGE in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_GRUB_MKIMAGE="$GRUB_MKIMAGE" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  case $as_dir in #(((
-    '') as_dir=./ ;;
-    */) ;;
-    *) as_dir=$as_dir/ ;;
-  esac
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
-    ac_cv_path_GRUB_MKIMAGE="$as_dir$ac_word$ac_exec_ext"
-    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  ;;
-esac
-fi
-GRUB_MKIMAGE=$ac_cv_path_GRUB_MKIMAGE
-if test -n "$GRUB_MKIMAGE"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $GRUB_MKIMAGE" >&5
-printf "%s\n" "$GRUB_MKIMAGE" >&6; }
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-fi
-
-
-  if test "x$GRUB_MKIMAGE" = "x"
-then :
-  as_fn_error $? "grub-mkimage not found." "$LINENO" 5
-fi
-
-  # Extract the first word of "xorriso", so it can be a program name with args.
-set dummy xorriso; ac_word=$2
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-printf %s "checking for $ac_word... " >&6; }
-if test ${ac_cv_path_XORRISO+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  case $XORRISO in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_XORRISO="$XORRISO" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  case $as_dir in #(((
-    '') as_dir=./ ;;
-    */) ;;
-    *) as_dir=$as_dir/ ;;
-  esac
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
-    ac_cv_path_XORRISO="$as_dir$ac_word$ac_exec_ext"
-    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  ;;
-esac
-fi
-XORRISO=$ac_cv_path_XORRISO
-if test -n "$XORRISO"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $XORRISO" >&5
-printf "%s\n" "$XORRISO" >&6; }
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-fi
-
-
-  if test "x$XORRISO" = "x"
-then :
-  as_fn_error $? "xorriso not found." "$LINENO" 5
-fi
-
-  # Extract the first word of "mformat", so it can be a program name with args.
-set dummy mformat; ac_word=$2
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-printf %s "checking for $ac_word... " >&6; }
-if test ${ac_cv_path_MFORMAT+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  case $MFORMAT in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_MFORMAT="$MFORMAT" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  case $as_dir in #(((
-    '') as_dir=./ ;;
-    */) ;;
-    *) as_dir=$as_dir/ ;;
-  esac
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
-    ac_cv_path_MFORMAT="$as_dir$ac_word$ac_exec_ext"
-    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  ;;
-esac
-fi
-MFORMAT=$ac_cv_path_MFORMAT
-if test -n "$MFORMAT"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $MFORMAT" >&5
-printf "%s\n" "$MFORMAT" >&6; }
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-fi
-
-
-  # Extract the first word of "mcopy", so it can be a program name with args.
-set dummy mcopy; ac_word=$2
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-printf %s "checking for $ac_word... " >&6; }
-if test ${ac_cv_path_MCOPY+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  case $MCOPY in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_MCOPY="$MCOPY" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  case $as_dir in #(((
-    '') as_dir=./ ;;
-    */) ;;
-    *) as_dir=$as_dir/ ;;
-  esac
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
-    ac_cv_path_MCOPY="$as_dir$ac_word$ac_exec_ext"
-    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  ;;
-esac
-fi
-MCOPY=$ac_cv_path_MCOPY
-if test -n "$MCOPY"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $MCOPY" >&5
-printf "%s\n" "$MCOPY" >&6; }
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-fi
-
-
-
-fi
-
- if test "x$enable_grub" = "xyes"; then
-  USE_GRUB_TRUE=
-  USE_GRUB_FALSE='#'
-else
-  USE_GRUB_TRUE='#'
-  USE_GRUB_FALSE=
-fi
-
-
-
-# Check whether --with-iso was given.
-if test ${with_iso+y}
-then :
-  withval=$with_iso; ISO="$withval"
-else $as_nop
-  ISO="cinux.iso"
+  FLOPPY="cinux.img"
 fi
 
 
@@ -4371,10 +4098,6 @@ else
   am__EXEEXT_FALSE=
 fi
 
-if test -z "${USE_GRUB_TRUE}" && test -z "${USE_GRUB_FALSE}"; then
-  as_fn_error $? "conditional \"USE_GRUB\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
 
 : "${CONFIG_STATUS=./config.status}"
 ac_write_fail=0

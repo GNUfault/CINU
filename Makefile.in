@@ -101,7 +101,7 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-bin_PROGRAMS = cinux.elf$(EXEEXT)
+bin_PROGRAMS = cinux.elf$(EXEEXT) boot.bin$(EXEEXT)
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -116,9 +116,14 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_cinux_elf_OBJECTS = cinux_elf-boot.$(OBJEXT) \
-	cinux_elf-main.$(OBJEXT) cinux_elf-vga.$(OBJEXT) \
-	cinux_elf-cpu.$(OBJEXT) cinux_elf-io.$(OBJEXT)
+am_boot_bin_OBJECTS = boot_bin-boot.$(OBJEXT)
+boot_bin_OBJECTS = $(am_boot_bin_OBJECTS)
+boot_bin_LDADD = $(LDADD)
+boot_bin_LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(boot_bin_LDFLAGS) \
+	$(LDFLAGS) -o $@
+am_cinux_elf_OBJECTS = cinux_elf-main.$(OBJEXT) \
+	cinux_elf-vga.$(OBJEXT) cinux_elf-cpu.$(OBJEXT) \
+	cinux_elf-io.$(OBJEXT)
 cinux_elf_OBJECTS = $(am_cinux_elf_OBJECTS)
 cinux_elf_LDADD = $(LDADD)
 cinux_elf_LINK = $(CCLD) $(cinux_elf_CFLAGS) $(CFLAGS) \
@@ -159,8 +164,8 @@ AM_V_CCAS = $(am__v_CCAS_@AM_V@)
 am__v_CCAS_ = $(am__v_CCAS_@AM_DEFAULT_V@)
 am__v_CCAS_0 = @echo "  CCAS    " $@;
 am__v_CCAS_1 = 
-SOURCES = $(cinux_elf_SOURCES)
-DIST_SOURCES = $(cinux_elf_SOURCES)
+SOURCES = $(boot_bin_SOURCES) $(cinux_elf_SOURCES)
+DIST_SOURCES = $(boot_bin_SOURCES) $(cinux_elf_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -226,21 +231,17 @@ ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 ETAGS = @ETAGS@
 EXEEXT = @EXEEXT@
-GRUB_MKIMAGE = @GRUB_MKIMAGE@
-GRUB_MKRESCUE = @GRUB_MKRESCUE@
+FLOPPY = @FLOPPY@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
-ISO = @ISO@
 LDFLAGS = @LDFLAGS@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
 LTLIBOBJS = @LTLIBOBJS@
 MAKEINFO = @MAKEINFO@
-MCOPY = @MCOPY@
-MFORMAT = @MFORMAT@
 MKDIR_P = @MKDIR_P@
 OBJEXT = @OBJEXT@
 PACKAGE = @PACKAGE@
@@ -255,7 +256,6 @@ SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
 VERSION = @VERSION@
-XORRISO = @XORRISO@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
@@ -297,17 +297,17 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-cinux_elf_SOURCES = boot.s main.c vga.c cpu.s io.s
-LINKER_SCRIPT = link.ld
+cinux_elf_SOURCES = main.c vga.c cpu.s io.s
+boot_bin_SOURCES = boot.s
+cinux_elf_LINKER_SCRIPT = link.ld
+boot_bin_LINKER_SCRIPT = boot.ld
 cinux_elf_CFLAGS = -m32 -march=i386 -mtune=i386 -Ofast -ffreestanding -Wall -Wextra -fno-stack-protector -fno-builtin -nostdinc -std=c99 -pedantic -pedantic-errors -fno-common -fno-pie -fno-pic
 cinux_elf_CCASFLAGS = -m32
-cinux_elf_LDFLAGS = -nostdlib -T $(LINKER_SCRIPT)
-ISO_DIR = iso
-GRUB_CFG = grub.cfg
+cinux_elf_LDFLAGS = -nostdlib -T $(cinux_elf_LINKER_SCRIPT)
+boot_bin_CCASFLAGS = -m32
+boot_bin_LDFLAGS = -nostdlib -T $(boot_bin_LINKER_SCRIPT)
+BOOTLOADER = boot.bin
 KERNEL = cinux.elf
-FONT = font.bin
-BOOT_DIR = $(ISO_DIR)/boot
-GRUB_DIR = $(BOOT_DIR)/grub
 QEMU = qemu-system-i386
 CLEANFILES = $(KERNEL) $(ISO) $(ISO_DIR)
 all: all-am
@@ -390,6 +390,10 @@ uninstall-binPROGRAMS:
 clean-binPROGRAMS:
 	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
 
+boot.bin$(EXEEXT): $(boot_bin_OBJECTS) $(boot_bin_DEPENDENCIES) $(EXTRA_boot_bin_DEPENDENCIES) 
+	@rm -f boot.bin$(EXEEXT)
+	$(AM_V_CCLD)$(boot_bin_LINK) $(boot_bin_OBJECTS) $(boot_bin_LDADD) $(LIBS)
+
 cinux.elf$(EXEEXT): $(cinux_elf_OBJECTS) $(cinux_elf_DEPENDENCIES) $(EXTRA_cinux_elf_DEPENDENCIES) 
 	@rm -f cinux.elf$(EXEEXT)
 	$(AM_V_CCLD)$(cinux_elf_LINK) $(cinux_elf_OBJECTS) $(cinux_elf_LDADD) $(LIBS)
@@ -424,11 +428,11 @@ cinux_elf-vga.obj: vga.c
 .s.obj:
 	$(AM_V_CCAS)$(CCASCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
-cinux_elf-boot.o: boot.s
-	$(AM_V_CCAS)$(CCAS) $(cinux_elf_CCASFLAGS) $(CCASFLAGS) -c -o cinux_elf-boot.o `test -f 'boot.s' || echo '$(srcdir)/'`boot.s
+boot_bin-boot.o: boot.s
+	$(AM_V_CCAS)$(CCAS) $(boot_bin_CCASFLAGS) $(CCASFLAGS) -c -o boot_bin-boot.o `test -f 'boot.s' || echo '$(srcdir)/'`boot.s
 
-cinux_elf-boot.obj: boot.s
-	$(AM_V_CCAS)$(CCAS) $(cinux_elf_CCASFLAGS) $(CCASFLAGS) -c -o cinux_elf-boot.obj `if test -f 'boot.s'; then $(CYGPATH_W) 'boot.s'; else $(CYGPATH_W) '$(srcdir)/boot.s'; fi`
+boot_bin-boot.obj: boot.s
+	$(AM_V_CCAS)$(CCAS) $(boot_bin_CCASFLAGS) $(CCASFLAGS) -c -o boot_bin-boot.obj `if test -f 'boot.s'; then $(CYGPATH_W) 'boot.s'; else $(CYGPATH_W) '$(srcdir)/boot.s'; fi`
 
 cinux_elf-cpu.o: cpu.s
 	$(AM_V_CCAS)$(CCAS) $(cinux_elf_CCASFLAGS) $(CCASFLAGS) -c -o cinux_elf-cpu.o `test -f 'cpu.s' || echo '$(srcdir)/'`cpu.s
@@ -800,13 +804,10 @@ uninstall-am: uninstall-binPROGRAMS
 .PRECIOUS: Makefile
 
 
-all: $(ISO)
+all: $(FLOPPY)
 
-@USE_GRUB_TRUE@$(ISO):
-@USE_GRUB_TRUE@	mkdir -p $(GRUB_DIR)
-@USE_GRUB_TRUE@	cp $(GRUB_CFG) $(GRUB_DIR)
-@USE_GRUB_TRUE@	cp $(KERNEL) $(ISO_DIR)
-@USE_GRUB_TRUE@	grub-mkrescue --install-modules="normal multiboot" -o $(ISO) $(ISO_DIR)
+$(FLOPPY):
+	cat $(BOOTLOADER) $(KERNEL) >> $(FLOPPY)
 
 run:
 	$(QEMU) $(ISO)
