@@ -18,6 +18,7 @@
 #include "vga.h"
 #include "gdt.h"
 #include "idt.h"
+#include "pic.h"
 
 void kmain(void) {
     clear_screen();
@@ -28,6 +29,10 @@ void kmain(void) {
 
     printk("Initializing IDT... ");
     idt_init();
+    printk("ok.\n");
+
+    printk("Initializing PIC... ");
+    pic_init();
     printk("ok.\n");
     
     for (;;); // Loop forever for now
