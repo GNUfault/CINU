@@ -41,11 +41,11 @@ jobs:
       - name: Upload IMG artifact
         uses: actions/upload-artifact@v4
         with:
-          name: cinux-iso
-          path: cinux.iso
+          name: cinux-img
+          path: cinux.img
       
       - name: Create GitHub Release and Upload artifacts
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create "$(date +"%m%d%y%H%M")" cinux.iso --title "Continuous release"
+          gh release create "$(date +"%m%d%y%H%M")" cinux.img --title "Continuous release"
