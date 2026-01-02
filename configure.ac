@@ -1,5 +1,5 @@
 dnl CINUX
-dnl Copyright (C) 2025 Connor Thomson
+dnl Copyright (C) 2025-2026 Connor Thomson
 dnl
 dnl This program is free software: you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
