@@ -5,3 +5,4 @@ Custom kernel in C.
 - Bootloader
 - VGA text mode printing
 - GDT
+- IDT
