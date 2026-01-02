@@ -19,6 +19,7 @@
 #include "gdt.h"
 #include "idt.h"
 #include "pic.h"
+#include "pit.h"
 
 void kmain(void) {
     clear_screen();
@@ -33,6 +34,10 @@ void kmain(void) {
 
     printk("Initializing PIC... ");
     pic_init();
+    printk("ok.\n");
+
+    printk("Initializing PIT... );
+    pit_init();
     printk("ok.\n");
     
     for (;;); // Loop forever for now
