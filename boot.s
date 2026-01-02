@@ -1,4 +1,4 @@
-/* 
+/*
  * CINUX
  * Copyright (C) 2025-2026 Connor Thomson
  * Copyright (C) 2025 Roman Kapl
