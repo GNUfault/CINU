@@ -43,7 +43,7 @@ unsigned int pmt_schedule(unsigned int current_esp) {
 // This sets up a "fake" stack so the first switch works
 void pmt_create_task(void (*entry_point)(void)) {
     // In a real OS, use a memory allocator. Here, we use a static buffer.
-    static unsigned char task_stacks[MAX_TASKS][STACK_SIZE];
+    static unsigned char task_stacks[2][STACK_SIZE];
     
     unsigned int *stack = (unsigned int *)(task_stacks[total_tasks] + STACK_SIZE);
 
