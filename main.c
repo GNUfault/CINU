@@ -36,7 +36,7 @@ void kmain(void) {
     pic_init();
     printk("ok.\n");
 
-    printk("Initializing PIT... );
+    printk("Initializing PIT... ");
     pit_init();
     printk("ok.\n");
     
