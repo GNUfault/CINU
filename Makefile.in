@@ -123,7 +123,8 @@ boot_bin_LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(boot_bin_LDFLAGS) \
 	$(LDFLAGS) -o $@
 am_cinux_elf_OBJECTS = cinux_elf-main.$(OBJEXT) \
 	cinux_elf-vga.$(OBJEXT) cinux_elf-cpu.$(OBJEXT) \
-	cinux_elf-io.$(OBJEXT)
+	cinux_elf-io.$(OBJEXT) cinux_elf-gdt.$(OBJEXT) \
+	cinux_elf-gdt_s.$(OBJEXT)
 cinux_elf_OBJECTS = $(am_cinux_elf_OBJECTS)
 cinux_elf_LDADD = $(LDADD)
 cinux_elf_LINK = $(CCLD) $(cinux_elf_CFLAGS) $(CFLAGS) \
@@ -297,7 +298,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-cinux_elf_SOURCES = main.c vga.c cpu.s io.s
+cinux_elf_SOURCES = main.c vga.c cpu.s io.s gdt.c gdt_s.s
 boot_bin_SOURCES = boot.s
 cinux_elf_LINKER_SCRIPT = link.ld
 boot_bin_LINKER_SCRIPT = boot.ld
@@ -422,6 +423,12 @@ cinux_elf-vga.o: vga.c
 cinux_elf-vga.obj: vga.c
 	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cinux_elf_CFLAGS) $(CFLAGS) -c -o cinux_elf-vga.obj `if test -f 'vga.c'; then $(CYGPATH_W) 'vga.c'; else $(CYGPATH_W) '$(srcdir)/vga.c'; fi`
 
+cinux_elf-gdt.o: gdt.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cinux_elf_CFLAGS) $(CFLAGS) -c -o cinux_elf-gdt.o `test -f 'gdt.c' || echo '$(srcdir)/'`gdt.c
+
+cinux_elf-gdt.obj: gdt.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cinux_elf_CFLAGS) $(CFLAGS) -c -o cinux_elf-gdt.obj `if test -f 'gdt.c'; then $(CYGPATH_W) 'gdt.c'; else $(CYGPATH_W) '$(srcdir)/gdt.c'; fi`
+
 .s.o:
 	$(AM_V_CCAS)$(CCASCOMPILE) -c -o $@ $<
 
@@ -445,6 +452,12 @@ cinux_elf-io.o: io.s
 
 cinux_elf-io.obj: io.s
 	$(AM_V_CCAS)$(CCAS) $(cinux_elf_CCASFLAGS) $(CCASFLAGS) -c -o cinux_elf-io.obj `if test -f 'io.s'; then $(CYGPATH_W) 'io.s'; else $(CYGPATH_W) '$(srcdir)/io.s'; fi`
+
+cinux_elf-gdt_s.o: gdt_s.s
+	$(AM_V_CCAS)$(CCAS) $(cinux_elf_CCASFLAGS) $(CCASFLAGS) -c -o cinux_elf-gdt_s.o `test -f 'gdt_s.s' || echo '$(srcdir)/'`gdt_s.s
+
+cinux_elf-gdt_s.obj: gdt_s.s
+	$(AM_V_CCAS)$(CCAS) $(cinux_elf_CCASFLAGS) $(CCASFLAGS) -c -o cinux_elf-gdt_s.obj `if test -f 'gdt_s.s'; then $(CYGPATH_W) 'gdt_s.s'; else $(CYGPATH_W) '$(srcdir)/gdt_s.s'; fi`
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
