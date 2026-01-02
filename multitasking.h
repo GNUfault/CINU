@@ -19,7 +19,7 @@
 #define PMT_H
 
 struct task {
-    unsigned int esp // Current stack pointer (top of saved context)
+    unsigned int esp; // Current stack pointer (top of saved context)
     unsigned int stack_base; // Base address of the allocated stack memory
     unsigned int id; // Unique Task ID
     int active; // 1 if running/ready, 0 if empty slot
