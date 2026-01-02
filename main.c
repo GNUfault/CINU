@@ -20,6 +20,7 @@
 #include "idt.h"
 #include "pic.h"
 #include "pit.h"
+#include "multitasking.h"
 
 void task1(void) {
     while(1) {
