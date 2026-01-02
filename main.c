@@ -16,10 +16,14 @@
  */
 
 #include "vga.h"
+#include "gdt.h"
 
 void kmain(void) {
     clear_screen();
-    printk("hi\n");
-
+   
+    printk("Initializing GDT... ");
+    gdt_init():
+    printk("ok.\n");
+    
     for (;;); // Loop forever for now
 }
