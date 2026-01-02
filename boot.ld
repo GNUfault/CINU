@@ -17,10 +17,10 @@
  */
 
 OUTPUT_FORMAT("binary")
-OUTPUT_ARCH(i386)
+OUTPUT_ARCH(i386) # You can't change this to like i486 or whatever
 
 SECTIONS {
-  . = 0x7C00;
+  . = 0x7C00; # That is the normal spot for a bootloader
   .text : { *(.text) }
   .data : { *(.data) }
   .bss  : { *(.bss) }
