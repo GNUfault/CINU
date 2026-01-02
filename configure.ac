@@ -20,32 +20,11 @@ AM_INIT_AUTOMAKE([foreign no-dependencies])
 AC_PROG_CC
 AM_PROG_AS
 
-AC_ARG_ENABLE([grub],
-  [AS_HELP_STRING([--disable-grub], [Disable the ISO and output only the ELF])],
-  [enable_grub="$enableval"],
-  [enable_grub="yes"])
+AC_ARG_WITH([floppy],
+  [AS_HELP_STRING([--with-floppy=NAME], [Set the floppy filename])],
+  [FLOPPY="$withval"],
+  [FLOPPY="cinux.img"])
 
-AS_IF([test "x$enable_grub" = "xyes"], [
-  AC_PATH_PROG([GRUB_MKRESCUE], [grub-mkrescue])
-  AS_IF([test "x$GRUB_MKRESCUE" = "x"], [AC_MSG_ERROR([grub-mkrescue not found.])])
-
-  AC_PATH_PROG([GRUB_MKIMAGE], [grub-mkimage])
-  AS_IF([test "x$GRUB_MKIMAGE" = "x"], [AC_MSG_ERROR([grub-mkimage not found.])])
-
-  AC_PATH_PROG([XORRISO], [xorriso])
-  AS_IF([test "x$XORRISO" = "x"], [AC_MSG_ERROR([xorriso not found.])])
-
-  AC_PATH_PROG([MFORMAT], [mformat])
-  AC_PATH_PROG([MCOPY], [mcopy])
-])
-
-AM_CONDITIONAL([USE_GRUB], [test "x$enable_grub" = "xyes"])
-
-AC_ARG_WITH([iso],
-  [AS_HELP_STRING([--with-iso=NAME], [Set the ISO filename])],
-  [ISO="$withval"],
-  [ISO="cinux.iso"])
-
-AC_SUBST([ISO])
+AC_SUBST([FLOPPY])
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
