@@ -18,25 +18,27 @@
 
 .intel_syntax noprefix
 .global irq0_stub
-.extern pit_handler
+.extern pmt_schedule
 
 irq0_stub:
+    # Save the current task's state
     pushad
     push ds
     push es
     push fs
     push gs
 
-    mov ax, 0x10
-    mov ds, ax
-    mov es, ax
+    # Pass the current stack pointer (ESP) to the scheduler
+    push esp
+    call pmt_schedule
+    # The scheduler returns the NEW stack pointer in EAX
+    mov esp, eax
 
-    call pit_handler
-
-    # Send EOI specifically to Master PIC (IRQ 0 is always Master)
+    # Acknowledge the interrupt
     mov al, 0x20
     out 0x20, al
 
+    # Restore the NEW task's state
     pop gs
     pop fs
     pop es
