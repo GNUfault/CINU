@@ -21,5 +21,5 @@ void kmain(void) {
     clear_screen();
     printk("hi\n");
 
-    for (;;);
+    for (;;); // Loop forever for now
 }
