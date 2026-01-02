@@ -19,7 +19,7 @@
 
 #define STACK_SIZE 4096
 
-static struct task task_list[];
+static struct task task_list[2];
 static int current_task_index = 0;
 static int total_tasks = 0;
 
