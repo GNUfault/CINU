@@ -17,12 +17,17 @@
 
 #include "vga.h"
 #include "gdt.h"
+#include "idt.h"
 
 void kmain(void) {
     clear_screen();
    
     printk("Initializing GDT... ");
     gdt_init();
+    printk("ok.\n");
+
+    printk("Initializing IDT... ");
+    idt_init();
     printk("ok.\n");
     
     for (;;); // Loop forever for now
