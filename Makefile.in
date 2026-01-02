@@ -126,7 +126,8 @@ am_cinux_elf_OBJECTS = cinux_elf-main.$(OBJEXT) \
 	cinux_elf-io.$(OBJEXT) cinux_elf-gdt.$(OBJEXT) \
 	cinux_elf-gdt_s.$(OBJEXT) cinux_elf-idt.$(OBJEXT) \
 	cinux_elf-idt_s.$(OBJEXT) cinux_elf-pic.$(OBJEXT) \
-	cinux_elf-pit.$(OBJEXT) cinux_elf-pit_s.$(OBJEXT)
+	cinux_elf-pit.$(OBJEXT) cinux_elf-pit_s.$(OBJEXT) \
+	cinux_elf-multitasking.$(OBJEXT)
 cinux_elf_OBJECTS = $(am_cinux_elf_OBJECTS)
 cinux_elf_LDADD = $(LDADD)
 cinux_elf_LINK = $(CCLD) $(cinux_elf_CFLAGS) $(CFLAGS) \
@@ -300,7 +301,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-cinux_elf_SOURCES = main.c vga.c cpu.s io.s gdt.c gdt_s.s idt.c idt_s.s pic.c pit.c pit_s.s
+cinux_elf_SOURCES = main.c vga.c cpu.s io.s gdt.c gdt_s.s idt.c idt_s.s pic.c pit.c pit_s.s multitasking.c
 boot_bin_SOURCES = boot.s
 cinux_elf_LINKER_SCRIPT = link.ld
 boot_bin_LINKER_SCRIPT = boot.ld
@@ -448,6 +449,12 @@ cinux_elf-pit.o: pit.c
 
 cinux_elf-pit.obj: pit.c
 	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cinux_elf_CFLAGS) $(CFLAGS) -c -o cinux_elf-pit.obj `if test -f 'pit.c'; then $(CYGPATH_W) 'pit.c'; else $(CYGPATH_W) '$(srcdir)/pit.c'; fi`
+
+cinux_elf-multitasking.o: multitasking.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cinux_elf_CFLAGS) $(CFLAGS) -c -o cinux_elf-multitasking.o `test -f 'multitasking.c' || echo '$(srcdir)/'`multitasking.c
+
+cinux_elf-multitasking.obj: multitasking.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cinux_elf_CFLAGS) $(CFLAGS) -c -o cinux_elf-multitasking.obj `if test -f 'multitasking.c'; then $(CYGPATH_W) 'multitasking.c'; else $(CYGPATH_W) '$(srcdir)/multitasking.c'; fi`
 
 .s.o:
 	$(AM_V_CCAS)$(CCASCOMPILE) -c -o $@ $<
