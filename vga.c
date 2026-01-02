@@ -70,28 +70,13 @@ static void scroll_screen(void) {
 // Puts a single character on the screen
 // It handles:
 // 1. Newline (\n)
-// 2. Backspace (\b)
-// 3. Wrapping
-// 4. Scrolling (with scroll_screen())
+// 2. Wrapping
+// 3. Scrolling (with scroll_screen())
 static void putchar(char c) {
     // Newline
     if (c == '\n') {
         vga_cursor_x = 0;
         vga_cursor_y++;
-    } else 
-        // Backspace
-        if (c == '\b') {
-            // Move cursor left if we can
-            if (vga_cursor_x > 0) {
-                vga_cursor_x--;
-            } else 
-                // If we can't then move to end of the previous line
-                if (vga_cursor_y > 0) {
-                    vga_cursor_y--;
-                     vga_cursor_x = SCREEN_WIDTH - 1;
-                }
-        // Clear it
-        VGA_MEMORY[vga_cursor_y * SCREEN_WIDTH + vga_cursor_x] = vga_entry(' ');
     } else {
         // Print character to screen
         VGA_MEMORY[vga_cursor_y * SCREEN_WIDTH + vga_cursor_x] = vga_entry(c);
