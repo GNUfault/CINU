@@ -15,13 +15,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef PIT_H
-#define PIT_H
+#ifndef IRQ_S_H
+#define IRQ_S_H
 
-#define PIT_HZ 250
-
-void pit_init(void);
-void sleep(unsigned int ticks);
-unsigned int get_tick_count(void);
+extern void irq0(void);
 
 #endif
