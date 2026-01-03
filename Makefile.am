@@ -50,3 +50,5 @@ clean:
 	rm -rf $(CLEANFILES)
 
 CLEANFILES = $(KERNEL) $(ISO) $(ISO_DIR)
+
+.PHONY: $(FLOPPY)
