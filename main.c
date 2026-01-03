@@ -22,18 +22,6 @@
 #include "pit.h"
 #include "multitasking.h"
 
-void task1(void) {
-    while(1) {
-        printk("Task 1\n");
-    }
-}
-
-void task2(void) {
-    while(1) {
-        printk("Task 2\n");
-    }
-}
-
 void kmain(void) {
     printk("Initializing GDT... ");
     gdt_init();
@@ -47,11 +35,10 @@ void kmain(void) {
     pic_init();
     printk("ok.\n");
 
-//    pmt_create_task(task1);
-//    pmt_create_task(task2);
 
-//    printk("Initializing PIT... ");
-//    pit_init();
-//    printk("ok.\n");
+    printk("Initializing PIT... ");
+    pit_init();
+    printk("ok.\n");
+   
     for(;;);
 }
