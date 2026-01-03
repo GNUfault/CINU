@@ -35,6 +35,8 @@ void task2(void) {
 }
 
 void kmain(void) {
+    vga_init(); 
+    
     printk("Initializing GDT... ");
     gdt_init();
     printk("ok.\n");
