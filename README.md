@@ -3,7 +3,7 @@ Custom kernel in C.
 
 ## Features:
 - Bootloader
-- VGA text mode printing
+- VGA framebuffer printing
 - GDT
 - IDT
 
