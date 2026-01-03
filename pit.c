@@ -17,11 +17,12 @@
  */
 
 #include "pit.h"
-#include "pit_s.h"
 #include "pic.h"
 #include "io.h"
 #include "cpu.h"
 #include "idt.h"
+#include "vga.h"
+#include "irq_s.h"
 
 static volatile unsigned int timer_ticks = 0;
 
@@ -29,7 +30,7 @@ void pit_init(void) {
     unsigned short divisor = 1193182 / PIT_HZ;
 
     // Register IDT gate for IRQ 0 (Vector 32)
-    idt_set_gate(32, (unsigned int)irq0_stub, 0x08, 0x8E);
+    idt_set_gate(32, (unsigned int)irq0, 0x08, 0x8E);
   
     // Program the PIT hardware
     outb(0x43, 0x36);
@@ -42,6 +43,8 @@ void pit_init(void) {
 
 void pit_handler(void) {
     timer_ticks++;
+
+    printk("tick");
 }
 
 unsigned int get_tick_count(void) {
@@ -54,3 +57,4 @@ void sleep(unsigned int ticks) {
         pause();
     }
 }
+st
