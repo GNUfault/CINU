@@ -37,16 +37,16 @@ all: $(FLOPPY)
 $(KERNEL): font.o
 
 $(FLOPPY):
-        cat $(BOOTLOADER) $(KERNEL) >> $(FLOPPY)
+	cat $(BOOTLOADER) $(KERNEL) >> $(FLOPPY)
 
 font.o: font.bin
-        objcopy -I binary -O elf32-i386 -B i386 font.bin font.o
+	objcopy -I binary -O elf32-i386 -B i386 font.bin font.o
 
 # I made this as fast as possible and this needs fixing
 run:
-        $(QEMU) -fda $(FLOPPY)
+	$(QEMU) -fda $(FLOPPY)
 
 clean:
-        rm -rf $(CLEANFILES)
+	rm -rf $(CLEANFILES)
 
 CLEANFILES = $(KERNEL) $(ISO) $(ISO_DIR)
