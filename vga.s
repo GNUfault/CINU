@@ -27,7 +27,7 @@ cursor_y: .long 0
 .section .rodata
 .global font
 font:
-    .incbin "src/kernel/font.bin"
+    .incbin "font.bin"
 
 .section .text
 .global printk
