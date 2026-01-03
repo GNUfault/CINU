@@ -15,8 +15,9 @@
 
 bin_PROGRAMS = cinux.elf boot.bin
 
-cinux_elf_SOURCES  = main.c vga.c cpu.s io.s gdt.c gdt_s.s idt.c idt_s.s pic.c pit.c pit_s.s multitasking.c
-boot_bin_SOURCES   = boot.s
+cinux_elf_SOURCES       = main.c vga.c cpu.s io.s gdt.c gdt_s.s idt.c idt_s.s pic.c pit.c pit_s.s multitasking.c
+cinux_elf_EXTRA_OBJECTS = font.o
+boot_bin_SOURCES        = boot.s
 
 cinux_elf_LINKER_SCRIPT = link.ld
 boot_bin_LINKER_SCRIPT  = boot.ld
