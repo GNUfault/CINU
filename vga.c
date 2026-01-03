@@ -175,12 +175,13 @@ void printk(const char *s) {
 
 void vga_init(void) {
     // Read the framebuffer address that the bootloader stored at 0x5000
-    vesa_fb = (unsigned char *)(*((unsigned int *)0x5000));
+    unsigned int fb_addr = *((unsigned int *)0x5000);
+    vesa_fb = (unsigned char *)fb_addr;
     
-    // Test: Fill screen with red
-    for(unsigned int y = 0; y < VESA_HEIGHT; y++) {
-        for(unsigned int x = 0; x < VESA_WIDTH; x++) {
-            vga_putpixel(x, y, 0xFF0000);
-        }
+    // Simple test: Fill first 1MB with red (should be visible)
+    for(unsigned int i = 0; i < 1024*768*3; i += 3) {
+        vesa_fb[i] = 0;      // Blue
+        vesa_fb[i+1] = 0;    // Green  
+        vesa_fb[i+2] = 0xFF; // Red
     }
 }
