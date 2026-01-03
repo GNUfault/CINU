@@ -85,3 +85,7 @@ void printk(const char *s) {
         s++;
     }
 }
+
+void vga_init(void) {
+    vesa_fb = (unsigned int *)(*((unsigned int *)0x5000));
+}
