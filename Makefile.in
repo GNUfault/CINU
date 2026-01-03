@@ -852,7 +852,7 @@ uninstall-am: uninstall-binPROGRAMS
 .PRECIOUS: Makefile
 
 
-all: $(FLOPPY)
+all: cinux.elf $(FLOPPY)
 
 cinux.elf: font.o
 
