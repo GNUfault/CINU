@@ -26,6 +26,11 @@
 static unsigned int *vesa_fb;
 extern unsigned char _binary_font_bin_start[];
 
+static unsigned int cursor_x=0;
+static unsigned int cursor_y=0;
+#define PRINTK_FG 0xC0C0C0
+#define PRINTK_BG 0x000000
+
 static inline void vga_putpixel(unsigned int x, unsigned int y, unsigned int color) {
     vesa_fb[y*(VESA_PITCH>>2)+x] = color;
 }
@@ -141,11 +146,6 @@ static void vga_draw_char_internal(unsigned int x, unsigned int y, char c, unsig
         row++;
     }
 }
-
-static unsigned int cursor_x=0;
-static unsigned int cursor_y=0;
-#define PRINTK_FG 0xC0C0C0
-#define PRINTK_BG 0x000000
 
 void printk(const char *s) {
     while(*s) {
