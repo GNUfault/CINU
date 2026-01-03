@@ -15,8 +15,8 @@
 
 bin_PROGRAMS = cinux.elf boot.bin
 
-cinux_elf_SOURCES       = main.c vga.c cpu.s io.s gdt.c gdt_s.s idt.c idt_s.s pic.c pit.c
-boot_bin_SOURCES        = boot.s
+cinux_elf_SOURCES = main.c vga.c cpu.s io.s gdt.c gdt_s.s idt.c idt_s.s pic.c pit.c string.c irq_s.s
+boot_bin_SOURCES  = boot.s
 
 cinux_elf_LINKER_SCRIPT = link.ld
 boot_bin_LINKER_SCRIPT  = boot.ld
@@ -37,16 +37,16 @@ all: $(FLOPPY)
 $(KERNEL): font.o
 
 $(FLOPPY):
-	cat $(BOOTLOADER) $(KERNEL) >> $(FLOPPY)
+        cat $(BOOTLOADER) $(KERNEL) >> $(FLOPPY)
 
 font.o: font.bin
-	objcopy -I binary -O elf32-i386 -B i386 font.bin font.o
+        objcopy -I binary -O elf32-i386 -B i386 font.bin font.o
 
 # I made this as fast as possible and this needs fixing
 run:
-	$(QEMU) $(ISO)
+        $(QEMU) -fda $(FLOPPY)
 
 clean:
-	rm -rf $(CLEANFILES)
+        rm -rf $(CLEANFILES)
 
 CLEANFILES = $(KERNEL) $(ISO) $(ISO_DIR)
