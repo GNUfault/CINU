@@ -18,7 +18,6 @@
 #ifndef VGA_H
 #define VGA_H
 
-void store_fb_address(void);
 void printk(const char *s);
 
 #endif
