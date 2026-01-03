@@ -20,5 +20,6 @@
 
 void printk(const char *s);
 void vga_init(void);
+void test_pattern(void);
 
 #endif
