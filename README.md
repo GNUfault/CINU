@@ -6,6 +6,7 @@ Custom kernel in C.
 - VGA framebuffer printing
 - GDT
 - IDT
-
-## TODO:
-- Refactor vga.s in C
+- PIT
+- PIC
+- IRQ
+  
