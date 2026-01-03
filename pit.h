@@ -1,0 +1,27 @@
+/*
+ * CINUX
+ * Copyright (C) 2025-2026 Connor Thomson
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, version 3 of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+#ifndef PIT_H
+#define PIT_H
+
+#define PIT_HZ 250
+
+void pit_init(void);
+void sleep(unsigned int ticks);
+unsigned int get_tick_count(void);
+
+#endif
