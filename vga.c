@@ -171,15 +171,18 @@ void printk(const char *s) {
 }
 
 void vga_init(void) {
-    // The framebuffer address is stored at physical address 0x5000
+    // Try reading from bootloader
     unsigned int fb_addr = *((unsigned int *)0x5000);
+    
+    // Fallback to common QEMU linear framebuffer address
+    if(fb_addr == 0 || fb_addr == 0xFFFFFFFF) {
+        fb_addr = 0xE0000000; // Common QEMU LFB address
+    }
+    
     vesa_fb = (unsigned int *)fb_addr;
     
-    // Debug: Fill entire screen with red to test if framebuffer address is valid
-    unsigned int x, y;
-    for(y = 0; y < VESA_HEIGHT; y++) {
-        for(x = 0; x < VESA_WIDTH; x++) {
-            vesa_fb[y*(VESA_PITCH>>2)+x] = 0xFF0000;
-        }
+    // Test: Fill screen with red
+    for(unsigned int i = 0; i < (VESA_WIDTH * VESA_HEIGHT); i++) {
+        vesa_fb[i] = 0xFF0000;
     }
 }
