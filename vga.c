@@ -15,122 +15,66 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "io.h"
+#define VESA_FB_ADDR_PTR 0x5000
+#define VESA_WIDTH  1024
+#define VESA_HEIGHT 768
+#define VESA_PITCH  (1024 * 4) /* bytes per row */
+#define FONT_WIDTH  8
+#define FONT_HEIGHT 16
 
-// 0xB8000
-#define VGA_MEMORY ((unsigned short*)0xB8000)
+static unsigned int *vesa_fb = 0;
+extern unsigned char _binary_font_bin_start[];
 
-// Screen dimensions
-#define SCREEN_WIDTH 80
-#define SCREEN_HEIGHT 25
-#define SCREEN_SIZE (SCREEN_WIDTH * SCREEN_HEIGHT)
-
-// Cursor position
-static unsigned int vga_cursor_x = 0;
-static unsigned int vga_cursor_y = 0;
-
-// Enable scrolling
-static int vga_scrolling_enabled = 1;
-
-static void set_cursor(unsigned int pos) {
-    // Low byte of the cursor index
-    outb(0x3D4, 0x0F);
-    outb(0x3D5, (unsigned char)(pos & 0xFF));
-
-    // High byte of the cursor index
-    outb(0x3D4, 0x0E);
-    outb(0x3D5, (unsigned char)((pos >> 8) & 0xFF));
+void store_fb_address(void) {
+    unsigned int *ptr = (unsigned int *)VESA_FB_ADDR_PTR;
+    vesa_fb = (unsigned int *)(*ptr);
 }
 
-// This just sets a VGA entry with a 
-// character and default attribute byte 
-// (0x07 = Light Grey (Default VGA color))
-static inline unsigned short vga_entry(char c) {
-    return (unsigned short)c | (0x07u << 8);
+static inline void vga_putpixel(unsigned int x, unsigned int y, unsigned int color ) {
+    vesa_fb[y * (VESA_PITCH >> 2) + x] = color;
 }
 
-// Scrolls screen up by one
-static void scroll_screen(void) {
-    unsigned int row, col;
+void vga_clear(unsigned int color) {
+    unsigned int i = 0;
+    unsigned int pixels = VESA_WIDTH * VESA_HEIGHT;
 
-    // Shift it up by one
-    for (row = 1; row < SCREEN_HEIGHT; row++) {
-        for (col = 0; col < SCREEN_WIDTH; col++) {
-            VGA_MEMORY[(row - 1) * SCREEN_WIDTH + col] =
-                VGA_MEMORY[row * SCREEN_WIDTH + col];
+    while (i < pixels) {
+        vesa_fb[i] = color;
+        i++;
+    }
+}
+
+void vga_draw_char(unsigned int x, unsigned int y, char c, unsigned int fg, unsigned int bg) {
+    unsigned int row = 0;
+    unsigned char *glyph =
+        _binary_font_bin_start + ((unsigned char)c * FONT_HEIGHT);
+
+    while (row < FONT_HEIGHT) {
+        unsigned char bits = glyph[row];
+        unsigned int col = 0;
+
+        while (col < FONT_WIDTH) {
+            if (bits & (0x80 >> col))
+                vga_putpixel(x + col, y + row, fg);
+            else
+                vga_putpixel(x + col, y + row, bg);
+            col++;
         }
-    }
-
-    // Clear last row
-    for (col = 0; col < SCREEN_WIDTH; col++) {
-        VGA_MEMORY[(SCREEN_HEIGHT - 1) * SCREEN_WIDTH + col] = vga_entry(' ');
+        row++;
     }
 }
 
-// Puts a single character on the screen
-// It handles:
-// 1. Newline (\n)
-// 2. Wrapping
-// 3. Scrolling (with scroll_screen())
-static void putchar(char c) {
-    // Newline
-    if (c == '\n') {
-        vga_cursor_x = 0;
-        vga_cursor_y++;
-    } else {
-        // Print character to screen
-        VGA_MEMORY[vga_cursor_y * SCREEN_WIDTH + vga_cursor_x] = vga_entry(c);
-        // Move cursor right
-        vga_cursor_x++;
-    }
+void vga_draw_string(unsigned int x, unsigned int y, const char *s, unsigned int fg, unsigned int bg) {
+    unsigned int cx = x;
 
-    // Wrap to next line if needed
-    if (vga_cursor_x >= SCREEN_WIDTH) {
-        // Put all the way to the left
-        vga_cursor_x = 0;
-        // Go to next line
-        vga_cursor_y++;
-    }
-
-    // Scroll if needed
-    if (vga_cursor_y >= SCREEN_HEIGHT) {
-        // Check if scrolling is enabled
-        if (vga_scrolling_enabled) {
-            // Scroll screen
-            scroll_screen();
-            // Put cursor on last line
-            vga_cursor_y = SCREEN_HEIGHT - 1;
+    while (*s) {
+        if (*s == '\n') {
+            cx = x;
+            y += FONT_HEIGHT;
         } else {
-            // Do not scroll
-            vga_cursor_y = SCREEN_HEIGHT - 1;
-            vga_cursor_x = 0;
+            vga_draw_char(cx, y, *s, fg, bg);
+            cx += FONT_WIDTH;
         }
+        s++;
     }
-
-    // Update cursor
-    set_cursor(vga_cursor_y * SCREEN_WIDTH + vga_cursor_x);
-}
-
-// Prints a null terminated string with putchar()
-void printk(const char *str) {
-    while (*str) putchar(*str++);
-}
-
-// Fills VGA buffer with spaces and put cursor to 0x0
-void clear_screen(void) {
-    unsigned short *video = (unsigned short *)VGA_MEMORY;
-    
-    // Set blank to space
-    unsigned short blank = (unsigned short)(' ' | (0x07 << 8));
-
-    // Fill screen with blank
-    int i;
-    for (i = 0; i < SCREEN_SIZE; i++) {
-        video[i] = blank;
-    }
-
-    // Set cursor to 0x0
-    vga_cursor_x = 0;
-    vga_cursor_y = 0;
-    set_cursor(0);
 }
