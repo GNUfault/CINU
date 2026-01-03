@@ -43,4 +43,3 @@ void kmain(void) {
 
     for (;;);
 }
-st
