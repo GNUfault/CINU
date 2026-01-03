@@ -49,10 +49,10 @@ void kmain(void) {
     pic_init();
     printk("ok.\n");
 
-    pmt_create_task(task1);
-    pmt_create_task(task2);
+//    pmt_create_task(task1);
+//    pmt_create_task(task2);
 
-    printk("Initializing PIT... ");
-    pit_init();
-    printk("ok.\n");
+//    printk("Initializing PIT... ");
+//    pit_init();
+//    printk("ok.\n");
 }
