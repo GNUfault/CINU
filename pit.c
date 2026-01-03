@@ -57,4 +57,3 @@ void sleep(unsigned int ticks) {
         pause();
     }
 }
-st
