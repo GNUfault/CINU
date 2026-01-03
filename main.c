@@ -35,10 +35,6 @@ void task2(void) {
 }
 
 void kmain(void) {
-    vga_init(); 
-
-    test_pattern();
-    
     printk("Initializing GDT... ");
     gdt_init();
     printk("ok.\n");
@@ -57,4 +53,5 @@ void kmain(void) {
 //    printk("Initializing PIT... ");
 //    pit_init();
 //    printk("ok.\n");
+    for(;;);
 }
