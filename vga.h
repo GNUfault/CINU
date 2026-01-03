@@ -18,7 +18,7 @@
 #ifndef VGA_H
 #define VGA_H
 
-void printk(const char *str);
-void clear_screen(void);
+void store_fb_address(void);
+void printk(const char *s);
 
 #endif
