@@ -10,3 +10,6 @@ Custom kernel in C.
 - PIC
 - IRQ
   
+## Issues:
+- VGA driver is very broken
+- Does not remake disk image, just adds the new one in the old one
