@@ -171,15 +171,9 @@ void printk(const char *s) {
 }
 
 void vga_init(void) {
-    // Try reading from bootloader
-    unsigned int fb_addr = *((unsigned int *)0x5000);
-    
-    // Fallback to common QEMU linear framebuffer address
-    if(fb_addr == 0 || fb_addr == 0xFFFFFFFF) {
-        fb_addr = 0xE0000000; // Common QEMU LFB address
-    }
-    
-    vesa_fb = (unsigned int *)fb_addr;
+    // QEMU ISA VGA framebuffer is at 0xE0000000
+    // (for PCI it would need to be read from BAR0, but ISA is simpler)
+    vesa_fb = (unsigned int *)0xE0000000;
     
     // Test: Fill screen with red
     for(unsigned int i = 0; i < (VESA_WIDTH * VESA_HEIGHT); i++) {
