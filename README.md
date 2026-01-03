@@ -6,3 +6,6 @@ Custom kernel in C.
 - VGA text mode printing
 - GDT
 - IDT
+
+## TODO:
+- Refactor vga.s in C
