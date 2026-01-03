@@ -19,20 +19,24 @@
 
 #define VESA_WIDTH 1024
 #define VESA_HEIGHT 768
-#define VESA_PITCH (1024*4)
+#define VESA_BPP 3  // 24-bit color = 3 bytes per pixel
+#define VESA_PITCH (VESA_WIDTH * VESA_BPP)
 #define FONT_WIDTH 8
 #define FONT_HEIGHT 16
 
-static unsigned int *vesa_fb;
+static unsigned char *vesa_fb;
 extern unsigned char _binary_font_bin_start[];
 
-static unsigned int cursor_x=0;
-static unsigned int cursor_y=0;
+static unsigned int cursor_x = 0;
+static unsigned int cursor_y = 0;
 #define PRINTK_FG 0xC0C0C0
 #define PRINTK_BG 0x000000
 
 static inline void vga_putpixel(unsigned int x, unsigned int y, unsigned int color) {
-    vesa_fb[y*(VESA_PITCH>>2)+x] = color;
+    unsigned char *pixel = vesa_fb + (y * VESA_PITCH) + (x * VESA_BPP);
+    pixel[0] = color & 0xFF;         // Blue
+    pixel[1] = (color >> 8) & 0xFF;  // Green
+    pixel[2] = (color >> 16) & 0xFF; // Red
 }
 
 // NTSC Color Bars Test Pattern
@@ -92,7 +96,7 @@ void test_pattern(void) {
         }
     }
     
-    // Very bottom: PLUGE pattern (black, <3.5%, black, 3.5%, black, >3.5%, black)
+    // Very bottom: PLUGE pattern
     unsigned int pluge_start = gradient_start + block_height;
     unsigned int pluge_width = VESA_WIDTH / 7;
     unsigned int pluge_colors[7] = {
@@ -115,52 +119,51 @@ void test_pattern(void) {
 }
 
 static void scroll_up() {
-    unsigned int x,y;
-    // Copy rows up by FONT_HEIGHT pixels
-    for(y=0;y<VESA_HEIGHT-FONT_HEIGHT;y++) {
-        for(x=0;x<VESA_WIDTH;x++) {
-            vesa_fb[y*(VESA_PITCH>>2)+x] = vesa_fb[(y+FONT_HEIGHT)*(VESA_PITCH>>2)+x];
-        }
+    unsigned int row_bytes = VESA_PITCH * FONT_HEIGHT;
+    unsigned int total_bytes = VESA_PITCH * VESA_HEIGHT;
+    
+    // Move all rows up by FONT_HEIGHT pixels
+    for(unsigned int i = 0; i < total_bytes - row_bytes; i++) {
+        vesa_fb[i] = vesa_fb[i + row_bytes];
     }
+    
     // Clear the bottom FONT_HEIGHT rows
-    for(y=VESA_HEIGHT-FONT_HEIGHT;y<VESA_HEIGHT;y++) {
-        for(x=0;x<VESA_WIDTH;x++) {
-            vesa_fb[y*(VESA_PITCH>>2)+x] = 0x000000;
-        }
+    for(unsigned int i = total_bytes - row_bytes; i < total_bytes; i++) {
+        vesa_fb[i] = 0;
     }
-    // Adjust cursor position
+    
     cursor_y -= FONT_HEIGHT;
 }
 
 static void vga_draw_char_internal(unsigned int x, unsigned int y, char c, unsigned int fg, unsigned int bg) {
-    unsigned int row=0;
-    unsigned char *glyph=_binary_font_bin_start + ((unsigned char)c*FONT_HEIGHT);
-    while(row<FONT_HEIGHT) {
-        unsigned char bits=glyph[row];
-        unsigned int col=0;
-        while(col<FONT_WIDTH) {
-            if(bits & (0x80>>col)) vga_putpixel(x+col,y+row,fg);
-            else vga_putpixel(x+col,y+row,bg);
-            col++;
+    unsigned char *glyph = _binary_font_bin_start + ((unsigned char)c * FONT_HEIGHT);
+    
+    for(unsigned int row = 0; row < FONT_HEIGHT; row++) {
+        unsigned char bits = glyph[row];
+        for(unsigned int col = 0; col < FONT_WIDTH; col++) {
+            if(bits & (0x80 >> col)) {
+                vga_putpixel(x + col, y + row, fg);
+            } else {
+                vga_putpixel(x + col, y + row, bg);
+            }
         }
-        row++;
     }
 }
 
 void printk(const char *s) {
     while(*s) {
-        if(*s=='\n') {
-            cursor_x=0;
-            cursor_y+=FONT_HEIGHT;
+        if(*s == '\n') {
+            cursor_x = 0;
+            cursor_y += FONT_HEIGHT;
             if(cursor_y >= VESA_HEIGHT - FONT_HEIGHT) {
                 scroll_up();
             }
         } else {
-            vga_draw_char_internal(cursor_x,cursor_y,*s,PRINTK_FG,PRINTK_BG);
-            cursor_x+=FONT_WIDTH;
+            vga_draw_char_internal(cursor_x, cursor_y, *s, PRINTK_FG, PRINTK_BG);
+            cursor_x += FONT_WIDTH;
             if(cursor_x >= VESA_WIDTH) {
-                cursor_x=0;
-                cursor_y+=FONT_HEIGHT;
+                cursor_x = 0;
+                cursor_y += FONT_HEIGHT;
                 if(cursor_y >= VESA_HEIGHT - FONT_HEIGHT) {
                     scroll_up();
                 }
@@ -171,12 +174,13 @@ void printk(const char *s) {
 }
 
 void vga_init(void) {
-    // QEMU ISA VGA framebuffer is at 0xE0000000
-    // (for PCI it would need to be read from BAR0, but ISA is simpler)
-    vesa_fb = (unsigned int *)0xE0000000;
+    // Read the framebuffer address that the bootloader stored at 0x5000
+    vesa_fb = (unsigned char *)(*((unsigned int *)0x5000));
     
     // Test: Fill screen with red
-    for(unsigned int i = 0; i < (VESA_WIDTH * VESA_HEIGHT); i++) {
-        vesa_fb[i] = 0xFF0000;
+    for(unsigned int y = 0; y < VESA_HEIGHT; y++) {
+        for(unsigned int x = 0; x < VESA_WIDTH; x++) {
+            vga_putpixel(x, y, 0xFF0000);
+        }
     }
 }
