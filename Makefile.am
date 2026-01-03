@@ -32,7 +32,7 @@ KERNEL     = cinux.elf
 
 QEMU = qemu-system-i386
 
-all: $(FLOPPY)
+all: cinux.elf $(FLOPPY)
 
 cinux.elf: font.o
 
