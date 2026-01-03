@@ -126,7 +126,8 @@ am_cinux_elf_OBJECTS = cinux_elf-main.$(OBJEXT) \
 	cinux_elf-io.$(OBJEXT) cinux_elf-gdt.$(OBJEXT) \
 	cinux_elf-gdt_s.$(OBJEXT) cinux_elf-idt.$(OBJEXT) \
 	cinux_elf-idt_s.$(OBJEXT) cinux_elf-pic.$(OBJEXT) \
-	cinux_elf-pit.$(OBJEXT)
+	cinux_elf-pit.$(OBJEXT) cinux_elf-string.$(OBJEXT) \
+	cinux_elf-irq_s.$(OBJEXT)
 cinux_elf_OBJECTS = $(am_cinux_elf_OBJECTS)
 cinux_elf_LDADD = $(LDADD)
 cinux_elf_LINK = $(CCLD) $(cinux_elf_CFLAGS) $(CFLAGS) \
@@ -300,7 +301,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-cinux_elf_SOURCES = main.c vga.c cpu.s io.s gdt.c gdt_s.s idt.c idt_s.s pic.c pit.c
+cinux_elf_SOURCES = main.c vga.c cpu.s io.s gdt.c gdt_s.s idt.c idt_s.s pic.c pit.c string.c irq_s.s
 boot_bin_SOURCES = boot.s
 cinux_elf_LINKER_SCRIPT = link.ld
 boot_bin_LINKER_SCRIPT = boot.ld
@@ -449,6 +450,12 @@ cinux_elf-pit.o: pit.c
 cinux_elf-pit.obj: pit.c
 	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cinux_elf_CFLAGS) $(CFLAGS) -c -o cinux_elf-pit.obj `if test -f 'pit.c'; then $(CYGPATH_W) 'pit.c'; else $(CYGPATH_W) '$(srcdir)/pit.c'; fi`
 
+cinux_elf-string.o: string.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cinux_elf_CFLAGS) $(CFLAGS) -c -o cinux_elf-string.o `test -f 'string.c' || echo '$(srcdir)/'`string.c
+
+cinux_elf-string.obj: string.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cinux_elf_CFLAGS) $(CFLAGS) -c -o cinux_elf-string.obj `if test -f 'string.c'; then $(CYGPATH_W) 'string.c'; else $(CYGPATH_W) '$(srcdir)/string.c'; fi`
+
 .s.o:
 	$(AM_V_CCAS)$(CCASCOMPILE) -c -o $@ $<
 
@@ -484,6 +491,12 @@ cinux_elf-idt_s.o: idt_s.s
 
 cinux_elf-idt_s.obj: idt_s.s
 	$(AM_V_CCAS)$(CCAS) $(cinux_elf_CCASFLAGS) $(CCASFLAGS) -c -o cinux_elf-idt_s.obj `if test -f 'idt_s.s'; then $(CYGPATH_W) 'idt_s.s'; else $(CYGPATH_W) '$(srcdir)/idt_s.s'; fi`
+
+cinux_elf-irq_s.o: irq_s.s
+	$(AM_V_CCAS)$(CCAS) $(cinux_elf_CCASFLAGS) $(CCASFLAGS) -c -o cinux_elf-irq_s.o `test -f 'irq_s.s' || echo '$(srcdir)/'`irq_s.s
+
+cinux_elf-irq_s.obj: irq_s.s
+	$(AM_V_CCAS)$(CCAS) $(cinux_elf_CCASFLAGS) $(CCASFLAGS) -c -o cinux_elf-irq_s.obj `if test -f 'irq_s.s'; then $(CYGPATH_W) 'irq_s.s'; else $(CYGPATH_W) '$(srcdir)/irq_s.s'; fi`
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -848,17 +861,17 @@ all: $(FLOPPY)
 $(KERNEL): font.o
 
 $(FLOPPY):
-	cat $(BOOTLOADER) $(KERNEL) >> $(FLOPPY)
+        cat $(BOOTLOADER) $(KERNEL) >> $(FLOPPY)
 
 font.o: font.bin
-	objcopy -I binary -O elf32-i386 -B i386 font.bin font.o
+        objcopy -I binary -O elf32-i386 -B i386 font.bin font.o
 
 # I made this as fast as possible and this needs fixing
 run:
-	$(QEMU) $(ISO)
+        $(QEMU) -fda $(FLOPPY)
 
 clean:
-	rm -rf $(CLEANFILES)
+        rm -rf $(CLEANFILES)
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
