@@ -17,31 +17,18 @@
  */
 
 .intel_syntax noprefix
-.global irq0_stub
-.extern pmt_schedule
 
-irq0_stub:
-    # Save the current task's state
-    pushad
-    push ds
-    push es
-    push fs
-    push gs
+.global irq0
+.extern pit_handler
 
-    # Pass the current stack pointer (ESP) to the scheduler
-    push esp
-    call pmt_schedule
-    # The scheduler returns the NEW stack pointer in EAX
-    mov esp, eax
+irq0:
+    pusha
 
-    # Acknowledge the interrupt
+    call pit_handler
+
+    popa
+
     mov al, 0x20
     out 0x20, al
 
-    # Restore the NEW task's state
-    pop gs
-    pop fs
-    pop es
-    pop ds
-    popad
-    iret
+    iretd
