@@ -23,7 +23,7 @@
 #define FONT_WIDTH 8
 #define FONT_HEIGHT 16
 
-static unsigned int *vesa_fb = (unsigned int *)(*((unsigned int *)0x5000));
+static unsigned int *vesa_fb;
 extern unsigned char _binary_font_bin_start[];
 
 static inline void vga_putpixel(unsigned int x, unsigned int y, unsigned int color) {
