@@ -20,7 +20,7 @@
 #include "idt.h"
 #include "pic.h"
 #include "pit.h"
-#include "multitasking.h"
+#include "cpu.h"
 
 void kmain(void) {
     printk("Initializing GDT... ");
@@ -35,10 +35,12 @@ void kmain(void) {
     pic_init();
     printk("ok.\n");
 
-
     printk("Initializing PIT... ");
     pit_init();
     printk("ok.\n");
-   
-    for(;;);
+
+    sti();
+
+    for (;;);
 }
+st
