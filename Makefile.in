@@ -398,10 +398,6 @@ boot.bin$(EXEEXT): $(boot_bin_OBJECTS) $(boot_bin_DEPENDENCIES) $(EXTRA_boot_bin
 	@rm -f boot.bin$(EXEEXT)
 	$(AM_V_CCLD)$(boot_bin_LINK) $(boot_bin_OBJECTS) $(boot_bin_LDADD) $(LIBS)
 
-cinux.elf$(EXEEXT): $(cinux_elf_OBJECTS) $(cinux_elf_DEPENDENCIES) $(EXTRA_cinux_elf_DEPENDENCIES) 
-	@rm -f cinux.elf$(EXEEXT)
-	$(AM_V_CCLD)$(cinux_elf_LINK) $(cinux_elf_OBJECTS) $(cinux_elf_LDADD) $(LIBS)
-
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 
@@ -856,7 +852,7 @@ uninstall-am: uninstall-binPROGRAMS
 .PRECIOUS: Makefile
 
 
-all: $(FLOPPY)
+cinux.elf: font.o
 
 $(FLOPPY):
 	cat $(BOOTLOADER) $(KERNEL) >> $(FLOPPY)
