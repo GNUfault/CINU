@@ -35,8 +35,6 @@ void task2(void) {
 }
 
 void kmain(void) {
-    clear_screen();
-   
     printk("Initializing GDT... ");
     gdt_init();
     printk("ok.\n");
