@@ -12,4 +12,4 @@ Custom kernel in C.
   
 ## Issues:
 - VGA driver is kinda broken
-- Does not remake disk image, just adds the new one in the old one
+- VGA only displays if I am printing constantly with the PIT???
