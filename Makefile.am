@@ -37,6 +37,7 @@ all: $(FLOPPY)
 $(KERNEL): font.o
 
 $(FLOPPY):
+	rm -f $(FLOPPY)
 	cat $(BOOTLOADER) $(KERNEL) >> $(FLOPPY)
 
 font.o: font.bin
