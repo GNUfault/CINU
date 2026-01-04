@@ -1,47 +1,37 @@
-/*
- * CINUX
- * Copyright (C) 2025 Connor Thomson
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
 #define SCREEN_WIDTH 1024
 #define SCREEN_HEIGHT 768
 #define CHAR_WIDTH 8
 #define CHAR_HEIGHT 16
 #define BYTES_PER_PIXEL 3
-#define CHARS_PER_LINE 128
-#define LINES_PER_SCREEN 48
+#define CHARS_PER_LINE (SCREEN_WIDTH / CHAR_WIDTH)
+#define LINES_PER_SCREEN (SCREEN_HEIGHT / CHAR_HEIGHT)
 
 unsigned int cursor_x = 0;
 unsigned int cursor_y = 0;
+static unsigned char *framebuffer = 0;
 
 extern unsigned char _binary_font_bin_start[];
 
+static void init_framebuffer(void) {
+    if (!framebuffer) {
+        framebuffer = (unsigned char *)(*(unsigned int *)0x5000);
+    }
+}
+
 static void scroll_screen(void) {
-    unsigned char *fb = *(unsigned char **)0x5000;
+    init_framebuffer();
+    
     unsigned int line_size = SCREEN_WIDTH * CHAR_HEIGHT * BYTES_PER_PIXEL;
     unsigned int total_size = line_size * (LINES_PER_SCREEN - 1);
     
-    unsigned char *src = fb + line_size;
-    unsigned char *dst = fb;
+    unsigned char *src = framebuffer + line_size;
+    unsigned char *dst = framebuffer;
     
     for (unsigned int i = 0; i < total_size; i++) {
         dst[i] = src[i];
     }
     
-    dst = fb + line_size * (LINES_PER_SCREEN - 1);
+    dst = framebuffer + line_size * (LINES_PER_SCREEN - 1);
     for (unsigned int i = 0; i < line_size; i++) {
         dst[i] = 0;
     }
@@ -50,25 +40,31 @@ static void scroll_screen(void) {
 }
 
 static void draw_char(unsigned char c) {
+    init_framebuffer();
+    
     if (cursor_y >= LINES_PER_SCREEN) {
         scroll_screen();
     }
     
-    unsigned char *fb = *(unsigned char **)0x5000;
     unsigned char *glyph = &_binary_font_bin_start[c * CHAR_HEIGHT];
     
     unsigned int y_offset = cursor_y * CHAR_HEIGHT * SCREEN_WIDTH * BYTES_PER_PIXEL;
     unsigned int x_offset = cursor_x * CHAR_WIDTH * BYTES_PER_PIXEL;
-    unsigned char *dest = fb + y_offset + x_offset;
+    unsigned char *dest = framebuffer + y_offset + x_offset;
     
     for (int row = 0; row < CHAR_HEIGHT; row++) {
         unsigned char bits = glyph[row];
         
         for (int col = 0; col < CHAR_WIDTH; col++) {
             if (bits & 0x80) {
-                dest[0] = 0xC0;
-                dest[1] = 0xC0;
-                dest[2] = 0xC0;
+                // VGA Light Grey (RGB: 192, 192, 192) in BGR format
+                dest[0] = 0xC0;  // Blue
+                dest[1] = 0xC0;  // Green
+                dest[2] = 0xC0;  // Red
+            } else {
+                dest[0] = 0x00;  // Black background
+                dest[1] = 0x00;
+                dest[2] = 0x00;
             }
             bits <<= 1;
             dest += BYTES_PER_PIXEL;
@@ -85,12 +81,17 @@ static void draw_char(unsigned char c) {
 }
 
 void printk(const char *str) {
-     while (*str) {
+    init_framebuffer();
+    
+    while (*str) {
         unsigned char c = *str++;
         
         if (c == '\n') {
             cursor_x = 0;
             cursor_y++;
+            if (cursor_y >= LINES_PER_SCREEN) {
+                scroll_screen();
+            }
         } else if (c >= 32 && c <= 126) {
             draw_char(c);
         }
