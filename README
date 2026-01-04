@@ -1,6 +1,6 @@
 CINUX
 ~~~~~
-Custom kernel in C.
+Custom UNIX-like microkernel in C.
 
 Features:
 ~~~~~~~~~
