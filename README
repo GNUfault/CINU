@@ -1,0 +1,18 @@
+CINUX
+~~~~~
+Custom kernel in C.
+
+Features:
+~~~~~~~~~
+* Bootloader
+* VGA framebuffer printing
+* GDT
+* IDT
+* PIT
+* PIC
+* IRQ
+  
+Issues:
+~~~~~~~
+* VGA driver is kinda broken
+* VGA only displays if I am printing constantly with the PIT???
