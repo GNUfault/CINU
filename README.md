@@ -11,5 +11,5 @@ Custom kernel in C.
 - IRQ
   
 ## Issues:
-- VGA driver is very broken
+- VGA driver is kinda broken
 - Does not remake disk image, just adds the new one in the old one
